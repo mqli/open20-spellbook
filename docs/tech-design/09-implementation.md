@@ -44,9 +44,8 @@
 | P4-03 | Roll result display | 📋 |
 | P4-04 | Theme switching (dark/light) | 📋 |
 | P4-05 | Responsive design (mobile) | 📋 |
-| P4-06 | Keyboard shortcuts | 📋 |
-| P4-07 | Performance optimization | 📋 |
-| P4-08 | Testing (unit, integration) | 📋 |
+| P4-06 | Performance optimization | 📋 |
+| P4-07 | Testing (unit, integration) | 📋 |
 
 ---
 

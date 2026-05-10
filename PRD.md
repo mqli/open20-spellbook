@@ -100,7 +100,7 @@ D&D (Dungeons & Dragons) players face the following pain points when managing sp
 ### 4.5 Rules Engine (Smart Assistance)
 | ID | Requirement Description | Priority |
 |---|------------------------|----------|
-| FR-023 | Automatically validate: Only one spell slot can be consumed per turn (One Spell with a Spell Slot per Turn) | P1 |
+| FR-023 | Automatically validate: Ensure spell slots are available before consumption and provide visual warnings if attempting to cast without slots | P1 |
 | FR-024 | Automatically calculate: Spell level when using higher-level spell slots | P1 |
 | FR-025 | Prompt ritual casting (Ritual) option: Doesn't consume spell slot but requires additional 10 minutes | P2 |
 | FR-026 | Support custom house rules toggle (e.g., allow concentrating on multiple spells) | P2 |

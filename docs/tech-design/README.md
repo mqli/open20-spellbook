@@ -56,7 +56,7 @@ This technical design specification defines the architecture, technology stack, 
 | D3 | **State Management**: Zustand | Lightweight, TypeScript-first, no boilerplate |
 | D4 | **UI Library**: Radix UI Primitives | Accessible, unstyled, composable components |
 | D5 | **Styling**: Tailwind CSS + Design Tokens | Utility-first, rapid development, matches design system |
-| D6 | **Data Persistence**: localStorage | Simple persistence for characters and preferences |
+| D6 | **Data Persistence**: localStorage (prefs) + SW Cache | Simple persistence for characters, efficient offline spell DB |
 | D7 | **Core Library**: open20-core (npm) | Headless, tested, maintained separately |
 | D8 | **Routing**: React Router v6 | Standard, lazy loading support |
 
