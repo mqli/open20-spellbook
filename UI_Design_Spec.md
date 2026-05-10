@@ -132,7 +132,7 @@
 | Border | none | --color-border | --color-primary-600 | none |
 | Border radius | --radius-md | --radius-md | --radius-md | --radius-md |
 | Padding | 8px 16px | 8px 16px | 6px 12px | 8px 16px |
-| Hover | --color-primary-800 | --color-bg-primary | --color-primary-50 | darker red |
+| Hover | --color-primary-800 | --color-bg-tertiary | --color-primary-50 | darker red |
 
 **Sizes**: Small (28px height), Medium (36px height), Large (44px height)
 
