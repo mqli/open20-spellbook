@@ -4,7 +4,7 @@ const STORAGE_KEY = 'open20-spellbook-characters';
 const PREFERENCES_KEY = 'open20-spellbook-preferences';
 
 export class StorageService {
-  static saveCharacter(character: AppCharacter): void {
+  saveCharacter(character: AppCharacter): void {
     const characters = this.loadCharacters();
     const index = characters.findIndex(c => c.id === character.id);
     
@@ -17,7 +17,7 @@ export class StorageService {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(characters));
   }
 
-  static loadCharacters(): AppCharacter[] {
+  loadCharacters(): AppCharacter[] {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) return [];
     
@@ -28,17 +28,17 @@ export class StorageService {
     }
   }
 
-  static deleteCharacter(id: string): void {
+  deleteCharacter(id: string): void {
     const characters = this.loadCharacters();
     const filtered = characters.filter(c => c.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   }
 
-  static savePreferences(preferences: Record<string, unknown>): void {
+  savePreferences(preferences: Record<string, unknown>): void {
     localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));
   }
 
-  static loadPreferences(): Record<string, unknown> {
+  loadPreferences(): Record<string, unknown> {
     const data = localStorage.getItem(PREFERENCES_KEY);
     if (!data) return {};
     
@@ -49,8 +49,11 @@ export class StorageService {
     }
   }
 
-  static clearAll(): void {
+  clearAll(): void {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PREFERENCES_KEY);
   }
 }
+
+// Export a default instance for easy use
+export const storageService = new StorageService();

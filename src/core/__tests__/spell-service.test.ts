@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { SpellService } from '../spell-service';
+import { spellService } from '../spell-service';
 import { SchemaService } from '../schema-service';
 import type { AppCharacter } from '../types';
 
@@ -36,21 +36,21 @@ vi.mock('../data-loader', () => ({
 
 describe('SpellService', () => {
   it('should get a spell by id', () => {
-    const spell = SpellService.getSpell('fireball');
+    const spell = spellService.getSpell('fireball');
     expect(spell).toBeDefined();
     expect(spell?.name).toBe('Fireball');
   });
 
   it('should sanitize components correctly', () => {
-    const fireball = SpellService.getSpell('fireball');
+    const fireball = spellService.getSpell('fireball');
     expect(fireball?.components).toEqual(['V', 'S', 'M']);
 
-    const cureWounds = SpellService.getSpell('cure-wounds');
+    const cureWounds = spellService.getSpell('cure-wounds');
     expect(cureWounds?.components).toEqual(['V', 'S']);
   });
 
   it('should infer classes from description if missing', () => {
-    const mysticSurge = SpellService.getSpell('mystic-surge');
+    const mysticSurge = spellService.getSpell('mystic-surge');
     expect(mysticSurge?.classes).toContain('Bard');
     expect(mysticSurge?.classes).toContain('Druid');
     expect(mysticSurge?.classes).not.toContain('Wizard');
@@ -86,7 +86,7 @@ describe('SpellService', () => {
   });
 
   it('should search spells by name query', () => {
-    const results = SpellService.searchSpells({ query: 'fire' });
+    const results = spellService.searchSpells({ query: 'fire' });
     expect(results).toHaveLength(1);
     expect(results[0].id).toBe('fireball');
   });
@@ -98,7 +98,7 @@ describe('SpellService', () => {
       }
     } as unknown as AppCharacter;
     
-    expect(SpellService.isSpellPrepared(mockCharacter, 'fireball')).toBe(true);
-    expect(SpellService.isSpellPrepared(mockCharacter, 'cure-wounds')).toBe(false);
+    expect(spellService.isSpellPrepared(mockCharacter, 'fireball')).toBe(true);
+    expect(spellService.isSpellPrepared(mockCharacter, 'cure-wounds')).toBe(false);
   });
 });

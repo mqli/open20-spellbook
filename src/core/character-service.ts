@@ -15,9 +15,10 @@ import {
   type DamageRollResult
 } from 'open20-core/browser';
 import type { AppCharacter } from './types';
-import { dataLoader } from './data-loader';
+import type { StorageService } from './storage-service';
+import type { SpellService } from './spell-service';
 
-import { SpellService } from './spell-service';
+import { dataLoader } from './data-loader';
 
 const SPELL_SIDE_EFFECTS: Record<string, any> = {
   'goodberry': {
@@ -32,13 +33,18 @@ const SPELL_SIDE_EFFECTS: Record<string, any> = {
 };
 
 export class CharacterService {
-  static createCharacter(params: any): AppCharacter {
+  constructor(
+    private storageService: StorageService,
+    private spellService: SpellService
+  ) {}
+
+  createCharacter(params: any): AppCharacter {
     const raw = open20CreateCharacter(params, dataLoader as any);
     const char = open20Recompute(raw, dataLoader as any);
     return { ...char, id: crypto.randomUUID() } as AppCharacter;
   }
 
-  static recompute(character: AppCharacter): AppCharacter {
+  recompute(character: AppCharacter): AppCharacter {
     if (!character.classes || !character.abilityScores || !character.abilityScores.base || !character.hitPoints) {
       return character;
     }
@@ -46,31 +52,31 @@ export class CharacterService {
     return { ...recomputed, id: character.id } as AppCharacter;
   }
 
-  static prepareSpell(character: AppCharacter, spellId: string): AppCharacter {
+  prepareSpell(character: AppCharacter, spellId: string): AppCharacter {
     return { ...open20PrepareSpell(character, spellId) as any, id: character.id };
   }
 
-  static unprepareSpell(character: AppCharacter, spellId: string): AppCharacter {
+  unprepareSpell(character: AppCharacter, spellId: string): AppCharacter {
     return { ...open20UnprepareSpell(character, spellId) as any, id: character.id };
   }
 
-  static consumeSpellSlot(character: AppCharacter, level: number): AppCharacter {
+  consumeSpellSlot(character: AppCharacter, level: number): AppCharacter {
     return { ...open20ConsumeSpellSlot(character, level) as any, id: character.id };
   }
 
-  static recoverSpellSlot(character: AppCharacter, level: number): AppCharacter {
+  recoverSpellSlot(character: AppCharacter, level: number): AppCharacter {
     return { ...open20RecoverSpellSlot(character, level) as any, id: character.id };
   }
 
-  static longRest(character: AppCharacter): AppCharacter {
+  longRest(character: AppCharacter): AppCharacter {
     return { ...open20LongRest(character, dataLoader as any) as any, id: character.id };
   }
 
-  static shortRest(character: AppCharacter): AppCharacter {
+  shortRest(character: AppCharacter): AppCharacter {
     return { ...open20ShortRest(character, 0, dataLoader as any) as any, id: character.id };
   }
 
-  static startConcentration(character: AppCharacter, spellId: string): AppCharacter {
+  startConcentration(character: AppCharacter, spellId: string): AppCharacter {
     const withoutConcentrating = character.conditions.filter(c => c.id !== 'Concentrating');
     const newCondition = {
       id: 'Concentrating' as any,
@@ -84,7 +90,7 @@ export class CharacterService {
     };
   }
 
-  static endConcentration(character: AppCharacter): AppCharacter {
+  endConcentration(character: AppCharacter): AppCharacter {
     return { 
       ...character, 
       conditions: character.conditions.filter(c => c.id !== 'Concentrating'),
@@ -92,7 +98,7 @@ export class CharacterService {
     };
   }
 
-  static learnSpell(character: AppCharacter, spellId: string): AppCharacter {
+  learnSpell(character: AppCharacter, spellId: string): AppCharacter {
     if (character.spells.knownSpells.includes(spellId)) return character;
     return {
       ...character,
@@ -101,7 +107,7 @@ export class CharacterService {
     };
   }
 
-  static unlearnSpell(character: AppCharacter, spellId: string): AppCharacter {
+  unlearnSpell(character: AppCharacter, spellId: string): AppCharacter {
     return {
       ...character,
       spells: {
@@ -114,8 +120,7 @@ export class CharacterService {
     };
   }
 
-
-  static castSpell(character: AppCharacter, spellId: string, level: number): AppCharacter {
+  castSpell(character: AppCharacter, spellId: string, level: number): AppCharacter {
     // 1. Consume slot
     const char = { ...open20ConsumeSpellSlot(character, level) as any, id: character.id };
     
@@ -135,7 +140,7 @@ export class CharacterService {
     return this.recompute(char);
   }
 
-  static rollSpellAttack(character: AppCharacter, spellName: string): AttackRollResult {
+  rollSpellAttack(character: AppCharacter, spellName: string): AttackRollResult {
     void spellName;
     return rollSpellAttack({ 
       character, 
@@ -144,9 +149,9 @@ export class CharacterService {
     });
   }
 
-  static rollSpellDamage(character: AppCharacter, spellId: string, damageIndex: number): DamageRollResult {
+  rollSpellDamage(character: AppCharacter, spellId: string, damageIndex: number): DamageRollResult {
     void damageIndex;
-    const spell = SpellService.getSpell(spellId);
+    const spell = this.spellService.getSpell(spellId);
     if (!spell) throw new Error(`Spell not found: ${spellId}`);
 
     return rollSpellDamage({ 
@@ -157,3 +162,11 @@ export class CharacterService {
     });
   }
 }
+
+// Create default instances (will be replaced in tests)
+import { StorageService } from './storage-service';
+import { SpellService } from './spell-service';
+
+const storageService = new StorageService();
+const spellService = new SpellService();
+export const characterService = new CharacterService(storageService, spellService);

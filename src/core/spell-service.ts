@@ -15,9 +15,9 @@ interface SpellSearchFilter {
  * Ensures all spells are sanitized and normalized for use in the UI.
  */
 export class SpellService {
-  private static cachedSpells: Spell[] | null = null;
+  private cachedSpells: Spell[] | null = null;
 
-  static getAllSpells(): Spell[] {
+  getAllSpells(): Spell[] {
     if (!this.cachedSpells) {
       const rawSpells = dataLoader.getAllSpells();
       this.cachedSpells = SchemaService.transformSpells(rawSpells);
@@ -25,11 +25,11 @@ export class SpellService {
     return this.cachedSpells;
   }
 
-  static getSpell(id: string): Spell | undefined {
+  getSpell(id: string): Spell | undefined {
     return this.getAllSpells().find(s => s.id === id);
   }
 
-  static searchSpells(filter: SpellSearchFilter): Spell[] {
+  searchSpells(filter: SpellSearchFilter): Spell[] {
     let results = this.getAllSpells();
     
     if (filter?.query) {
@@ -50,18 +50,18 @@ export class SpellService {
     return results;
   }
 
-  static getSpellsForCharacter(character: AppCharacter): Spell[] {
+  getSpellsForCharacter(character: AppCharacter): Spell[] {
     void character;
     return this.getAllSpells();
   }
 
-  static isSpellPrepared(character: AppCharacter, spellId: string): boolean {
+  isSpellPrepared(character: AppCharacter, spellId: string): boolean {
     const isManual = character.spells?.preparedSpells?.includes(spellId) ?? false;
     const isAlways = character.spells?.alwaysPreparedSpells?.includes(spellId) ?? false;
     return isManual || isAlways;
   }
 
-  static isSpellKnown(character: AppCharacter, spellId: string): boolean {
+  isSpellKnown(character: AppCharacter, spellId: string): boolean {
     const spell = this.getSpell(spellId);
     const isCantrip = spell?.level === 0;
     const isKnown = character.spells?.knownSpells?.includes(spellId) ?? false;
@@ -69,8 +69,11 @@ export class SpellService {
     return isCantrip || isKnown || isAlwaysPrepared;
   }
 
-  static isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
+  isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
     const characterClassIds = character.classes?.map(c => c.classId) ?? [];
     return spell.classes?.some(c => characterClassIds.includes(c)) ?? false;
   }
 }
+
+// Export a default instance for easy use
+export const spellService = new SpellService();

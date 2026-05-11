@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { AppCharacter, CharacterCreationParams } from '../core/types';
-import { CharacterService } from '../core/character-service';
-import { StorageService } from '../core/storage-service';
+import { characterService } from '../core/character-service';
+import { storageService } from '../core/storage-service';
 
 interface CharacterState {
   activeCharacter: AppCharacter | null;
@@ -40,7 +40,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   createCharacter: (params) => {
     try {
-      const newChar = CharacterService.createCharacter(params);
+      const newChar = characterService.createCharacter(params);
       const { characters } = get();
       set({ 
         characters: [...characters, newChar],
@@ -53,12 +53,12 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   },
 
   updateCharacter: (character) => {
-    const recomputed = CharacterService.recompute(character);
+    const recomputed = characterService.recompute(character);
     set((state) => ({
       activeCharacter: state.activeCharacter?.id === recomputed.id ? recomputed : state.activeCharacter,
       characters: state.characters.map((c) => (c.id === recomputed.id ? recomputed : c)),
     }));
-    StorageService.saveCharacter(recomputed);
+    storageService.saveCharacter(recomputed);
   },
 
   deleteCharacter: (id) => {
@@ -68,41 +68,41 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       characters: updatedChars,
       activeCharacter: activeCharacter?.id === id ? null : activeCharacter
     });
-    StorageService.deleteCharacter(id);
+    storageService.deleteCharacter(id);
   },
 
   prepareSpell: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    const updated = CharacterService.prepareSpell(activeCharacter, spellId);
+    const updated = characterService.prepareSpell(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
 
   unprepareSpell: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    const updated = CharacterService.unprepareSpell(activeCharacter, spellId);
+    const updated = characterService.unprepareSpell(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
 
   learnSpell: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    const updated = CharacterService.learnSpell(activeCharacter, spellId);
+    const updated = characterService.learnSpell(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
 
   unlearnSpell: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    const updated = CharacterService.unlearnSpell(activeCharacter, spellId);
+    const updated = characterService.unlearnSpell(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
 
   castSpell: (spellId, level) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    const updated = CharacterService.castSpell(activeCharacter, spellId, level);
+    const updated = characterService.castSpell(activeCharacter, spellId, level);
     get().updateCharacter(updated);
   },
 
@@ -110,7 +110,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     
-    const updated = CharacterService.consumeSpellSlot(activeCharacter, level);
+    const updated = characterService.consumeSpellSlot(activeCharacter, level);
     get().updateCharacter(updated);
   },
 
@@ -118,7 +118,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     
-    const updated = CharacterService.recoverSpellSlot(activeCharacter, level);
+    const updated = characterService.recoverSpellSlot(activeCharacter, level);
     get().updateCharacter(updated);
   },
 
@@ -126,7 +126,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     
-    const updated = CharacterService.longRest(activeCharacter);
+    const updated = characterService.longRest(activeCharacter);
     get().updateCharacter(updated);
   },
 
@@ -134,7 +134,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     
-    const updated = CharacterService.shortRest(activeCharacter);
+    const updated = characterService.shortRest(activeCharacter);
     get().updateCharacter(updated);
   },
 
@@ -142,7 +142,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     
-    const updated = CharacterService.startConcentration(activeCharacter, spellId);
+    const updated = characterService.startConcentration(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
 
@@ -150,17 +150,17 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     
-    const updated = CharacterService.endConcentration(activeCharacter);
+    const updated = characterService.endConcentration(activeCharacter);
     get().updateCharacter(updated);
   },
 
   loadCharacters: () => {
-    const chars = StorageService.loadCharacters();
+    const chars = storageService.loadCharacters();
     set({ characters: chars, activeCharacter: chars[0] || null });
   },
 
   saveCharacters: () => {
     const { characters } = get();
-    characters.forEach(c => StorageService.saveCharacter(c));
+    characters.forEach(c => storageService.saveCharacter(c));
   }
 }));

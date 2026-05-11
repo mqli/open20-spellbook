@@ -5,21 +5,20 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    // Use node environment by default — avoids jsdom ESM compatibility issues
-    // with packages like @csstools/css-calc pulled in by @testing-library
+    // Use node environment by default
     environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
-    // Override to jsdom for component files that need the DOM
+    // Use happy-dom for component tests (avoids jsdom's ESM compatibility issues
+    // with cssstyle → @asamuzakjp/css-color → @csstools/css-calc)
     environmentMatchGlobs: [
-      ['src/components/**', 'jsdom'],
+      ['src/components/**', 'happy-dom'],
+      ['src/components/**/__tests__/**', 'happy-dom'],
     ],
     server: {
       deps: {
+        // Inline open20-core to fix ESM import issues with missing .js extensions
         inline: ['open20-core'],
       },
-    },
-    ssr: {
-      noExternal: ['open20-core'],
     },
   },
 });

@@ -1,23 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCharacterStore } from '../character-store';
-import { StorageService } from '../../core/storage-service';
+import { storageService } from '../../core/storage-service';
 import type { AppCharacter } from '../../core/types';
 
-// Mock StorageService
+// Mock the storage-service module
 vi.mock('../../core/storage-service', () => ({
-  StorageService: {
+  StorageService: vi.fn(),
+  storageService: {
     loadCharacters: vi.fn(() => []),
     saveCharacter: vi.fn(),
     deleteCharacter: vi.fn(),
     savePreferences: vi.fn(),
     loadPreferences: vi.fn(() => ({})),
+    clearAll: vi.fn(),
   }
 }));
 
 describe('CharacterStore', () => {
   beforeEach(() => {
-    // Reset store state before each test if possible
-    // Zustand stores persist state in tests unless cleared
+    // Reset store state before each test
     useCharacterStore.setState({
       activeCharacter: null,
       characters: [],
@@ -44,7 +45,7 @@ describe('CharacterStore', () => {
 
     expect(useCharacterStore.getState().characters).toEqual([]);
     expect(useCharacterStore.getState().activeCharacter).toBeNull();
-    expect(StorageService.deleteCharacter).toHaveBeenCalledWith('1');
+    expect(storageService.deleteCharacter).toHaveBeenCalledWith('1');
   });
 
   it('should learn a spell and save to storage', () => {
@@ -68,7 +69,7 @@ describe('CharacterStore', () => {
     
     const updatedChar = useCharacterStore.getState().activeCharacter;
     expect(updatedChar?.spells.knownSpells).toContain('magic-missile');
-    expect(StorageService.saveCharacter).toHaveBeenCalled();
+    expect(storageService.saveCharacter).toHaveBeenCalled();
   });
 
   it('should prepare a spell', () => {
