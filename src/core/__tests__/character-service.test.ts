@@ -44,9 +44,8 @@ describe('CharacterService', () => {
     const character = characterService.createCharacter(lvl5Params);
     
     expect(character.classes[0].level).toBe(5);
-    // With mock, spellSaveDC is calculated by the mocked open20-core
-    // The mock returns 13 (PB=2 + IntMod=3 + 8 = 13)
-    expect(character.spells.spellSaveDC).toBe(13);
+    // PB for level 5 is 3, Int Mod is 3, so Spell Save DC = 8 + 3 + 3 = 14
+    expect(character.spells.spellSaveDC).toBe(14);
   });
 
   it('should handle spell preparation', () => {
