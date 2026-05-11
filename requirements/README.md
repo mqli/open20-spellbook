@@ -14,23 +14,23 @@
 
 | ID | Requirement | Priority | Status | Assigned To | Notes |
 |----|-------------|----------|--------|------------|-------|
-| FR-001 | Built-in D&D 5e SRD spell data | P0 | 📋 Planned | - | See `FR-001/` |
-| FR-002 | Spell data fields (name, level, school, etc.) | P0 | 📋 Planned | - | See `FR-002/` |
-| FR-003 | Offline storage of spell data (localStorage) | P0 | 📋 Planned | - | See `FR-003/` |
-| FR-004 | Spell search (real-time by name) | P0 | 📋 Planned | - | See `FR-004/` |
-| FR-005 | Multi-dimensional filtering (class, level, school) | P0 | 📋 Planned | - | See `FR-005/` |
-| FR-006 | Character profile creation | P0 | 📋 Planned | - | See `FR-006/` |
-| FR-007 | Auto-calculate spell slots by class/level | P0 | 📋 Planned | - | See `FR-007/` |
-| FR-008 | Spell preparation with class rules | P0 | 📋 Planned | - | See `FR-008/` |
+| FR-001 | Built-in D&D 5e SRD spell data | P0 | ✅ Completed | - | See `FR-001/` |
+| FR-002 | Spell data fields (name, level, school, etc.) | P0 | ✅ Completed | - | See `FR-002/` |
+| FR-003 | Offline storage of spell data (localStorage) | P0 | ✅ Completed | - | See `FR-003/` |
+| FR-004 | Spell search (real-time by name) | P0 | ✅ Completed | - | See `FR-004/` |
+| FR-005 | Multi-dimensional filtering (class, level, school) | P0 | ✅ Completed | - | See `FR-005/` |
+| FR-006 | Character profile creation | P0 | ✅ Completed | - | See `FR-006/` |
+| FR-007 | Auto-calculate spell slots by class/level | P0 | ✅ Completed | - | See `FR-007/` |
+| FR-008 | Spell preparation with class rules | P0 | ✅ Completed | - | See `FR-008/` |
 | FR-009 | "Always-Prepared" spells | P1 | 📋 Planned | - | See `FR-009/` |
-| FR-010 | Spell slot consumption and recovery | P0 | 📋 Planned | - | See `FR-010/` |
-| FR-011 | Concentration status marking | P1 | 📋 Planned | - | See `FR-011/` |
-| FR-012 | Spell detail page (full information) | P0 | 📋 Planned | - | See `FR-012/` |
-| FR-013 | Component detail display (V/S/M) | P0 | 📋 Planned | - | See `FR-013/` |
-| FR-014 | Spell DC calculation display | P1 | 📋 Planned | - | See `FR-014/` |
-| FR-015 | Spell attack bonus display | P1 | 📋 Planned | - | See `FR-015/` |
-| FR-016 | Spell attack roll (d20) | P1 | 📋 Planned | - | See `FR-016/` |
-| FR-017 | Spell damage dice rolling | P1 | 📋 Planned | - | See `FR-017/` |
+| FR-010 | Spell slot consumption and recovery | P0 | ✅ Completed | - | See `FR-010/` |
+| FR-011 | Concentration status marking | P1 | ✅ Completed | - | See `FR-011/` |
+| FR-012 | Spell detail page (full information) | P0 | ✅ Completed | - | See `FR-012/` |
+| FR-013 | Component detail display (V/S/M) | P0 | ✅ Completed | - | See `FR-013/` |
+| FR-014 | Spell DC calculation display | P1 | ✅ Completed | - | See `FR-014/` |
+| FR-015 | Spell attack bonus display | P1 | ✅ Completed | - | See `FR-015/` |
+| FR-016 | Spell attack roll (d20) | P1 | ✅ Completed | - | See `FR-016/` |
+| FR-017 | Spell damage dice rolling | P1 | ✅ Completed | - | See `FR-017/` |
 | FR-018 | Rule term tooltip in description | P2 | 📋 Planned | - | See `FR-018/` |
 
 ### P1 (Important Features)
@@ -97,9 +97,9 @@ Closes FR-004
 ## Progress Tracking
 
 **Total Requirements**: 26  
-**Completed**: 0  
+**Completed**: 15  
 **In Progress**: 0  
-**Planned**: 26  
+**Planned**: 11  
 **Blocked**: 0  
 
 **Completion**: 0%
