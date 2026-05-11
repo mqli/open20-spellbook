@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCharacterStore } from '../../stores/character-store';
+import type { AppCharacter } from '../../core/types';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { CharacterModal } from './CharacterModal';
@@ -23,7 +24,7 @@ export function CharacterBar() {
     setIsSheetOpen(false);
   };
 
-  const handleOpenSheet = (char: any) => {
+  const handleOpenSheet = (char: AppCharacter) => {
     setActiveCharacter(char);
     setIsSheetOpen(true);
   };

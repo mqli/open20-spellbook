@@ -4,8 +4,9 @@ import { X, Sparkles, BookOpen, Flame, Wind, Pencil } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { SpellService } from '../../core/spell-service';
+import { RulesService } from '../../core/rules-service';
 import { useSpellStore } from '../../stores/spell-store';
-import { Star } from 'lucide-react';
+import { Star, Shield, Zap } from 'lucide-react';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -20,10 +21,10 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   if (!activeCharacter) return null;
 
   const spells = activeCharacter.spells;
+  const stats = RulesService.getProjectedStats(activeCharacter);
+  const maxPrepared = stats.maxPreparedSpells;
   const ability = spells.spellcastingAbility;
-  const baseScore = activeCharacter.abilityScores.base[ability as keyof typeof activeCharacter.abilityScores.base] ?? 10;
-  const abilityMod = Math.floor((baseScore - 10) / 2);
-  const maxPrepared = (activeCharacter.classes?.[0]?.level ?? 1) + abilityMod;
+  const abilityMod = stats.abilityModifiers[ability] ?? 0;
 
   const concentratingCondition = activeCharacter.conditions?.find(c => c.id === 'Concentrating');
   const concentratingSpellId = (concentratingCondition as any)?.source as string | undefined;
@@ -32,8 +33,12 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     .map(([lvl, slot]) => ({ lvl: parseInt(lvl), slot: slot as { total: number; used: number } }))
     .filter(({ lvl, slot }) => lvl > 0 && slot.total > 0);
 
+  const knownSpellsList = spells.knownSpells ?? [];
+  const alwaysPreparedList = spells.alwaysPreparedSpells ?? [];
+  const combinedKnownIds = Array.from(new Set([...knownSpellsList, ...alwaysPreparedList]));
+
   // Get and group known spells
-  const knownSpells = (spells.knownSpells ?? [])
+  const knownSpells = combinedKnownIds
     .map(id => SpellService.getSpell(id))
     .filter((s): s is NonNullable<typeof s> => !!s)
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
@@ -103,11 +108,11 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                 </div>
                 <div className="bg-bg-primary p-4 rounded-2xl border border-border text-center">
                   <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-1">Save DC</div>
-                  <div className="text-base font-black text-primary-600">{spells.spellSaveDC}</div>
+                  <div className="text-base font-black text-primary-600">{stats.spellSaveDC}</div>
                 </div>
                 <div className="bg-bg-primary p-4 rounded-2xl border border-border text-center">
                   <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-1">Attack</div>
-                  <div className="text-base font-black text-primary-600">+{spells.spellAttackBonus}</div>
+                  <div className="text-base font-black text-primary-600">+{stats.spellAttackBonus}</div>
                 </div>
               </div>
             </section>
@@ -219,7 +224,10 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                       </div>
                       <div className="grid gap-1">
                         {spellsAtLevel.map(spell => {
-                          const isPrepared = activeCharacter.spells.preparedSpells.includes(spell.id);
+                          const isAlwaysPrepared = alwaysPreparedList.includes(spell.id);
+                          const isManuallyPrepared = spells.preparedSpells.includes(spell.id);
+                          const isPrepared = isAlwaysPrepared || isManuallyPrepared;
+
                           return (
                             <div 
                               key={spell.id}
@@ -228,6 +236,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                                 ${isPrepared 
                                   ? 'bg-primary-50 border-primary-100 shadow-sm' 
                                   : 'bg-bg-primary border-border hover:border-primary-200'}
+                                ${isAlwaysPrepared ? 'ring-1 ring-info/30 bg-info/5' : ''}
                               `}
                               onClick={() => {
                                 selectSpell(spell);
@@ -235,8 +244,13 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                               }}
                             >
                               <div className="min-w-0">
-                                <div className={`text-xs font-bold truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
-                                  {spell.name}
+                                <div className="flex items-center gap-1.5">
+                                  <div className={`text-xs font-bold truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
+                                    {spell.name}
+                                  </div>
+                                  {isAlwaysPrepared && (
+                                    <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" title="Always Prepared" />
+                                  )}
                                 </div>
                                 <div className="text-[9px] text-text-tertiary uppercase tracking-tight">
                                   {spell.school} • {spell.castingTime}
@@ -246,17 +260,25 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleTogglePrepare(spell.id, isPrepared);
+                                  if (isAlwaysPrepared) return;
+                                  handleTogglePrepare(spell.id, isManuallyPrepared);
                                 }}
+                                disabled={isAlwaysPrepared}
                                 className={`
                                   p-1.5 rounded-lg transition-all border
-                                  ${isPrepared
+                                  ${isAlwaysPrepared
+                                    ? 'bg-info/20 text-info border-info/30 cursor-default'
+                                    : isManuallyPrepared
                                     ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
                                     : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
                                 `}
-                                title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+                                title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
                               >
-                                <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
+                                {isAlwaysPrepared ? (
+                                  <Shield className="w-3.5 h-3.5 fill-current" />
+                                ) : (
+                                  <Star className={`w-3.5 h-3.5 ${isManuallyPrepared ? 'fill-current' : ''}`} />
+                                )}
                               </button>
                             </div>
                           );

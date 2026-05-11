@@ -161,7 +161,13 @@ export function SpellDetailFlyout() {
               </div>
               <div className="p-3 bg-bg-secondary rounded-xl border border-border overflow-hidden">
                 <div className="text-[10px] font-black text-text-tertiary uppercase tracking-widest mb-1 truncate">Components</div>
-                <div className="text-xs font-bold text-text-primary break-words">{selectedSpell.components.join(', ')}</div>
+                <div className="text-xs font-bold text-text-primary break-words">
+                  {Array.isArray(selectedSpell.components) 
+                    ? selectedSpell.components.join(', ') 
+                    : typeof selectedSpell.components === 'object' && selectedSpell.components !== null
+                      ? Object.keys(selectedSpell.components).join(', ')
+                      : String(selectedSpell.components || 'None')}
+                </div>
               </div>
               <div className="p-3 bg-bg-secondary rounded-xl border border-border overflow-hidden">
                 <div className="text-[10px] font-black text-text-tertiary uppercase tracking-widest mb-1 truncate">Source</div>

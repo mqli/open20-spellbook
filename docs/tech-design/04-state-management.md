@@ -1,194 +1,49 @@
-## 5. State Management
+## 5. State Management (Zustand)
 
-### 5.1 Store Definitions
+The application uses two primary Zustand stores to manage global state: `useCharacterStore` and `useSpellStore`.
 
-```typescript
-// src/stores/character-store.ts
-import { create } from 'zustand';
-import type { Character } from 'open20-core';
+### 5.1 Character Store (`useCharacterStore`)
 
-interface CharacterState {
-  // State
-  activeCharacter: Character | null;
-  characters: Character[];
-  isLoading: boolean;
-  error: string | null;
+Manages the active character and the list of all created characters.
 
-  // Actions
-  setActiveCharacter: (character: Character) => void;
-  createCharacter: (params: CreateCharacterParams) => void;
-  updateCharacter: (character: Character) => void;
-  deleteCharacter: (id: string) => void;
-  
-  // Spell management
-  prepareSpell: (spellId: string) => void;
-  unprepareSpell: (spellId: string) => void;
-  learnSpell: (spellId: string) => void;
-  unlearnSpell: (spellId: string) => void;
-  consumeSpellSlot: (level: number) => void;
-  recoverSpellSlot: (level: number) => void;
-  longRest: () => void;
-  shortRest: () => void;
-  
-  // Persistence
-  loadCharacters: () => Promise<void>;
-  saveCharacters: () => Promise<void>;
-}
+**State Definition:**
+- `activeCharacter`: `AppCharacter | null`
+- `characters`: `AppCharacter[]`
+- `isLoading`: `boolean`
 
-export const useCharacterStore = create<CharacterState>((set, get) => ({
-  activeCharacter: null,
-  characters: [],
-  isLoading: false,
-  error: null,
+**Key Actions:**
+- `setActiveCharacter(character)`: Switches the current view context.
+- `createCharacter(params)`: Initializes a new character via `CharacterService`.
+- `updateCharacter(character)`: Updates state and persists to `StorageService` immediately.
+- `learnSpell(spellId)` / `prepareSpell(spellId)`: Wraps logic in `CharacterService` and updates state.
+- `longRest()`: Resets all spell slots for the active character.
 
-  setActiveCharacter: (character) => set({ activeCharacter: character }),
+### 5.2 Spell Store (`useSpellStore`)
 
-  prepareSpell: (spellId) => {
-    const { activeCharacter } = get();
-    if (!activeCharacter) return;
-    
-    const updated = CharacterService.prepareSpell(activeCharacter, spellId);
-    set({ activeCharacter: updated });
-    get().saveCharacters();
-  },
+Manages the spell library, search parameters, and filtering logic.
 
-  consumeSpellSlot: (level) => {
-    const { activeCharacter } = get();
-    if (!activeCharacter) return;
-    
-    const updated = CharacterService.consumeSpellSlot(activeCharacter, level);
-    set({ activeCharacter: updated });
-    get().saveCharacters();
-  },
+**State Definition:**
+- `spells`: `Spell[]` (Full library)
+- `filteredSpells`: `Spell[]` (Filtered result set)
+- `searchQuery`: `string`
+- `selectedLevel`: `number | null`
+- `showKnownOnly`: `boolean`
+- `showPreparedOnly`: `boolean`
 
-  // ... other actions
-}));
+**Filtering Logic:**
+The `applyFilters()` action is triggered on every search or filter change. It combines:
+1.  Text search against spell names.
+2.  Level-based filtering.
+3.  Meta-filters (Ritual, Concentration).
+4.  Mutual exclusivity between "Known" and "Prepared" filters.
 
-// src/stores/spell-store.ts
-import { create } from 'zustand';
-import type { Spell } from 'open20-core';
+### 5.3 Roll Store (`useRollStore`)
 
-interface SpellLibraryState {
-  // State
-  spells: Spell[];
-  filteredSpells: Spell[];
-  searchQuery: string;
-  selectedLevel: number | null;  // null = all levels
-  selectedClasses: string[];
-  selectedSchools: string[];
-  showRitualOnly: boolean;
-  showConcentrationOnly: boolean;
-  showPreparedOnly: boolean;
-  showKnownOnly: boolean;
-  
-  // UI State
-  selectedSpell: Spell | null;
-  isDetailOpen: boolean;
+A transient store for handling dice roll results without using blocking UI elements like `alert()`.
 
-  // Actions
-  setSearchQuery: (query: string) => void;
-  setSelectedLevel: (level: number | null) => void;
-  toggleClassFilter: (className: string) => void;
-  toggleSchoolFilter: (school: string) => void;
-  setShowRitualOnly: (show: boolean) => void;
-  setShowConcentrationOnly: (show: boolean) => void;
-  setShowPreparedOnly: (show: boolean) => void;
-  setShowKnownOnly: (show: boolean) => void;
-  selectSpell: (spell: Spell | null) => void;
-  closeDetail: () => void;
-  
-  // Derived
-  applyFilters: () => void;
-}
+**State Definition:**
+- `latestRoll`: `RollResult | null` (The most recent roll to display)
+- `recentRolls`: `RollResult[]` (History of the last 10 rolls)
 
-export const useSpellStore = create<SpellLibraryState>((set, get) => ({
-  spells: [],
-  filteredSpells: [],
-  searchQuery: '',
-  selectedLevel: null,
-  selectedClasses: [],
-  selectedSchools: [],
-  showRitualOnly: false,
-  showConcentrationOnly: false,
-  selectedSpell: null,
-  isDetailOpen: false,
-
-  setSearchQuery: (query) => {
-    set({ searchQuery: query });
-    get().applyFilters();
-  },
-
-  applyFilters: () => {
-    const { spells, searchQuery, selectedLevel, selectedClasses, selectedSchools } = get();
-    
-    let filtered = [...spells];
-    
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(s => 
-        s.name.toLowerCase().includes(query)
-      );
-    }
-    
-    // Apply level filter
-    if (selectedLevel !== null) {
-      filtered = filtered.filter(s => s.level === selectedLevel);
-    }
-    
-    // Apply class filter
-    if (selectedClasses.length > 0) {
-      filtered = filtered.filter(s =>
-        s.classes.some(c => selectedClasses.includes(c))
-      );
-    }
-    
-    // Apply school filter
-    if (selectedSchools.length > 0) {
-      filtered = filtered.filter(s => selectedSchools.includes(s.school));
-    }
-    
-    set({ filteredSpells: filtered });
-  },
-
-  selectSpell: (spell) => {
-    set({ selectedSpell: spell, isDetailOpen: !!spell });
-  },
-
-  closeDetail: () => {
-    set({ selectedSpell: null, isDetailOpen: false });
-  },
-
-  // ... other actions
-}));
-
-// src/stores/ui-store.ts
-import { create } from 'zustand';
-
-type Theme = 'light' | 'dark';
-
-interface UIState {
-  theme: Theme;
-  isSidebarOpen: boolean;
-  isMobile: boolean;
-  
-  setTheme: (theme: Theme) => void;
-  toggleSidebar: () => void;
-  setMobile: (isMobile: boolean) => void;
-}
-
-export const useUIStore = create<UIState>((set) => ({
-  theme: 'dark',
-  isSidebarOpen: true,
-  isMobile: false,
-
-  setTheme: (theme) => {
-    set({ theme });
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  },
-
-  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
-  setMobile: (isMobile) => set({ isMobile }),
-}));
-```
+**Key Actions:**
+- `addRoll(params)`: Adds a new roll result and triggers the `DiceRollOverlay` via a 5-second auto-clearing timer.

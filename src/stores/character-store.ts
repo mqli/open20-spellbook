@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import type { AppCharacter } from '../core/types';
 import { CharacterService } from '../core/character-service';
 import { StorageService } from '../core/storage-service';
+import type { CreateCharacterParams } from 'open20-core/browser';
 
 interface CharacterState {
   activeCharacter: AppCharacter | null;
@@ -11,7 +12,7 @@ interface CharacterState {
   error: string | null;
 
   setActiveCharacter: (character: AppCharacter) => void;
-  createCharacter: (params: any) => void;
+  createCharacter: (params: CreateCharacterParams) => void;
   updateCharacter: (character: AppCharacter) => void;
   deleteCharacter: (id: string) => void;
   
@@ -38,7 +39,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   setActiveCharacter: (character) => set({ activeCharacter: character }),
 
-  createCharacter: (params) => {
+  createCharacter: (params: CreateCharacterParams) => {
     try {
       const newChar = CharacterService.createCharacter(params);
       const { characters } = get();

@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { SpellService } from '../spell-service';
+import { SchemaService } from '../schema-service';
 
 // Mock the dataLoader to have controlled test data
 vi.mock('../data-loader', () => ({
   dataLoader: {
-    getAllSpells: () => [
+    getAllSpells: () => SchemaService.transformSpells([
       {
         id: 'fireball',
         name: 'Fireball',
@@ -18,8 +19,6 @@ vi.mock('../data-loader', () => ({
         name: 'Cure Wounds',
         level: 1,
         description: 'A creature you touch regains a number of hit points...',
-        // Missing classes array, should be inferred from description in real data
-        // but for this mock we'll test the inference logic if we omit it
         components: ['V', 'S']
       },
       {
@@ -27,10 +26,10 @@ vi.mock('../data-loader', () => ({
         name: 'Mystic Surge',
         level: 2,
         description: 'This is a Bard and Druid spell.',
-        classes: [], // Empty, should trigger inference
+        classes: [], 
         components: { V: true }
       }
-    ]
+    ])
   }
 }));
 

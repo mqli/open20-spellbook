@@ -7,12 +7,13 @@ import {
   recoverSpellSlot as open20RecoverSpellSlot,
   longRest as open20LongRest,
   shortRest as open20ShortRest,
+  type CreateCharacterParams
 } from 'open20-core/browser';
 import type { AppCharacter } from './types';
 import { dataLoader } from './data-loader';
 
 export class CharacterService {
-  static createCharacter(params: any): AppCharacter {
+  static createCharacter(params: CreateCharacterParams): AppCharacter {
     const char = open20CreateCharacter(params, dataLoader as any);
     return { ...char, id: crypto.randomUUID() };
   }

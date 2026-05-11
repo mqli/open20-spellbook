@@ -5,6 +5,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useCharacterStore } from '../../stores/character-store';
 import { CharacterService } from '../../core/character-service';
+import type { AppCharacter } from '../../core/types';
+import type { CreateCharacterParams } from 'open20-core/browser';
 
 const CLASSES = [
   'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 
@@ -60,6 +62,7 @@ export function CharacterModal({
     Wisdom: 10,
     Charisma: 10
   });
+  const [additionalClasses, setAdditionalClasses] = useState<Array<{ classId: string; level: number }>>([]);
 
   const handleAbilityChange = (name: string, value: string) => {
     setAbilities(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
@@ -82,6 +85,13 @@ export function CharacterModal({
         Wisdom: baseScores.Wisdom || 10,
         Charisma: baseScores.Charisma || 10
       });
+
+      setAdditionalClasses(
+        editingCharacter.classes.slice(1).map(c => ({
+          classId: c.classId,
+          level: c.level
+        }))
+      );
     } else {
       // Reset for creation
       setName('');
@@ -93,18 +103,20 @@ export function CharacterModal({
         Strength: 10, Dexterity: 10, Constitution: 10, 
         Intelligence: 10, Wisdom: 10, Charisma: 10
       });
+      setAdditionalClasses([]);
     }
   }, [editingCharacter, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = {
+    const params: CreateCharacterParams = {
       name,
       speciesId: species,
       backgroundId: background,
       classId: charClass,
       classLevel: level,
       abilityScores: abilities,
+      additionalClasses: additionalClasses.length > 0 ? additionalClasses : undefined,
     };
 
     if (editingCharacter) {
@@ -172,6 +184,64 @@ export function CharacterModal({
                       {BACKGROUNDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                     </select>
                   </div>
+                </div>
+
+                {/* Multiclass Section */}
+                <div className="pt-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em]">Multiclass</label>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setAdditionalClasses(prev => [...prev, { classId: 'Fighter', level: 1 }])}
+                      className="h-7 text-[9px]"
+                    >
+                      + Add Class
+                    </Button>
+                  </div>
+                  
+                  {additionalClasses.map((ac, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-2 items-end bg-bg-primary/30 p-2 rounded-xl border border-border/50">
+                      <div className="col-span-7">
+                        <select 
+                          value={ac.classId} 
+                          onChange={(e) => {
+                            const newClasses = [...additionalClasses];
+                            newClasses[idx].classId = e.target.value;
+                            setAdditionalClasses(newClasses);
+                          }}
+                          className="w-full bg-bg-primary border border-border rounded-lg px-2 py-1.5 text-xs font-medium"
+                        >
+                          {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div className="col-span-3">
+                        <Input 
+                          type="number" 
+                          min={1} 
+                          value={ac.level} 
+                          onChange={(e) => {
+                            const newClasses = [...additionalClasses];
+                            newClasses[idx].level = parseInt(e.target.value) || 1;
+                            setAdditionalClasses(newClasses);
+                          }}
+                          className="h-8 px-2 py-1 text-xs"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setAdditionalClasses(prev => prev.filter((_, i) => i !== idx))}
+                          className="h-8 w-full text-danger hover:text-danger hover:bg-danger/10"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
