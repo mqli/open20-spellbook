@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install open20-core devDependencies and build
+        run: |
+          cd node_modules/open20-core
+          npm install --include=dev
+          npm run build
+
       - name: Test
         run: npm test
 
