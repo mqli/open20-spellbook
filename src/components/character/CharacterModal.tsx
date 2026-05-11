@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useCharacterStore } from '../../stores/character-store';
-import { CharacterService } from '../../core/character-service';
+import { characterService } from '../../core/character-service';
 import type { CharacterCreationParams } from '../../core/types';
 
 
@@ -121,7 +121,7 @@ export function CharacterModal({
     };
 
     if (editingCharacter) {
-      const rebuilt = CharacterService.createCharacter(params);
+      const rebuilt = characterService.createCharacter(params);
       updateCharacter({ ...rebuilt, id: editingCharacter.id });
     } else {
       createCharacter(params);

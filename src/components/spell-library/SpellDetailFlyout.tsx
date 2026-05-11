@@ -6,9 +6,9 @@ import {
 import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { useRollStore } from '../../stores/roll-store';
-import { CharacterService } from '../../core/character-service';
-import { SpellService } from '../../core/spell-service';
 import { Sheet } from '../ui/Sheet';
+import { characterService } from '../../core/character-service';
+import { spellService } from '../../core/spell-service';
 
 // Sub-components
 import { SpellHeader } from './details/SpellHeader';
@@ -35,10 +35,10 @@ export function SpellDetailFlyout() {
   if (!selectedSpell) return null;
 
   // Derived state
-  const isKnown = activeCharacter ? SpellService.isSpellKnown(activeCharacter, selectedSpell.id) : false;
-  const isPrepared = activeCharacter ? SpellService.isSpellPrepared(activeCharacter, selectedSpell.id) : false;
+  const isKnown = activeCharacter ? spellService.isSpellKnown(activeCharacter, selectedSpell.id) : false;
+  const isPrepared = activeCharacter ? spellService.isSpellPrepared(activeCharacter, selectedSpell.id) : false;
   const isClassSpell = activeCharacter
-    ? SpellService.isSpellForCharacter(activeCharacter, selectedSpell)
+    ? spellService.isSpellForCharacter(activeCharacter, selectedSpell)
     : false;
   const isConcentratingOnThis = activeCharacter?.conditions.some(
     c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === selectedSpell.id
@@ -59,7 +59,7 @@ export function SpellDetailFlyout() {
       handleRoll(`1d20 + 0`, 'Attack');
       return;
     }
-    const result = CharacterService.rollSpellAttack(activeCharacter, selectedSpell.id);
+    const result = characterService.rollSpellAttack(activeCharacter, selectedSpell.name);
     addRoll({
       label: 'Spell Attack',
       expression: `d20 (${result.rawRoll}) + ${result.bonus}`,
@@ -69,7 +69,7 @@ export function SpellDetailFlyout() {
 
   const handleDamageRoll = (index: number, label: string) => {
     if (!activeCharacter) return;
-    const result = CharacterService.rollSpellDamage(activeCharacter, selectedSpell.id, index);
+    const result = characterService.rollSpellDamage(activeCharacter, selectedSpell.id, index);
     const diceExpr = result.entries.map(e => `${e.results.join('+')} (${e.type})`).join(' + ');
     const modExpr = result.modifiers.length > 0 ? ` + ${result.modifiers.reduce((s, m) => s + m.value, 0)}` : '';
     addRoll({ label, expression: `${diceExpr}${modExpr}`, total: result.total });

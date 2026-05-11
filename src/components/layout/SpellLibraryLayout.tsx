@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSpellStore } from '../../stores/spell-store';
-import { SpellService } from '../../core/spell-service';
+import { spellService } from '../../core/spell-service';
 import { SearchBar } from '../spell-library/SearchBar';
 import { LevelTabs } from '../spell-library/LevelTabs';
 import { FilterChips } from '../spell-library/FilterChips';
@@ -24,7 +24,7 @@ export function SpellLibraryLayout() {
   }, [loadCharacters]);
 
   useEffect(() => {
-    const spells = SpellService.searchSpells({});
+    const spells = spellService.searchSpells({});
     setSpells(spells);
   }, [setSpells]);
 
@@ -34,12 +34,12 @@ export function SpellLibraryLayout() {
     spellsToDisplay = [];
   } else if (showPreparedOnly && activeCharacter) {
     spellsToDisplay = filteredSpells.filter(s =>
-      SpellService.isSpellPrepared(activeCharacter, s.id)
+      spellService.isSpellPrepared(activeCharacter, s.id)
     );
   } else if (showKnownOnly && activeCharacter) {
     spellsToDisplay = filteredSpells.filter(s =>
-      SpellService.isSpellKnown(activeCharacter, s.id) &&
-      SpellService.isSpellForCharacter(activeCharacter, s)
+      spellService.isSpellKnown(activeCharacter, s.id) &&
+      spellService.isSpellForCharacter(activeCharacter, s)
     );
   }
 

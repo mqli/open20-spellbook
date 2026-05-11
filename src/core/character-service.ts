@@ -15,8 +15,7 @@ import {
   type DamageRollResult
 } from 'open20-core/browser';
 import type { AppCharacter } from './types';
-import type { StorageService } from './storage-service';
-import type { SpellService } from './spell-service';
+import { SpellService } from './spell-service';
 
 import { dataLoader } from './data-loader';
 
@@ -33,10 +32,11 @@ const SPELL_SIDE_EFFECTS: Record<string, any> = {
 };
 
 export class CharacterService {
-  constructor(
-    private storageService: StorageService,
-    private spellService: SpellService
-  ) {}
+  private spellService: SpellService;
+
+  constructor(spellService: SpellService) {
+    this.spellService = spellService;
+  }
 
   createCharacter(params: any): AppCharacter {
     const raw = open20CreateCharacter(params, dataLoader as any);
@@ -163,10 +163,6 @@ export class CharacterService {
   }
 }
 
-// Create default instances (will be replaced in tests)
-import { StorageService } from './storage-service';
-import { SpellService } from './spell-service';
-
-const storageService = new StorageService();
+// Create default instance (will be replaced in tests)
 const spellService = new SpellService();
-export const characterService = new CharacterService(storageService, spellService);
+export const characterService = new CharacterService(spellService);

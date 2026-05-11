@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
 
 // Mock open20-core/browser - fixes ESM import issues with missing .js extensions
 // This must be at the top level so Vitest hoists it before any imports

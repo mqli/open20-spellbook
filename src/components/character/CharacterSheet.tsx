@@ -3,7 +3,7 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 import { X, Sparkles, BookOpen, Flame, Wind, Pencil } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
-import { SpellService } from '../../core/spell-service';
+import { spellService } from '../../core/spell-service';
 import { RulesService } from '../../core/rules-service';
 import { useSpellStore } from '../../stores/spell-store';
 import { Star, Shield } from 'lucide-react';
@@ -44,7 +44,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
 
   // Get and group known spells
   const knownSpells = combinedKnownIds
-    .map(id => SpellService.getSpell(id))
+    .map(id => spellService.getSpell(id))
     .filter((s): s is NonNullable<typeof s> => !!s)
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
 

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import type { Spell } from 'open20-core/browser';
-import { spellService } from '../core/spell-service';
 
 interface SpellLibraryState {
   spells: Spell[];

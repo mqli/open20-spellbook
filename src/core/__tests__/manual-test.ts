@@ -1,4 +1,4 @@
-import { CharacterService } from '../character-service';
+import { characterService } from '../character-service';
 
 interface ConcentrationCondition {
   source?: string;
@@ -24,7 +24,7 @@ async function runTests() {
   };
 
   try {
-    const character = CharacterService.createCharacter(mockParams);
+    const character = characterService.createCharacter(mockParams);
     console.log('✅ Character creation success');
     
     if (character.spells.spellSaveDC === 13) {
@@ -40,23 +40,23 @@ async function runTests() {
     }
 
     const spellId = 'fireball';
-    const preparedChar = CharacterService.prepareSpell(character, spellId);
+    const preparedChar = characterService.prepareSpell(character, spellId);
     if (preparedChar.spells.preparedSpells.includes(spellId)) {
       console.log('✅ Spell preparation success');
     }
 
-    const consumedChar = CharacterService.consumeSpellSlot(character, 1);
+    const consumedChar = characterService.consumeSpellSlot(character, 1);
     if (consumedChar.spells.spellSlots[1].used === 1) {
       console.log('✅ Slot consumption success');
     }
 
-    const restedChar = CharacterService.longRest(consumedChar);
+    const restedChar = characterService.longRest(consumedChar);
     if (restedChar.spells.spellSlots[1].used === 0) {
       console.log('✅ Long rest success');
     }
 
     const spellId2 = 'haste';
-    const concentratingChar = CharacterService.startConcentration(character, spellId2);
+    const concentratingChar = characterService.startConcentration(character, spellId2);
     const concentrationCondition = concentratingChar.conditions.find(c => c.id === 'Concentrating');
     if (concentrationCondition && (concentrationCondition as ConcentrationCondition).source === spellId2) {
       console.log('✅ Concentration start success');
