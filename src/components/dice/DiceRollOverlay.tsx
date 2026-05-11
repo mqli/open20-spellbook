@@ -1,20 +1,14 @@
 import { useRollStore } from '../../stores/roll-store';
 import { Dices, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export function DiceRollOverlay() {
   const { latestRoll } = useRollStore();
-  const [isVisible, setIsVisible] = useState(false);
+  const [dismissedRollId, setDismissedRollId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (latestRoll) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  }, [latestRoll]);
+  const isVisible = !!latestRoll && latestRoll.id !== dismissedRollId;
 
-  if (!latestRoll && !isVisible) return null;
+  if (!latestRoll) return null;
 
   return (
     <div 
@@ -47,7 +41,7 @@ export function DiceRollOverlay() {
           </div>
 
           <button 
-            onClick={() => setIsVisible(false)}
+            onClick={() => setDismissedRollId(latestRoll.id)}
             className="p-2 hover:bg-bg-tertiary rounded-full text-text-tertiary transition-colors"
           >
             <X className="w-4 h-4" />

@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { CharacterService } from '../character-service';
 
+interface ConcentrationCondition {
+  source?: string;
+}
+
 describe('CharacterService', () => {
   const mockParams = {
     name: 'Test Wizard',
@@ -83,7 +87,7 @@ describe('CharacterService', () => {
     const concentratingChar = CharacterService.startConcentration(character, spellId);
     const condition = concentratingChar.conditions.find(c => c.id === 'Concentrating');
     expect(condition).toBeDefined();
-    expect((condition as any).source).toBe(spellId);
+    expect((condition as ConcentrationCondition | undefined)?.source).toBe(spellId);
     
     const endedChar = CharacterService.endConcentration(concentratingChar);
     expect(endedChar.conditions.find(c => c.id === 'Concentrating')).toBeUndefined();

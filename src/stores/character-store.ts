@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
-import type { AppCharacter } from '../core/types';
+import type { AppCharacter, CharacterCreationParams } from '../core/types';
 import { CharacterService } from '../core/character-service';
 import { StorageService } from '../core/storage-service';
 
@@ -11,7 +10,7 @@ interface CharacterState {
   error: string | null;
 
   setActiveCharacter: (character: AppCharacter) => void;
-  createCharacter: (params: any) => void;
+  createCharacter: (params: CharacterCreationParams) => void;
   updateCharacter: (character: AppCharacter) => void;
   deleteCharacter: (id: string) => void;
   
@@ -39,7 +38,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   setActiveCharacter: (character) => set({ activeCharacter: character }),
 
-  createCharacter: (params: any) => {
+  createCharacter: (params) => {
     try {
       const newChar = CharacterService.createCharacter(params);
       const { characters } = get();
@@ -69,7 +68,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       characters: updatedChars,
       activeCharacter: activeCharacter?.id === id ? null : activeCharacter
     });
-    get().saveCharacters();
+    StorageService.deleteCharacter(id);
   },
 
   prepareSpell: (spellId) => {

@@ -1,5 +1,4 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
 import { cn } from '../../utils/helpers';
 import type { ReactNode } from 'react';
 

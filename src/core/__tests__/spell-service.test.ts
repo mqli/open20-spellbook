@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { SpellService } from '../spell-service';
 import { SchemaService } from '../schema-service';
+import type { AppCharacter } from '../types';
 
 // Mock the dataLoader to have controlled test data
 vi.mock('../data-loader', () => ({
@@ -55,6 +56,35 @@ describe('SpellService', () => {
     expect(mysticSurge?.classes).not.toContain('Wizard');
   });
 
+  it('should infer classes from SRD header parentheticals', () => {
+    const spells = SchemaService.transformSpells([
+      {
+        id: 'header-spell',
+        name: 'Header Spell',
+        level: 3,
+        description: 'Level 3 Evocation (Sorcerer, Wizard) Casting Time: Action',
+        components: { V: true }
+      }
+    ]);
+
+    expect(spells[0].classes).toEqual(['Sorcerer', 'Wizard']);
+  });
+
+  it('should keep classless upstream spells actionable', () => {
+    const spells = SchemaService.transformSpells([
+      {
+        id: 'classless-cantrip',
+        name: 'Classless Cantrip',
+        level: 0,
+        description: 'You create a harmless magical effect.',
+        components: { V: true }
+      }
+    ]);
+
+    expect(spells[0].classes?.length).toBeGreaterThan(0);
+    expect(spells[0].classes).toContain('Wizard');
+  });
+
   it('should search spells by name query', () => {
     const results = SpellService.searchSpells({ query: 'fire' });
     expect(results).toHaveLength(1);
@@ -66,7 +96,7 @@ describe('SpellService', () => {
       spells: {
         preparedSpells: ['fireball']
       }
-    } as any;
+    } as unknown as AppCharacter;
     
     expect(SpellService.isSpellPrepared(mockCharacter, 'fireball')).toBe(true);
     expect(SpellService.isSpellPrepared(mockCharacter, 'cure-wounds')).toBe(false);

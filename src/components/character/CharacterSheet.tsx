@@ -10,6 +10,11 @@ import { Star, Shield } from 'lucide-react';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
+interface ConcentrationCondition {
+  id: string;
+  source?: string;
+}
+
 export function CharacterSheet({ open, onOpenChange, onEdit }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,7 +32,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const abilityMod = stats.abilityModifiers[ability] ?? 0;
 
   const concentratingCondition = activeCharacter.conditions?.find(c => c.id === 'Concentrating');
-  const concentratingSpellId = (concentratingCondition as any)?.source as string | undefined;
+  const concentratingSpellId = (concentratingCondition as ConcentrationCondition | undefined)?.source;
 
   const slotEntries = Object.entries(spells.spellSlots ?? {})
     .map(([lvl, slot]) => ({ lvl: parseInt(lvl), slot: slot as { total: number; used: number } }))

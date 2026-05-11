@@ -1,11 +1,17 @@
 import type { Spell } from 'open20-core/browser';
 import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
+import { SpellService } from '../../core/spell-service';
 import { Badge } from '../ui/Badge';
 import { Sparkles, Activity, BookMarked, Star } from 'lucide-react';
 
 interface SpellCardProps {
   spell: Spell;
+}
+
+interface ConcentrationCondition {
+  id: string;
+  source?: string;
 }
 
 export function SpellCard({ spell }: SpellCardProps) {
@@ -17,15 +23,15 @@ export function SpellCard({ spell }: SpellCardProps) {
     startConcentration, endConcentration,
   } = useCharacterStore();
 
-  const isKnown = activeCharacter?.spells?.knownSpells?.includes(spell.id) ?? false;
-  const isPrepared = activeCharacter?.spells?.preparedSpells?.includes(spell.id) ?? false;
+  const isKnown = activeCharacter ? SpellService.isSpellKnown(activeCharacter, spell.id) : false;
+  const isPrepared = activeCharacter ? SpellService.isSpellPrepared(activeCharacter, spell.id) : false;
   const isConcentratingOnThis = activeCharacter?.conditions.some(
-    c => c.id === 'Concentrating' && (c as any).source === spell.id
+    c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === spell.id
   ) ?? false;
 
   // A spell is "actionable" if there's an active character whose class includes it
   const isClassSpell = activeCharacter
-    ? (spell.classes?.includes(activeCharacter.classes[0]?.classId) ?? false)
+    ? SpellService.isSpellForCharacter(activeCharacter, spell)
     : false;
 
   const handleLearnToggle = (e: React.MouseEvent) => {

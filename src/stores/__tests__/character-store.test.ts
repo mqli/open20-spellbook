@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCharacterStore } from '../character-store';
 import { StorageService } from '../../core/storage-service';
+import type { AppCharacter } from '../../core/types';
 
 // Mock StorageService
 vi.mock('../../core/storage-service', () => ({
@@ -27,9 +28,23 @@ describe('CharacterStore', () => {
   });
 
   it('should set active character', () => {
-    const mockChar = { id: '1', name: 'Test' } as any;
+    const mockChar = { id: '1', name: 'Test' } as unknown as AppCharacter;
     useCharacterStore.getState().setActiveCharacter(mockChar);
     expect(useCharacterStore.getState().activeCharacter).toEqual(mockChar);
+  });
+
+  it('should delete a character from storage', () => {
+    const mockChar = { id: '1', name: 'Test' } as unknown as AppCharacter;
+    useCharacterStore.setState({
+      activeCharacter: mockChar,
+      characters: [mockChar],
+    });
+
+    useCharacterStore.getState().deleteCharacter('1');
+
+    expect(useCharacterStore.getState().characters).toEqual([]);
+    expect(useCharacterStore.getState().activeCharacter).toBeNull();
+    expect(StorageService.deleteCharacter).toHaveBeenCalledWith('1');
   });
 
   it('should learn a spell and save to storage', () => {
@@ -46,7 +61,7 @@ describe('CharacterStore', () => {
       },
       conditions: [],
       updatedAt: ''
-    } as any;
+    } as unknown as AppCharacter;
     
     useCharacterStore.getState().setActiveCharacter(mockChar);
     useCharacterStore.getState().learnSpell('magic-missile');
@@ -70,7 +85,7 @@ describe('CharacterStore', () => {
       },
       conditions: [],
       updatedAt: ''
-    } as any;
+    } as unknown as AppCharacter;
     
     useCharacterStore.getState().setActiveCharacter(mockChar);
     useCharacterStore.getState().prepareSpell('magic-missile');

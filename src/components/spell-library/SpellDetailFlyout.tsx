@@ -7,6 +7,7 @@ import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { useRollStore } from '../../stores/roll-store';
 import { CharacterService } from '../../core/character-service';
+import { SpellService } from '../../core/spell-service';
 import { Sheet } from '../ui/Sheet';
 
 // Sub-components
@@ -14,6 +15,11 @@ import { SpellHeader } from './details/SpellHeader';
 import { SpellStatsGrid } from './details/SpellStatsGrid';
 import { SpellActionPanel } from './details/SpellActionPanel';
 import { SpellContent } from './details/SpellContent';
+
+interface ConcentrationCondition {
+  id: string;
+  source?: string;
+}
 
 export function SpellDetailFlyout() {
   const { selectedSpell, isDetailOpen, closeDetail } = useSpellStore();
@@ -29,13 +35,13 @@ export function SpellDetailFlyout() {
   if (!selectedSpell) return null;
 
   // Derived state
-  const isKnown = activeCharacter?.spells?.knownSpells?.includes(selectedSpell.id) ?? false;
-  const isPrepared = activeCharacter?.spells?.preparedSpells?.includes(selectedSpell.id) ?? false;
+  const isKnown = activeCharacter ? SpellService.isSpellKnown(activeCharacter, selectedSpell.id) : false;
+  const isPrepared = activeCharacter ? SpellService.isSpellPrepared(activeCharacter, selectedSpell.id) : false;
   const isClassSpell = activeCharacter
-    ? (selectedSpell.classes?.includes(activeCharacter.classes[0]?.classId) ?? false)
+    ? SpellService.isSpellForCharacter(activeCharacter, selectedSpell)
     : false;
   const isConcentratingOnThis = activeCharacter?.conditions.some(
-    c => c.id === 'Concentrating' && (c as any).source === selectedSpell.id
+    c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === selectedSpell.id
   ) ?? false;
 
   // Handlers

@@ -106,7 +106,9 @@ export function CharacterBar() {
       <CharacterSheet 
         open={isSheetOpen} 
         onOpenChange={setIsSheetOpen} 
-        onEdit={() => handleEdit(activeCharacter?.id!)} 
+        onEdit={() => {
+          if (activeCharacter) handleEdit(activeCharacter.id);
+        }} 
       />
     </div>
   );

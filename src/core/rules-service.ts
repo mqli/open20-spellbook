@@ -1,5 +1,5 @@
 import type { AppCharacter } from './types';
-import { getModifier, getProficiencyBonus, getTotalScore } from 'open20-core/browser';
+import { getModifier, getProficiencyBonus, getTotalScore, type AbilityName } from 'open20-core/browser';
 
 export interface ProjectedStats {
   abilityModifiers: Record<string, number>;
@@ -16,7 +16,7 @@ export class RulesService {
     
     const abilityModifiers: Record<string, number> = {};
     Object.entries(character.abilityScores.base).forEach(([ability]) => {
-      abilityModifiers[ability] = getModifier(getTotalScore(character.abilityScores, ability as any));
+      abilityModifiers[ability] = getModifier(getTotalScore(character.abilityScores, ability as AbilityName));
     });
 
     const spellcastingAbility = character.spells.spellcastingAbility;

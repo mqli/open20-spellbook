@@ -30,13 +30,16 @@ export function SpellLibraryLayout() {
 
   // Cross-store filtering: apply known/prepared filters here where we have both stores
   let spellsToDisplay = filteredSpells;
-  if (showPreparedOnly && activeCharacter) {
+  if ((showPreparedOnly || showKnownOnly) && !activeCharacter) {
+    spellsToDisplay = [];
+  } else if (showPreparedOnly && activeCharacter) {
     spellsToDisplay = filteredSpells.filter(s =>
-      activeCharacter.spells?.preparedSpells?.includes(s.id)
+      SpellService.isSpellPrepared(activeCharacter, s.id)
     );
   } else if (showKnownOnly && activeCharacter) {
     spellsToDisplay = filteredSpells.filter(s =>
-      activeCharacter.spells?.knownSpells?.includes(s.id)
+      SpellService.isSpellKnown(activeCharacter, s.id) &&
+      SpellService.isSpellForCharacter(activeCharacter, s)
     );
   }
 

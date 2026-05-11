@@ -24,7 +24,7 @@ export function SpellActionPanel({
 }: SpellActionPanelProps) {
   if (!character) return null;
 
-  const canCast = isKnown && (spell.level === 0 || isPrepared) && (
+  const canCast = (isKnown || spell.level === 0) && (spell.level === 0 || isPrepared) && (
     spell.level === 0 || 
     (character.spells.spellSlots[spell.level]?.total ?? 0) > (character.spells.spellSlots[spell.level]?.used ?? 0)
   );

@@ -117,7 +117,7 @@ export class CharacterService {
 
   static castSpell(character: AppCharacter, spellId: string, level: number): AppCharacter {
     // 1. Consume slot
-    let char = { ...open20ConsumeSpellSlot(character, level) as any, id: character.id };
+    const char = { ...open20ConsumeSpellSlot(character, level) as any, id: character.id };
     
     // 2. Apply side effects
     const effect = SPELL_SIDE_EFFECTS[spellId.toLowerCase()];
@@ -135,7 +135,8 @@ export class CharacterService {
     return this.recompute(char);
   }
 
-  static rollSpellAttack(character: AppCharacter, _spellName: string): AttackRollResult {
+  static rollSpellAttack(character: AppCharacter, spellName: string): AttackRollResult {
+    void spellName;
     return rollSpellAttack({ 
       character, 
       spellcastingAbility: character.spells.spellcastingAbility as any || 'Intelligence',
@@ -143,7 +144,8 @@ export class CharacterService {
     });
   }
 
-  static rollSpellDamage(character: AppCharacter, spellId: string, _damageIndex: number): DamageRollResult {
+  static rollSpellDamage(character: AppCharacter, spellId: string, damageIndex: number): DamageRollResult {
+    void damageIndex;
     const spell = SpellService.getSpell(spellId);
     if (!spell) throw new Error(`Spell not found: ${spellId}`);
 

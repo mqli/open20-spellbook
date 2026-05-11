@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useCharacterStore } from '../../stores/character-store';
 import { CharacterService } from '../../core/character-service';
+import type { CharacterCreationParams } from '../../core/types';
 
 
 const CLASSES = [
@@ -69,6 +70,7 @@ export function CharacterModal({
 
   useEffect(() => {
     if (editingCharacter) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(editingCharacter.name);
       setCharClass(editingCharacter.classes[0]?.classId || 'Wizard');
       setLevel(editingCharacter.classes[0]?.level || 1);
@@ -108,7 +110,7 @@ export function CharacterModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params: any = {
+    const params: CharacterCreationParams = {
       name,
       speciesId: species,
       backgroundId: background,

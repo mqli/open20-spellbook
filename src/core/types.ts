@@ -1,6 +1,20 @@
-import type { Character, Spell, AbilityScores } from 'open20-core/browser';
+import type { Character, Spell, AbilityScores, AbilityName } from 'open20-core/browser';
 
 export type AppCharacter = Character & { id: string };
+
+export interface CharacterCreationParams {
+  name: string;
+  speciesId: string;
+  backgroundId: string;
+  classId: string;
+  classLevel?: number;
+  abilityScores: Record<AbilityName, number>;
+  additionalClasses?: Array<{
+    classId: string;
+    level: number;
+    subclassId?: string;
+  }>;
+}
 
 export type {
   Character,

@@ -4,6 +4,12 @@ import { dataLoader } from './data-loader';
 
 import { SchemaService } from './schema-service';
 
+interface SpellSearchFilter {
+  query?: string;
+  level?: number;
+  classes?: string[];
+}
+
 /**
  * Service for querying and managing spells.
  * Ensures all spells are sanitized and normalized for use in the UI.
@@ -23,7 +29,7 @@ export class SpellService {
     return this.getAllSpells().find(s => s.id === id);
   }
 
-  static searchSpells(filter: any): Spell[] {
+  static searchSpells(filter: SpellSearchFilter): Spell[] {
     let results = this.getAllSpells();
     
     if (filter?.query) {
@@ -44,7 +50,8 @@ export class SpellService {
     return results;
   }
 
-  static getSpellsForCharacter(_character: AppCharacter): Spell[] {
+  static getSpellsForCharacter(character: AppCharacter): Spell[] {
+    void character;
     return this.getAllSpells();
   }
 
@@ -52,5 +59,18 @@ export class SpellService {
     const isManual = character.spells?.preparedSpells?.includes(spellId) ?? false;
     const isAlways = character.spells?.alwaysPreparedSpells?.includes(spellId) ?? false;
     return isManual || isAlways;
+  }
+
+  static isSpellKnown(character: AppCharacter, spellId: string): boolean {
+    const spell = this.getSpell(spellId);
+    const isCantrip = spell?.level === 0;
+    const isKnown = character.spells?.knownSpells?.includes(spellId) ?? false;
+    const isAlwaysPrepared = character.spells?.alwaysPreparedSpells?.includes(spellId) ?? false;
+    return isCantrip || isKnown || isAlwaysPrepared;
+  }
+
+  static isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
+    const characterClassIds = character.classes?.map(c => c.classId) ?? [];
+    return spell.classes?.some(c => characterClassIds.includes(c)) ?? false;
   }
 }
