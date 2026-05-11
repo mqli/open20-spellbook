@@ -1,5 +1,4 @@
 import { createBrowserDataLoader } from 'open20-core/browser';
+import lookupTables from '../data/srd/lookup-tables.json';
 
-// We pass an empty object for lookupTables because we only need the 
-// bundled spells data, not the level-based calculation tables.
-export const dataLoader = createBrowserDataLoader({} as any);
+export const dataLoader = createBrowserDataLoader(lookupTables as any);

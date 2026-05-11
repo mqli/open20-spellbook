@@ -1,0 +1,108 @@
+import { describe, it, expect } from 'vitest';
+import { CharacterService } from '../character-service';
+
+describe('CharacterService', () => {
+  const mockParams = {
+    name: 'Test Wizard',
+    speciesId: 'Human',
+    backgroundId: 'sage',
+    classId: 'Wizard',
+    classLevel: 1,
+    abilityScores: {
+      Strength: 10,
+      Dexterity: 12,
+      Constitution: 14,
+      Intelligence: 16,
+      Wisdom: 13,
+      Charisma: 8
+    }
+  };
+
+  it('should create a character with correct initial stats', () => {
+    const character = CharacterService.createCharacter(mockParams);
+    
+    expect(character.name).toBe('Test Wizard');
+    expect(character.classes[0].classId).toBe('Wizard');
+    expect(character.classes[0].level).toBe(1);
+    
+    // Wizard spellcasting uses Intelligence
+    expect(character.spells.spellcastingAbility).toBe('Intelligence');
+    
+    // Spell DC = 8 + PB(2) + Int Mod(3) = 13
+    expect(character.spells.spellSaveDC).toBe(13);
+    
+    // Spell Attack = PB(2) + Int Mod(3) = 5
+    expect(character.spells.spellAttackBonus).toBe(5);
+  });
+
+  it('should calculate correct stats for higher level characters', () => {
+    const lvl5Params = { ...mockParams, classLevel: 5 };
+    const character = CharacterService.createCharacter(lvl5Params);
+    
+    expect(character.classes[0].level).toBe(5);
+    // PB is 3 at level 5
+    // Spell DC = 8 + PB(3) + Int Mod(3) = 14
+    expect(character.spells.spellSaveDC).toBe(14);
+  });
+
+  it('should handle spell preparation', () => {
+    const character = CharacterService.createCharacter(mockParams);
+    const spellId = 'fireball';
+    
+    const preparedChar = CharacterService.prepareSpell(character, spellId);
+    expect(preparedChar.spells.preparedSpells).toContain(spellId);
+    
+    const unpreparedChar = CharacterService.unprepareSpell(preparedChar, spellId);
+    expect(unpreparedChar.spells.preparedSpells).not.toContain(spellId);
+  });
+
+  it('should manage spell slots', () => {
+    const character = CharacterService.createCharacter(mockParams);
+    
+    // Consume a level 1 slot
+    const consumedChar = CharacterService.consumeSpellSlot(character, 1);
+    expect(consumedChar.spells.spellSlots[1].used).toBe(1);
+    
+    // Recover it
+    const recoveredChar = CharacterService.recoverSpellSlot(consumedChar, 1);
+    expect(recoveredChar.spells.spellSlots[1].used).toBe(0);
+  });
+
+  it('should handle long rest', () => {
+    const character = CharacterService.createCharacter(mockParams);
+    const consumedChar = CharacterService.consumeSpellSlot(character, 1);
+    
+    const restedChar = CharacterService.longRest(consumedChar);
+    expect(restedChar.spells.spellSlots[1].used).toBe(0);
+  });
+
+  it('should handle concentration', () => {
+    const character = CharacterService.createCharacter(mockParams);
+    const spellId = 'haste';
+    
+    const concentratingChar = CharacterService.startConcentration(character, spellId);
+    const condition = concentratingChar.conditions.find(c => c.id === 'Concentrating');
+    expect(condition).toBeDefined();
+    expect((condition as any).source).toBe(spellId);
+    
+    const endedChar = CharacterService.endConcentration(concentratingChar);
+    expect(endedChar.conditions.find(c => c.id === 'Concentrating')).toBeUndefined();
+  });
+
+  it('should handle learning and unlearning spells', () => {
+    const character = CharacterService.createCharacter(mockParams);
+    const spellId = 'magic-missile';
+    
+    // Learn
+    const learnedChar = CharacterService.learnSpell(character, spellId);
+    expect(learnedChar.spells.knownSpells).toContain(spellId);
+    
+    // Unlearn (should also remove from prepared)
+    const preparedChar = CharacterService.prepareSpell(learnedChar, spellId);
+    expect(preparedChar.spells.preparedSpells).toContain(spellId);
+    
+    const unlearnedChar = CharacterService.unlearnSpell(preparedChar, spellId);
+    expect(unlearnedChar.spells.knownSpells).not.toContain(spellId);
+    expect(unlearnedChar.spells.preparedSpells).not.toContain(spellId);
+  });
+});

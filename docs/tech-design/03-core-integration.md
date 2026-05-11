@@ -124,6 +124,33 @@ export class CharacterService {
   static shortRest(character: Character): Character {
     return shortRest(character);
   }
+
+  /**
+   * Learn a spell (adds to knownSpells)
+   */
+  static learnSpell(character: Character, spellId: string): Character {
+    return {
+      ...character,
+      spells: {
+        ...character.spells,
+        knownSpells: [...character.spells.knownSpells, spellId]
+      }
+    };
+  }
+
+  /**
+   * Unlearn a spell (removes from knownSpells and preparedSpells)
+   */
+  static unlearnSpell(character: Character, spellId: string): Character {
+    return {
+      ...character,
+      spells: {
+        ...character.spells,
+        knownSpells: character.spells.knownSpells.filter(id => id !== spellId),
+        preparedSpells: character.spells.preparedSpells.filter(id => id !== spellId)
+      }
+    };
+  }
 }
 
 // src/core/rules-service.ts

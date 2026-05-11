@@ -23,6 +23,8 @@ interface CharacterState {
   // Spell management
   prepareSpell: (spellId: string) => void;
   unprepareSpell: (spellId: string) => void;
+  learnSpell: (spellId: string) => void;
+  unlearnSpell: (spellId: string) => void;
   consumeSpellSlot: (level: number) => void;
   recoverSpellSlot: (level: number) => void;
   longRest: () => void;
@@ -76,6 +78,8 @@ interface SpellLibraryState {
   selectedSchools: string[];
   showRitualOnly: boolean;
   showConcentrationOnly: boolean;
+  showPreparedOnly: boolean;
+  showKnownOnly: boolean;
   
   // UI State
   selectedSpell: Spell | null;
@@ -88,6 +92,8 @@ interface SpellLibraryState {
   toggleSchoolFilter: (school: string) => void;
   setShowRitualOnly: (show: boolean) => void;
   setShowConcentrationOnly: (show: boolean) => void;
+  setShowPreparedOnly: (show: boolean) => void;
+  setShowKnownOnly: (show: boolean) => void;
   selectSpell: (spell: Spell | null) => void;
   closeDetail: () => void;
   

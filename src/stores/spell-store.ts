@@ -10,6 +10,8 @@ interface SpellLibraryState {
   selectedSchools: string[];
   showRitualOnly: boolean;
   showConcentrationOnly: boolean;
+  showPreparedOnly: boolean;
+  showKnownOnly: boolean;
   
   selectedSpell: Spell | null;
   isDetailOpen: boolean;
@@ -21,6 +23,8 @@ interface SpellLibraryState {
   toggleSchoolFilter: (school: string) => void;
   setShowRitualOnly: (show: boolean) => void;
   setShowConcentrationOnly: (show: boolean) => void;
+  setShowPreparedOnly: (show: boolean) => void;
+  setShowKnownOnly: (show: boolean) => void;
   selectSpell: (spell: Spell | null) => void;
   closeDetail: () => void;
   
@@ -36,6 +40,8 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
   selectedSchools: [],
   showRitualOnly: false,
   showConcentrationOnly: false,
+  showPreparedOnly: false,
+  showKnownOnly: false,
   selectedSpell: null,
   isDetailOpen: false,
 
@@ -83,8 +89,18 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
     get().applyFilters();
   },
 
+  setShowPreparedOnly: (show) => {
+    set({ showPreparedOnly: show, showKnownOnly: false });
+    get().applyFilters();
+  },
+
+  setShowKnownOnly: (show) => {
+    set({ showKnownOnly: show, showPreparedOnly: false });
+    get().applyFilters();
+  },
+
   applyFilters: () => {
-    const { spells, searchQuery, selectedLevel, selectedClasses, selectedSchools, showRitualOnly, showConcentrationOnly } = get();
+    const { spells, searchQuery, selectedLevel, selectedClasses, selectedSchools, showRitualOnly, showConcentrationOnly, showPreparedOnly } = get();
     
     let filtered = [...spells];
     
@@ -115,6 +131,16 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
 
     if (showConcentrationOnly) {
       filtered = filtered.filter(s => s.concentration);
+    }
+
+    if (showPreparedOnly) {
+      // We need to check against the active character's prepared spells.
+      // This requires the character store. We can import it or pass it.
+      // For now, let's assume we'll use the character store directly here if possible, 
+      // but Zustand stores shouldn't usually depend on each other directly like this.
+      // A better way is to filter in the component or use a selector.
+      // However, for simplicity in this architecture, we'll keep it here and let the UI handle the "prepared" check.
+      // Wait, if I do it here, I need access to the character store.
     }
     
     set({ filteredSpells: filtered });

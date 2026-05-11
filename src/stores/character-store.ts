@@ -17,10 +17,14 @@ interface CharacterState {
   
   prepareSpell: (spellId: string) => void;
   unprepareSpell: (spellId: string) => void;
+  learnSpell: (spellId: string) => void;
+  unlearnSpell: (spellId: string) => void;
   consumeSpellSlot: (level: number) => void;
   recoverSpellSlot: (level: number) => void;
   longRest: () => void;
   shortRest: () => void;
+  startConcentration: (spellId: string) => void;
+  endConcentration: () => void;
   
   loadCharacters: () => void;
   saveCharacters: () => void;
@@ -49,13 +53,11 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   },
 
   updateCharacter: (character) => {
-    const { characters, activeCharacter } = get();
-    const updatedChars = characters.map(c => c.id === character.id ? character : c);
-    set({ 
-      characters: updatedChars,
-      activeCharacter: activeCharacter?.id === character.id ? character : activeCharacter
-    });
-    get().saveCharacters();
+    set((state) => ({
+      activeCharacter: state.activeCharacter?.id === character.id ? character : state.activeCharacter,
+      characters: state.characters.map((c) => (c.id === character.id ? character : c)),
+    }));
+    StorageService.saveCharacter(character);
   },
 
   deleteCharacter: (id) => {
@@ -71,7 +73,6 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   prepareSpell: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
     const updated = CharacterService.prepareSpell(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
@@ -79,8 +80,21 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   unprepareSpell: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
     const updated = CharacterService.unprepareSpell(activeCharacter, spellId);
+    get().updateCharacter(updated);
+  },
+
+  learnSpell: (spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = CharacterService.learnSpell(activeCharacter, spellId);
+    get().updateCharacter(updated);
+  },
+
+  unlearnSpell: (spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = CharacterService.unlearnSpell(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
 
@@ -113,6 +127,22 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (!activeCharacter) return;
     
     const updated = CharacterService.shortRest(activeCharacter);
+    get().updateCharacter(updated);
+  },
+
+  startConcentration: (spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    
+    const updated = CharacterService.startConcentration(activeCharacter, spellId);
+    get().updateCharacter(updated);
+  },
+
+  endConcentration: () => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    
+    const updated = CharacterService.endConcentration(activeCharacter);
     get().updateCharacter(updated);
   },
 

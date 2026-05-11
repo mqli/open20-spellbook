@@ -40,4 +40,48 @@ export class CharacterService {
   static shortRest(character: AppCharacter): AppCharacter {
     return { ...open20ShortRest(character, 0, dataLoader as any) as any, id: character.id };
   }
+
+  static startConcentration(character: AppCharacter, spellId: string): AppCharacter {
+    const withoutConcentrating = character.conditions.filter(c => c.id !== 'Concentrating');
+    const newCondition = {
+      id: 'Concentrating' as any,
+      source: spellId,
+      appliedAt: new Date().toISOString(),
+    };
+    return { 
+      ...character, 
+      conditions: [...withoutConcentrating, newCondition],
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  static endConcentration(character: AppCharacter): AppCharacter {
+    return { 
+      ...character, 
+      conditions: character.conditions.filter(c => c.id !== 'Concentrating'),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  static learnSpell(character: AppCharacter, spellId: string): AppCharacter {
+    if (character.spells.knownSpells.includes(spellId)) return character;
+    return {
+      ...character,
+      spells: { ...character.spells, knownSpells: [...character.spells.knownSpells, spellId] },
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  static unlearnSpell(character: AppCharacter, spellId: string): AppCharacter {
+    return {
+      ...character,
+      spells: {
+        ...character.spells,
+        knownSpells: character.spells.knownSpells.filter(id => id !== spellId),
+        // also unprepare if it was prepared
+        preparedSpells: character.spells.preparedSpells.filter(id => id !== spellId),
+      },
+      updatedAt: new Date().toISOString()
+    };
+  }
 }

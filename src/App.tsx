@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useUIStore } from './stores/ui-store';
 import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
+import { DiceRollOverlay } from './components/dice/DiceRollOverlay';
 
 export function App() {
   const { theme } = useUIStore();
@@ -13,5 +14,10 @@ export function App() {
     }
   }, [theme]);
 
-  return <SpellLibraryLayout />;
+  return (
+    <>
+      <SpellLibraryLayout />
+      <DiceRollOverlay />
+    </>
+  );
 }
