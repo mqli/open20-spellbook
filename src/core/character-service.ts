@@ -7,15 +7,43 @@ import {
   recoverSpellSlot as open20RecoverSpellSlot,
   longRest as open20LongRest,
   shortRest as open20ShortRest,
-  type CreateCharacterParams
+  recomputeDerivedStats as open20Recompute,
+  rollSpellAttack,
+  rollSpellDamage,
+  defaultRandom,
+  type AttackRollResult,
+  type DamageRollResult
 } from 'open20-core/browser';
 import type { AppCharacter } from './types';
 import { dataLoader } from './data-loader';
 
+import { SpellService } from './spell-service';
+
+const SPELL_SIDE_EFFECTS: Record<string, any> = {
+  'goodberry': {
+    resource: {
+      id: 'goodberry-pool',
+      name: 'Goodberries',
+      max: 10,
+      current: 10,
+      reset: 'Long Rest'
+    }
+  }
+};
+
 export class CharacterService {
-  static createCharacter(params: CreateCharacterParams): AppCharacter {
-    const char = open20CreateCharacter(params, dataLoader as any);
-    return { ...char, id: crypto.randomUUID() };
+  static createCharacter(params: any): AppCharacter {
+    const raw = open20CreateCharacter(params, dataLoader as any);
+    const char = open20Recompute(raw, dataLoader as any);
+    return { ...char, id: crypto.randomUUID() } as AppCharacter;
+  }
+
+  static recompute(character: AppCharacter): AppCharacter {
+    if (!character.classes || !character.abilityScores || !character.abilityScores.base || !character.hitPoints) {
+      return character;
+    }
+    const recomputed = open20Recompute(character, dataLoader as any);
+    return { ...recomputed, id: character.id } as AppCharacter;
   }
 
   static prepareSpell(character: AppCharacter, spellId: string): AppCharacter {
@@ -84,5 +112,46 @@ export class CharacterService {
       },
       updatedAt: new Date().toISOString()
     };
+  }
+
+
+  static castSpell(character: AppCharacter, spellId: string, level: number): AppCharacter {
+    // 1. Consume slot
+    let char = { ...open20ConsumeSpellSlot(character, level) as any, id: character.id };
+    
+    // 2. Apply side effects
+    const effect = SPELL_SIDE_EFFECTS[spellId.toLowerCase()];
+    if (effect?.resource) {
+      const existing = char.resources.find((r: any) => r.id === effect.resource.id);
+      if (existing) {
+        char.resources = char.resources.map((r: any) => 
+          r.id === effect.resource.id ? { ...r, current: effect.resource.max } : r
+        );
+      } else {
+        char.resources = [...char.resources, effect.resource];
+      }
+    }
+
+    return this.recompute(char);
+  }
+
+  static rollSpellAttack(character: AppCharacter, _spellName: string): AttackRollResult {
+    return rollSpellAttack({ 
+      character, 
+      spellcastingAbility: character.spells.spellcastingAbility as any || 'Intelligence',
+      rng: defaultRandom
+    });
+  }
+
+  static rollSpellDamage(character: AppCharacter, spellId: string, _damageIndex: number): DamageRollResult {
+    const spell = SpellService.getSpell(spellId);
+    if (!spell) throw new Error(`Spell not found: ${spellId}`);
+
+    return rollSpellDamage({ 
+      character, 
+      spell, 
+      slotLevel: spell.level,
+      rng: defaultRandom
+    });
   }
 }

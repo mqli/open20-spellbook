@@ -5,8 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useCharacterStore } from '../../stores/character-store';
 import { CharacterService } from '../../core/character-service';
-import type { AppCharacter } from '../../core/types';
-import type { CreateCharacterParams } from 'open20-core/browser';
+
 
 const CLASSES = [
   'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 
@@ -109,7 +108,7 @@ export function CharacterModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params: CreateCharacterParams = {
+    const params: any = {
       name,
       speciesId: species,
       backgroundId: background,

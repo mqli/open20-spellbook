@@ -1,5 +1,5 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
-import { X, ArrowLeft, Activity } from 'lucide-react';
+import { X, ArrowLeft, Activity, Sparkles } from 'lucide-react';
 import { 
   rollDiceExpression,
   defaultRandom,
@@ -9,10 +9,17 @@ import { useCharacterStore } from '../../stores/character-store';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { useRollStore } from '../../stores/roll-store';
+import { CharacterService } from '../../core/character-service';
 
 export function SpellDetailFlyout() {
   const { selectedSpell, isDetailOpen, closeDetail } = useSpellStore();
-  const { activeCharacter, prepareSpell, unprepareSpell, learnSpell, unlearnSpell, startConcentration, endConcentration } = useCharacterStore();
+  const { 
+    activeCharacter, 
+    prepareSpell, unprepareSpell, 
+    learnSpell, unlearnSpell, 
+    startConcentration, endConcentration,
+    castSpell,
+  } = useCharacterStore();
   const { addRoll } = useRollStore();
 
   if (!selectedSpell) return null;
@@ -55,6 +62,34 @@ export function SpellDetailFlyout() {
     addRoll({
       label,
       expression,
+      total: result.total
+    });
+  };
+
+  const handleAttackRoll = () => {
+    if (!activeCharacter) {
+      handleRoll(`1d20 + 0`, 'Attack');
+      return;
+    }
+    const result = CharacterService.rollSpellAttack(activeCharacter, selectedSpell.id);
+    addRoll({
+      label: 'Spell Attack',
+      expression: `d20 (${result.rawRoll}) + ${result.bonus}`,
+      total: result.total
+    });
+  };
+
+  const handleDamageRoll = (index: number, label: string) => {
+    if (!activeCharacter) return;
+    const result = CharacterService.rollSpellDamage(activeCharacter, selectedSpell.id, index);
+    
+    // Construct expression from entries
+    const diceExpr = result.entries.map(e => `${e.results.join('+')} (${e.type})`).join(' + ');
+    const modExpr = result.modifiers.length > 0 ? ` + ${result.modifiers.reduce((s, m) => s + m.value, 0)}` : '';
+
+    addRoll({
+      label,
+      expression: `${diceExpr}${modExpr}`,
       total: result.total
     });
   };
@@ -176,16 +211,32 @@ export function SpellDetailFlyout() {
             </div>
 
             {/* Quick Actions (Rolls) */}
-            {(selectedSpell.attack || selectedSpell.damage) && (
-              <div className="mb-8 p-6 bg-primary-500/5 rounded-2xl border border-primary-500/10 flex flex-wrap gap-4 items-center">
-                <div className="text-xs font-black text-primary-700 uppercase tracking-widest mr-2">Quick Cast</div>
-                
-                {selectedSpell.attack && (
+            <div className="mb-8 p-6 bg-primary-500/5 rounded-2xl border border-primary-500/10 flex flex-wrap gap-4 items-center">
+              <div className="text-xs font-black text-primary-700 uppercase tracking-widest mr-2">Quick Actions</div>
+              
+              {activeCharacter && (
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  className="bg-primary-600 hover:bg-primary-700 text-white border-primary-700 shadow-md"
+                  onClick={() => castSpell(selectedSpell.id, selectedSpell.level)}
+                  disabled={
+                    !isKnown || 
+                    (selectedSpell.level > 0 && !isPrepared) ||
+                    (selectedSpell.level > 0 && (activeCharacter.spells.spellSlots[selectedSpell.level]?.total ?? 0) <= (activeCharacter.spells.spellSlots[selectedSpell.level]?.used ?? 0))
+                  }
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-2" />
+                  Cast Spell {selectedSpell.level > 0 && `(Level ${selectedSpell.level})`}
+                </Button>
+              )}
+
+              {selectedSpell.attack && (
                   <Button 
                     variant="primary" 
                     size="sm" 
                     className="shadow-lg shadow-primary-500/20"
-                    onClick={() => handleRoll(`1d20 + ${activeCharacter?.spells?.spellAttackBonus ?? 0}`, 'Attack')}
+                    onClick={handleAttackRoll}
                   >
                     Roll Attack (+{activeCharacter?.spells?.spellAttackBonus ?? 0})
                   </Button>
@@ -197,13 +248,12 @@ export function SpellDetailFlyout() {
                     variant="secondary" 
                     size="sm" 
                     className="border-primary-200 text-primary-700 hover:bg-primary-100"
-                    onClick={() => handleRoll(entry.dice, `${entry.type} Damage`)}
+                    onClick={() => handleDamageRoll(i, `${entry.type} Damage`)}
                   >
                     Roll {entry.dice} {entry.type}
                   </Button>
                 ))}
               </div>
-            )}
 
             {/* Description */}
             <div className="prose prose-sm dark:prose-invert max-w-none mb-6">

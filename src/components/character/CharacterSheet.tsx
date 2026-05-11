@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { SpellService } from '../../core/spell-service';
 import { RulesService } from '../../core/rules-service';
 import { useSpellStore } from '../../stores/spell-store';
-import { Star, Shield, Zap } from 'lucide-react';
+import { Star, Shield } from 'lucide-react';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -249,7 +249,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                                     {spell.name}
                                   </div>
                                   {isAlwaysPrepared && (
-                                    <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" title="Always Prepared" />
+                                    <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" />
                                   )}
                                 </div>
                                 <div className="text-[9px] text-text-tertiary uppercase tracking-tight">

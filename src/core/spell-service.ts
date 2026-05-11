@@ -1,4 +1,4 @@
-import type { Spell, SpellFilter } from 'open20-core/browser';
+import type { Spell } from 'open20-core/browser';
 import type { AppCharacter } from './types';
 import { dataLoader } from './data-loader';
 
@@ -23,7 +23,7 @@ export class SpellService {
     return this.getAllSpells().find(s => s.id === id);
   }
 
-  static searchSpells(filter: SpellFilter): Spell[] {
+  static searchSpells(filter: any): Spell[] {
     let results = this.getAllSpells();
     
     if (filter?.query) {

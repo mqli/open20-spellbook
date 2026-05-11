@@ -37,6 +37,13 @@ describe('CharacterStore', () => {
       id: '1', 
       name: 'Test',
       spells: { knownSpells: [], preparedSpells: [] },
+      classes: [{ classId: 'Wizard', level: 1 }],
+      abilityScores: { 
+        base: { Intelligence: 16, Constitution: 10, Wisdom: 10, Charisma: 10, Strength: 10, Dexterity: 10 },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {}
+      },
       conditions: [],
       updatedAt: ''
     } as any;
@@ -55,7 +62,12 @@ describe('CharacterStore', () => {
       name: 'Test',
       spells: { knownSpells: ['magic-missile'], preparedSpells: [] },
       classes: [{ classId: 'Wizard', level: 1 }],
-      abilityScores: { base: { Intelligence: 16 } },
+      abilityScores: { 
+        base: { Intelligence: 16, Constitution: 10, Wisdom: 10, Charisma: 10, Strength: 10, Dexterity: 10 },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {}
+      },
       conditions: [],
       updatedAt: ''
     } as any;
