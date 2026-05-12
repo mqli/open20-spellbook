@@ -1,4 +1,4 @@
-import type { Spell, Class, Species, Background, Feat, LookupTables } from 'open20-core/browser';
+import type { Spell } from 'open20-core';
 
 type RawComponents = readonly string[] | string | Record<string, unknown>;
 
@@ -9,15 +9,6 @@ interface RawSpell extends Partial<Omit<Spell, 'components' | 'classes' | 'level
   components?: RawComponents;
   classes?: readonly string[] | string;
   description?: string;
-}
-
-interface RawLookupTables extends LookupTables {
-  spells?: RawSpell[];
-  classes?: Class[];
-  species?: Species[];
-  backgrounds?: Background[];
-  feats?: Feat[];
-  monsters?: unknown[];
 }
 
 /**
@@ -107,17 +98,5 @@ export class SchemaService {
         description: raw.description || '',
       } as Spell;
     });
-  }
-
-  static transformLookupTables(raw: RawLookupTables): RawLookupTables {
-    return {
-      ...raw,
-      spells: this.transformSpells(raw.spells || []),
-      classes: (raw.classes || []) as Class[],
-      species: (raw.species || []) as Species[],
-      backgrounds: (raw.backgrounds || []) as Background[],
-      feats: (raw.feats || []) as Feat[],
-      monsters: raw.monsters || [],
-    };
   }
 }

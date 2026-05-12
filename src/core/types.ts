@@ -1,4 +1,4 @@
-import type { Character, Spell, AbilityScores, AbilityName } from 'open20-core/browser';
+import type { Character, Spell, AbilityScores, AbilityName } from 'open20-core';
 
 export type AppCharacter = Character & { id: string };
 

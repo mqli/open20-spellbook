@@ -1,4 +1,4 @@
-import type { Spell } from 'open20-core/browser';
+import type { Spell } from 'open20-core';
 
 interface SpellStatsGridProps {
   spell: Spell;

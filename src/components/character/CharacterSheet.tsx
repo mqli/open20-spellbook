@@ -27,9 +27,13 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   if (!activeCharacter) return null;
 
   const spells = activeCharacter.spells;
+  const classSpellcasting = spells.classSpellcasting;
+  const primaryClassId = Object.keys(classSpellcasting)[0];
+  const primaryClassSpells = primaryClassId ? classSpellcasting[primaryClassId] : undefined;
+
   const stats = RulesService.getProjectedStats(activeCharacter);
   const maxPrepared = stats.maxPreparedSpells;
-  const ability = spells.spellcastingAbility;
+  const ability = primaryClassSpells?.spellcastingAbility ?? 'Intelligence';
   const abilityMod = stats.abilityModifiers[ability] ?? 0;
 
   const concentratingCondition = activeCharacter.conditions?.find(c => c.id === 'Concentrating');
@@ -41,8 +45,13 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
 
   const casterType = getCasterType(activeCharacter);
 
-  const knownSpellsList = spells.knownSpells ?? [];
-  const alwaysPreparedList = spells.alwaysPreparedSpells ?? [];
+  // Aggregate across all classes
+  const allKnownSpells = Object.values(classSpellcasting).flatMap(c => [...c.knownSpells]);
+  const allPreparedSpells = Object.values(classSpellcasting).flatMap(c => [...c.preparedSpells]);
+  const allAlwaysPreparedSpells = Object.values(classSpellcasting).flatMap(c => [...(c.alwaysPreparedSpells ?? [])]);
+
+  const knownSpellsList = allKnownSpells;
+  const alwaysPreparedList = allAlwaysPreparedSpells;
   const combinedKnownIds = Array.from(new Set([...knownSpellsList, ...alwaysPreparedList]));
 
   // For Spell Inventory, show:
@@ -208,7 +217,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                   <div className="flex items-center gap-3">
                     {casterType.isSpellbookCaster && (
                       <span className="text-[10px] text-text-tertiary">
-                        Known: <span className="font-bold text-info">{spells.knownSpells.filter(id => {
+                        Known: <span className="font-bold text-info">{knownSpellsList.filter(id => {
                           const s = spellService.getSpell(id);
                           return s && s.level > 0;
                         }).length}</span>
@@ -220,7 +229,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                       </span>
                     )}
                     <span className="text-sm font-black text-primary-600">
-                      {spells.preparedSpells.length}
+                      {allPreparedSpells.length}
                       <span className="text-text-tertiary font-normal text-xs"> / {maxPrepared}</span>
                     </span>
                   </div>
@@ -228,12 +237,12 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                 <div className="h-2 bg-bg-primary rounded-full overflow-hidden border border-border">
                   <div
                     className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
-                    style={{ width: `${Math.min(100, (spells.preparedSpells.length / Math.max(1, maxPrepared)) * 100)}%` }}
+                    style={{ width: `${Math.min(100, (allPreparedSpells.length / Math.max(1, maxPrepared)) * 100)}%` }}
                   />
                 </div>
                 <p className="text-[10px] text-text-tertiary mt-2 text-center">
-                  {maxPrepared - spells.preparedSpells.length > 0
-                    ? `${maxPrepared - spells.preparedSpells.length} slot${maxPrepared - spells.preparedSpells.length !== 1 ? 's' : ''} remaining`
+                  {maxPrepared - allPreparedSpells.length > 0
+                    ? `${maxPrepared - allPreparedSpells.length} slot${maxPrepared - allPreparedSpells.length !== 1 ? 's' : ''} remaining`
                     : 'Preparation limit reached'}
                 </p>
               </section>
@@ -258,7 +267,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                       <div className="grid gap-1">
                         {spellsAtLevel.map(spell => {
                           const isAlwaysPrepared = alwaysPreparedList.includes(spell.id);
-                          const isManuallyPrepared = spells.preparedSpells.includes(spell.id);
+                          const isManuallyPrepared = allPreparedSpells.includes(spell.id);
                           const isPrepared = isAlwaysPrepared || isManuallyPrepared;
 
                           return (

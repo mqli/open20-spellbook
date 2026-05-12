@@ -84,6 +84,13 @@ export function CharacterBar() {
 
   const displayChar = activeCharacter ?? characters[0];
 
+  // Get spellcasting stats from the primary spellcasting class
+  const primaryClassSpells = activeCharacter?.spells?.classSpellcasting
+    ? Object.values(activeCharacter.spells.classSpellcasting)[0]
+    : undefined;
+  const spellSaveDC = primaryClassSpells?.spellSaveDC ?? 0;
+  const spellAttackBonus = primaryClassSpells?.spellAttackBonus ?? 0;
+
   return (
     <div className="bg-bg-secondary border-b border-border px-3 py-1.5 flex items-center justify-between gap-2">
       {/* Left: active character + dropdown */}
@@ -153,11 +160,11 @@ export function CharacterBar() {
           >
             <div>
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">DC</div>
-              <div className="text-xs font-bold text-primary-600">{activeCharacter.spells?.spellSaveDC ?? 0}</div>
+              <div className="text-xs font-bold text-primary-600">{spellSaveDC}</div>
             </div>
             <div>
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">ATK</div>
-              <div className="text-xs font-bold text-primary-600">+{activeCharacter.spells?.spellAttackBonus ?? 0}</div>
+              <div className="text-xs font-bold text-primary-600">+{spellAttackBonus}</div>
             </div>
           </button>
 

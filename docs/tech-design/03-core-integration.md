@@ -6,7 +6,7 @@ The core integration layer wraps `open20-core` functions with UI-friendly abstra
 
 ```typescript
 // src/core/types.ts
-import type { Character } from 'open20-core/browser';
+import type { Character } from 'open20-core';
 
 /**
  * Extension of the core Character type with UI-specific metadata
@@ -26,7 +26,7 @@ import {
   longRest as open20LongRest,
   shortRest as open20ShortRest,
   type CreateCharacterParams
-} from 'open20-core/browser';
+} from 'open20-core';
 
 export class CharacterService {
   /**

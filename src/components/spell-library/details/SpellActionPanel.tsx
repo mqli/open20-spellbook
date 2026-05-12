@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react';
 import { Button } from '../../ui/Button';
-import type { Spell } from 'open20-core/browser';
+import type { Spell } from 'open20-core';
 import type { AppCharacter } from '../../../core/types';
 
 interface SpellActionPanelProps {
@@ -23,6 +23,12 @@ export function SpellActionPanel({
   onDamageRoll,
 }: SpellActionPanelProps) {
   if (!character) return null;
+
+  const classSpellcasting = character.spells.classSpellcasting;
+  const primaryClassId = Object.keys(classSpellcasting)[0];
+  const spellAttackBonus = primaryClassId
+    ? classSpellcasting[primaryClassId].spellAttackBonus
+    : 0;
 
   const canCast = (isKnown || spell.level === 0) && (spell.level === 0 || isPrepared) && (
     spell.level === 0 || 
@@ -51,7 +57,7 @@ export function SpellActionPanel({
           className="shadow-lg shadow-primary-500/20"
           onClick={onAttackRoll}
         >
-          Roll Attack (+{character.spells.spellAttackBonus ?? 0})
+          Roll Attack (+{spellAttackBonus ?? 0})
         </Button>
       )}
       

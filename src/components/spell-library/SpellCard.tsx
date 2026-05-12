@@ -1,4 +1,4 @@
-import type { Spell } from 'open20-core/browser';
+import type { Spell } from 'open20-core';
 import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { Badge } from '../ui/Badge';

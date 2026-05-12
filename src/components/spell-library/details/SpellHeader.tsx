@@ -1,5 +1,5 @@
 import { Activity } from 'lucide-react';
-import type { Spell } from 'open20-core/browser';
+import type { Spell } from 'open20-core';
 import type { AppCharacter } from '../../../core/types';
 
 interface SpellHeaderProps {

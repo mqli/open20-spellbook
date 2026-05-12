@@ -163,9 +163,14 @@ export class CharacterService {
 
   rollSpellAttack(character: AppCharacter, spellName: string): AttackRollResult {
     void spellName;
+    const classSpellcasting = character.spells.classSpellcasting;
+    const primaryClassId = Object.keys(classSpellcasting)[0];
+    const spellcastingAbility = primaryClassId
+      ? classSpellcasting[primaryClassId].spellcastingAbility as any
+      : 'Intelligence';
     return rollSpellAttack({ 
       character, 
-      spellcastingAbility: character.spells.spellcastingAbility as any || 'Intelligence',
+      spellcastingAbility,
       rng: defaultRandom
     });
   }

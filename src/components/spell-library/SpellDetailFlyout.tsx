@@ -2,7 +2,7 @@ import { ArrowLeft, X } from 'lucide-react';
 import { 
   rollDiceExpression,
   defaultRandom,
-} from 'open20-core/browser';
+} from 'open20-core';
 import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { useRollStore } from '../../stores/roll-store';

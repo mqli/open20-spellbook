@@ -27,21 +27,21 @@ async function runTests() {
     const character = characterService.createCharacter(mockParams);
     console.log('✅ Character creation success');
     
-    if (character.spells.spellSaveDC === 13) {
+    if (character.spells.classSpellcasting['Wizard'].spellSaveDC === 13) {
       console.log('✅ Spell DC calculation (13) success');
     } else {
-      console.log('❌ Spell DC calculation failed. Expected 13, got:', character.spells.spellSaveDC);
+      console.log('❌ Spell DC calculation failed. Expected 13, got:', character.spells.classSpellcasting['Wizard'].spellSaveDC);
     }
 
-    if (character.spells.spellAttackBonus === 5) {
+    if (character.spells.classSpellcasting['Wizard'].spellAttackBonus === 5) {
       console.log('✅ Spell Attack calculation (5) success');
     } else {
-      console.log('❌ Spell Attack calculation failed. Expected 5, got:', character.spells.spellAttackBonus);
+      console.log('❌ Spell Attack calculation failed. Expected 5, got:', character.spells.classSpellcasting['Wizard'].spellAttackBonus);
     }
 
     const spellId = 'fireball';
     const preparedChar = characterService.prepareSpell(character, spellId);
-    if (preparedChar.spells.preparedSpells.includes(spellId)) {
+    if (preparedChar.spells.classSpellcasting['Wizard'].preparedSpells.includes(spellId)) {
       console.log('✅ Spell preparation success');
     }
 
