@@ -3,6 +3,7 @@ import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { Badge } from '../ui/Badge';
 import { spellService } from '../../core/spell-service';
+import { getCasterType } from '../../core/character-service';
 import { Sparkles, Activity, BookMarked, Star } from 'lucide-react';
 
 interface SpellCardProps {
@@ -33,6 +34,9 @@ export function SpellCard({ spell }: SpellCardProps) {
   const isClassSpell = activeCharacter
     ? spellService.isSpellForCharacter(activeCharacter, spell)
     : false;
+
+  // Show Learn/Prepare buttons based on character's caster type
+  const casterType = activeCharacter ? getCasterType(activeCharacter) : { canLearn: false, canPrepare: false, isSpellbookCaster: false };
 
   const handleLearnToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -130,8 +134,8 @@ export function SpellCard({ spell }: SpellCardProps) {
             </button>
           )}
 
-          {/* Learn toggle — available for any class spell */}
-          {isClassSpell && (
+          {/* Learn toggle — for casters who "learn" spells; cantrips only for spellbook casters */}
+          {isClassSpell && casterType.canLearn && (spell.level > 0 || casterType.isSpellbookCaster) && (
             <button
               onClick={handleLearnToggle}
               className={`
@@ -146,8 +150,8 @@ export function SpellCard({ spell }: SpellCardProps) {
             </button>
           )}
 
-          {/* Prepare toggle — only visible if known (or cantrips which are always "known") */}
-          {isClassSpell && (isKnown || spell.level === 0) && (
+          {/* Prepare toggle — only for casters who prepare spells (not cantrips) */}
+          {isClassSpell && casterType.canPrepare && spell.level > 0 && (
             <button
               onClick={handlePrepareToggle}
               className={`

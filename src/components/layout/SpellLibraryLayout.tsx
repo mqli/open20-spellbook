@@ -8,6 +8,7 @@ import { SpellCard } from '../spell-library/SpellCard';
 import { SpellDetailFlyout } from '../spell-library/SpellDetailFlyout';
 
 import { useCharacterStore } from '../../stores/character-store';
+import { getCasterType } from '../../core/character-service';
 import { CharacterBar } from '../character/CharacterBar';
 
 export function SpellLibraryLayout() {
@@ -32,16 +33,18 @@ export function SpellLibraryLayout() {
   if ((showPreparedOnly || showKnownOnly) && !activeCharacter) {
     spellsToDisplay = [];
   } else if (showPreparedOnly && activeCharacter) {
+    // Cantrips can't be "prepared" — exclude them from prepared filter
     spellsToDisplay = filteredSpells.filter(s =>
-      spellService.isSpellPrepared(activeCharacter, s.id)
+      s.level > 0 && spellService.isSpellPrepared(activeCharacter, s.id)
     );
   } else if (showKnownOnly && activeCharacter) {
     spellsToDisplay = filteredSpells.filter(s =>
-      spellService.isSpellKnown(activeCharacter, s.id) &&
-      spellService.isSpellForCharacter(activeCharacter, s)
+      spellService.isSpellForCharacter(activeCharacter, s) &&
+      spellService.isSpellKnown(activeCharacter, s.id)
     );
   }
 
+  const casterType = activeCharacter ? getCasterType(activeCharacter) : { canLearn: false, canPrepare: false };
   const activeFilter = showPreparedOnly ? 'prepared' : showKnownOnly ? 'known' : null;
 
   const emptyMessage = activeFilter === 'prepared'
@@ -63,28 +66,32 @@ export function SpellLibraryLayout() {
             <SearchBar />
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <button
-              onClick={() => setShowKnownOnly(!showKnownOnly)}
-              className={`
-                text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
-                ${showKnownOnly
-                  ? 'bg-info text-white border-info shadow-sm'
-                  : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
-              `}
-            >
-              Known
-            </button>
-            <button
-              onClick={() => setShowPreparedOnly(!showPreparedOnly)}
-              className={`
-                text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
-                ${showPreparedOnly
-                  ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
-                  : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
-              `}
-            >
-              Prep
-            </button>
+            {casterType.canLearn && (
+              <button
+                onClick={() => setShowKnownOnly(!showKnownOnly)}
+                className={`
+                  text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
+                  ${showKnownOnly
+                    ? 'bg-info text-white border-info shadow-sm'
+                    : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
+                `}
+              >
+                Known
+              </button>
+            )}
+            {casterType.canPrepare && (
+              <button
+                onClick={() => setShowPreparedOnly(!showPreparedOnly)}
+                className={`
+                  text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
+                  ${showPreparedOnly
+                    ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
+                    : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
+                `}
+              >
+                Prep
+              </button>
+            )}
           </div>
         </div>
 

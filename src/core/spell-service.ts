@@ -63,15 +63,23 @@ export class SpellService {
 
   isSpellKnown(character: AppCharacter, spellId: string): boolean {
     const spell = this.getSpell(spellId);
-    const isCantrip = spell?.level === 0;
+    if (!spell) return false;
+    if (!this.isSpellForCharacter(character, spell)) return false;
+
     const isKnown = character.spells?.knownSpells?.includes(spellId) ?? false;
     const isAlwaysPrepared = character.spells?.alwaysPreparedSpells?.includes(spellId) ?? false;
-    return isCantrip || isKnown || isAlwaysPrepared;
+    if (isKnown || isAlwaysPrepared) return true;
+
+    // Auto-known cantrips for non-spellbook casters
+    if (spell.level !== 0) return false;
+    const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
+    const isSpellbookCaster = classIds.some(id => ['wizard', 'artificer'].includes(id));
+    return !isSpellbookCaster;
   }
 
   isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
-    const characterClassIds = character.classes?.map(c => c.classId) ?? [];
-    return spell.classes?.some(c => characterClassIds.includes(c)) ?? false;
+    const characterClassIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
+    return spell.classes?.some(c => characterClassIds.includes(c.toLowerCase())) ?? false;
   }
 }
 

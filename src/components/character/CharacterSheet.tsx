@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { spellService } from '../../core/spell-service';
 import { RulesService } from '../../core/rules-service';
 import { useSpellStore } from '../../stores/spell-store';
+import { getCasterType } from '../../core/character-service';
 import { Star, Shield } from 'lucide-react';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
@@ -38,22 +39,35 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     .map(([lvl, slot]) => ({ lvl: parseInt(lvl), slot: slot as { total: number; used: number } }))
     .filter(({ lvl, slot }) => lvl > 0 && slot.total > 0);
 
+  const casterType = getCasterType(activeCharacter);
+
   const knownSpellsList = spells.knownSpells ?? [];
   const alwaysPreparedList = spells.alwaysPreparedSpells ?? [];
   const combinedKnownIds = Array.from(new Set([...knownSpellsList, ...alwaysPreparedList]));
 
-  // Get and group known spells
-  const knownSpells = combinedKnownIds
+  // For Prepared casters (Cleric, Druid, Paladin), show ALL class spells (they can prepare any from their list)
+  // For Known/Spellbook casters, only show known spells
+  const inventorySpellIds = casterType.canPrepare && !casterType.isSpellbookCaster
+    ? (() => {
+        const classIds = activeCharacter.classes?.map(c => c.classId) ?? [];
+        return spellService.getAllSpells()
+          .filter(s => s.classes?.some(c => classIds.includes(c)))
+          .map(s => s.id);
+      })()
+    : combinedKnownIds;
+
+  // Get and group spells for the inventory
+  const inventorySpells = inventorySpellIds
     .map(id => spellService.getSpell(id))
     .filter((s): s is NonNullable<typeof s> => !!s)
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
 
-  const spellsByLevel = knownSpells.reduce((acc, spell) => {
+  const spellsByLevel = inventorySpells.reduce((acc, spell) => {
     const level = spell.level;
     if (!acc[level]) acc[level] = [];
     acc[level].push(spell);
     return acc;
-  }, {} as Record<number, typeof knownSpells>);
+  }, {} as Record<number, typeof inventorySpells>);
 
   const handleTogglePrepare = (spellId: string, isPrepared: boolean) => {
     if (isPrepared) unprepareSpell(spellId);
@@ -181,44 +195,56 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               </section>
             )}
 
-            {/* Prepared Spells */}
-            <section>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] flex items-center gap-2">
-                  <BookOpen className="w-3 h-3 text-primary-500" />
-                  Preparation
-                </h3>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] text-text-tertiary">
-                    Known: <span className="font-bold text-info">{spells.knownSpells.length}</span>
-                  </span>
-                  <span className="text-sm font-black text-primary-600">
-                    {spells.preparedSpells.length}
-                    <span className="text-text-tertiary font-normal text-xs"> / {maxPrepared}</span>
-                  </span>
+            {/* Preparation — only for casters who prepare spells */}
+            {casterType.canPrepare && (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] flex items-center gap-2">
+                    <BookOpen className="w-3 h-3 text-primary-500" />
+                    Preparation
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    {casterType.isSpellbookCaster && (
+                      <span className="text-[10px] text-text-tertiary">
+                        Known: <span className="font-bold text-info">{spells.knownSpells.filter(id => {
+                          const s = spellService.getSpell(id);
+                          return s && s.level > 0;
+                        }).length}</span>
+                      </span>
+                    )}
+                    {casterType.canPrepare && !casterType.isSpellbookCaster && (
+                      <span className="text-[10px] text-text-tertiary">
+                        Class Spells: <span className="font-bold text-info">{inventorySpells.filter(s => s.level > 0).length}</span>
+                      </span>
+                    )}
+                    <span className="text-sm font-black text-primary-600">
+                      {spells.preparedSpells.length}
+                      <span className="text-text-tertiary font-normal text-xs"> / {maxPrepared}</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="h-2 bg-bg-primary rounded-full overflow-hidden border border-border">
-                <div
-                  className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
-                  style={{ width: `${Math.min(100, (spells.preparedSpells.length / Math.max(1, maxPrepared)) * 100)}%` }}
-                />
-              </div>
-              <p className="text-[10px] text-text-tertiary mt-2 text-center">
-                {maxPrepared - spells.preparedSpells.length > 0
-                  ? `${maxPrepared - spells.preparedSpells.length} slot${maxPrepared - spells.preparedSpells.length !== 1 ? 's' : ''} remaining`
-                  : 'Preparation limit reached'}
-              </p>
-            </section>
+                <div className="h-2 bg-bg-primary rounded-full overflow-hidden border border-border">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
+                    style={{ width: `${Math.min(100, (spells.preparedSpells.length / Math.max(1, maxPrepared)) * 100)}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-text-tertiary mt-2 text-center">
+                  {maxPrepared - spells.preparedSpells.length > 0
+                    ? `${maxPrepared - spells.preparedSpells.length} slot${maxPrepared - spells.preparedSpells.length !== 1 ? 's' : ''} remaining`
+                    : 'Preparation limit reached'}
+                </p>
+              </section>
+            )}
 
-            {/* Known Spells List */}
+            {/* Spell Inventory */}
             <section>
               <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4">
                 Spell Inventory
               </h3>
-              {knownSpells.length === 0 ? (
+              {inventorySpells.length === 0 ? (
                 <div className="text-center py-8 bg-bg-primary rounded-2xl border border-dashed border-border">
-                  <p className="text-xs text-text-tertiary">No spells learned yet.</p>
+                  <p className="text-xs text-text-tertiary">No spells available.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -262,29 +288,31 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                                 </div>
                               </div>
                               
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (isAlwaysPrepared) return;
-                                  handleTogglePrepare(spell.id, isManuallyPrepared);
-                                }}
-                                disabled={isAlwaysPrepared}
-                                className={`
-                                  p-1.5 rounded-lg transition-all border
-                                  ${isAlwaysPrepared
-                                    ? 'bg-info/20 text-info border-info/30 cursor-default'
-                                    : isManuallyPrepared
-                                    ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
-                                    : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
-                                `}
-                                title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
-                              >
-                                {isAlwaysPrepared ? (
-                                  <Shield className="w-3.5 h-3.5 fill-current" />
-                                ) : (
-                                  <Star className={`w-3.5 h-3.5 ${isManuallyPrepared ? 'fill-current' : ''}`} />
-                                )}
-                              </button>
+                              {casterType.canPrepare && spell.level > 0 && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isAlwaysPrepared) return;
+                                    handleTogglePrepare(spell.id, isManuallyPrepared);
+                                  }}
+                                  disabled={isAlwaysPrepared}
+                                  className={`
+                                    p-1.5 rounded-lg transition-all border
+                                    ${isAlwaysPrepared
+                                      ? 'bg-info/20 text-info border-info/30 cursor-default'
+                                      : isManuallyPrepared
+                                      ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
+                                      : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
+                                  `}
+                                  title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+                                >
+                                  {isAlwaysPrepared ? (
+                                    <Shield className="w-3.5 h-3.5 fill-current" />
+                                  ) : (
+                                    <Star className={`w-3.5 h-3.5 ${isManuallyPrepared ? 'fill-current' : ''}`} />
+                                  )}
+                                </button>
+                              )}
                             </div>
                           );
                         })}
