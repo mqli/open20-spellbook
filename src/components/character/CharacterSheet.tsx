@@ -45,9 +45,11 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const alwaysPreparedList = spells.alwaysPreparedSpells ?? [];
   const combinedKnownIds = Array.from(new Set([...knownSpellsList, ...alwaysPreparedList]));
 
-  // For Prepared casters (Cleric, Druid, Paladin), show ALL class spells (they can prepare any from their list)
-  // For Known/Spellbook casters, only show known spells
-  const inventorySpellIds = casterType.canPrepare && !casterType.isSpellbookCaster
+  // For Spell Inventory, show:
+  // - Multiclass or Prepared casters: ALL class spells (can prepare any from class list)
+  // - Known/Spellbook casters (single class): only known spells
+  const isMulticlass = (activeCharacter.classes?.length ?? 0) > 1;
+  const inventorySpellIds = (casterType.canPrepare && !casterType.isSpellbookCaster) || isMulticlass
     ? (() => {
         const classIds = activeCharacter.classes?.map(c => c.classId) ?? [];
         return spellService.getAllSpells()

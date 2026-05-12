@@ -71,10 +71,18 @@ export class SpellService {
     if (isKnown || isAlwaysPrepared) return true;
 
     // Auto-known cantrips for non-spellbook casters
+    // For multiclass: only auto-known if the spell belongs to a non-spellbook class
     if (spell.level !== 0) return false;
-    const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
-    const isSpellbookCaster = classIds.some(id => ['wizard', 'artificer'].includes(id));
-    return !isSpellbookCaster;
+    
+    const spellbookClasses = ['wizard', 'artificer'];
+    const spellClasses = spell.classes?.map(c => c.toLowerCase()) ?? [];
+    const belongsToSpellbookClass = spellClasses.some(c => spellbookClasses.includes(c));
+    
+    // If spell belongs to a spellbook class (Wizard/Artificer), must be learned
+    if (belongsToSpellbookClass) return false;
+    
+    // Cantrip belongs to non-spellbook caster - auto-known
+    return true;
   }
 
   isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
