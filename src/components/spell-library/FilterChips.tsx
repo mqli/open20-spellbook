@@ -17,28 +17,22 @@ export function FilterChips() {
     + (showRitualOnly ? 1 : 0) + (showConcentrationOnly ? 1 : 0);
 
   return (
-    <div className="py-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">
-          Filters
-          {activeFilterCount > 0 && (
-            <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary-500 rounded-full">
-              {activeFilterCount}
-            </span>
-          )}
-        </h3>
-        {activeFilterCount > 0 && (
+    <div className="py-2 space-y-3">
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary-500 rounded-full">
+            {activeFilterCount}
+          </span>
           <button 
             onClick={clearAllFilters}
-            className="text-xs text-text-secondary hover:text-danger transition-colors duration-200 font-medium"
+            className="text-xs text-text-secondary hover:text-danger transition-colors duration-200"
           >
             Clear all
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div>
-        <h4 className="text-xs font-medium text-text-secondary uppercase mb-2">Properties</h4>
         <div className="flex flex-wrap gap-2">
           <FilterChip 
             variant={showRitualOnly ? 'info' : 'slate'}
@@ -58,15 +52,16 @@ export function FilterChips() {
       </div>
 
       <div>
-        <h4 className="text-xs font-medium text-text-secondary uppercase mb-2">Classes</h4>
-        <div className="max-h-32 overflow-y-auto pr-1 space-y-2 scrollbar-custom">
-          <div className="flex flex-wrap gap-2">
+        <h4 className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider mb-1.5">Classes</h4>
+        <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
+          <div className="flex flex-wrap gap-1.5">
             {CLASSES.map(cls => (
               <FilterChip 
                 key={cls}
                 variant={selectedClasses.includes(cls) ? 'purple' : 'slate'}
                 active={selectedClasses.includes(cls)}
                 onClick={() => toggleClassFilter(cls)}
+                size="sm"
               >
                 {cls}
               </FilterChip>
@@ -76,15 +71,16 @@ export function FilterChips() {
       </div>
 
       <div>
-        <h4 className="text-xs font-medium text-text-secondary uppercase mb-2">Schools</h4>
-        <div className="max-h-32 overflow-y-auto pr-1 space-y-2 scrollbar-custom">
-          <div className="flex flex-wrap gap-2">
+        <h4 className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider mb-1.5">Schools</h4>
+        <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
+          <div className="flex flex-wrap gap-1.5">
             {SCHOOLS.map(school => (
               <FilterChip 
                 key={school}
                 variant={selectedSchools.includes(school) ? 'purple' : 'slate'}
                 active={selectedSchools.includes(school)}
                 onClick={() => toggleSchoolFilter(school)}
+                size="sm"
               >
                 {school}
               </FilterChip>
