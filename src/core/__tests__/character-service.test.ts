@@ -86,7 +86,7 @@ describe('CharacterService', () => {
     const concentratingChar = characterService.startConcentration(character, spellId);
     const condition = concentratingChar.conditions.find(c => c.id === 'Concentrating');
     expect(condition).toBeDefined();
-    expect((condition as any)?.source).toBe(spellId);
+    expect(condition?.source).toBe(spellId);
     
     const endedChar = characterService.endConcentration(concentratingChar);
     expect(endedChar.conditions.find(c => c.id === 'Concentrating')).toBeUndefined();

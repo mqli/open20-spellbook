@@ -19,15 +19,12 @@ export function FilterChips() {
   return (
     <div className="py-2 space-y-3">
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between">
-          <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary-500 rounded-full">
-            {activeFilterCount}
-          </span>
-          <button 
+        <div className="flex justify-end">
+          <button
             onClick={clearAllFilters}
-            className="text-xs text-text-secondary hover:text-danger transition-colors duration-200"
+            className="text-xs text-text-secondary hover:text-danger transition-colors"
           >
-            Clear all
+            Clear{activeFilterCount > 1 ? ` ${activeFilterCount} filters` : ' filter'}
           </button>
         </div>
       )}

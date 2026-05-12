@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom/vitest';
-import { vi } from 'vitest';
 
 // Mock localStorage for node environment
 if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
