@@ -3,6 +3,7 @@ import type { AppCharacter } from './types';
 import { dataLoader } from './data-loader';
 
 import { SchemaService } from './schema-service';
+import { isSpellPrepared, knowsSpell } from 'open20-core';
 
 interface SpellSearchFilter {
   query?: string;
@@ -56,8 +57,8 @@ export class SpellService {
   }
 
   isSpellPrepared(character: AppCharacter, spellId: string): boolean {
-    const isManual = character.spells?.preparedSpells?.includes(spellId) ?? false;
-    const isAlways = character.spells?.alwaysPreparedSpells?.includes(spellId) ?? false;
+    const isManual = isSpellPrepared(character, spellId) ?? false;
+    const isAlways = Object.values(character.spells.classSpellcasting).some(s => s.alwaysPreparedSpells?.includes(spellId)) ?? false;
     return isManual || isAlways;
   }
 
@@ -66,8 +67,8 @@ export class SpellService {
     if (!spell) return false;
     if (!this.isSpellForCharacter(character, spell)) return false;
 
-    const isKnown = character.spells?.knownSpells?.includes(spellId) ?? false;
-    const isAlwaysPrepared = character.spells?.alwaysPreparedSpells?.includes(spellId) ?? false;
+    const isKnown = knowsSpell(character,spellId) ?? false;
+    const isAlwaysPrepared = Object.values(character.spells.classSpellcasting).some(s => s.alwaysPreparedSpells?.includes(spellId)) ?? false;
     if (isKnown || isAlwaysPrepared) return true;
 
     // Auto-known cantrips for non-spellbook casters

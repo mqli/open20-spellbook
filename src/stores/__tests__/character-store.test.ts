@@ -49,49 +49,125 @@ describe('CharacterStore', () => {
   });
 
   it('should learn a spell and save to storage', () => {
-    const mockChar = { 
-      id: '1', 
+    const mockChar = {
+      id: '1',
       name: 'Test',
-      spells: { knownSpells: [], preparedSpells: [] },
-      classes: [{ classId: 'Wizard', level: 1 }],
-      abilityScores: { 
+      classes: [{ classId: 'Wizard', level: 1, subclassId: null, subclassLevel: null, hitDice: { die: 6, used: 0 } }],
+      abilityScores: {
         base: { Intelligence: 16, Constitution: 10, Wisdom: 10, Charisma: 10, Strength: 10, Dexterity: 10 },
         racialBonuses: {},
         featBonuses: {},
         temporaryBonuses: {}
+      } as any,
+      spells: {
+        classSpellcasting: {
+          Wizard: {
+            classId: 'Wizard',
+            spellcastingAbility: 'Intelligence' as any,
+            spellSaveDC: 14,
+            spellAttackBonus: 6,
+            knownSpells: [],
+            preparedSpells: [],
+            maxPrepared: 4
+          }
+        },
+        spellSlots: {
+          0: { total: 0, used: 0 },
+          1: { total: 2, used: 0 },
+          2: { total: 0, used: 0 },
+          3: { total: 0, used: 0 },
+          4: { total: 0, used: 0 },
+          5: { total: 0, used: 0 },
+          6: { total: 0, used: 0 },
+          7: { total: 0, used: 0 },
+          8: { total: 0, used: 0 },
+          9: { total: 0, used: 0 }
+        },
+        pactMagicSlots: null
       },
+      resources: [],
+      hitPoints: { max: 8, current: 8, temporary: 0, deathSaves: { successes: 0, failures: 0, isStable: false } },
+      combatStats: { AC: 10, initiative: 0, speed: 30, passivePerception: 10, proficiencyBonus: 2, attacks: [] },
+      equipment: [],
+      skills: {},
+      feats: [],
       conditions: [],
-      updatedAt: ''
+      currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
+      damageDefenses: { immune: [], resistant: [], vulnerable: [] },
+      notes: '',
+      createdAt: '',
+      updatedAt: '',
+      species: 'Human',
+      speciesSubtype: null,
+      background: 'Acolyte'
     } as unknown as AppCharacter;
-    
+
     useCharacterStore.getState().setActiveCharacter(mockChar);
     useCharacterStore.getState().learnSpell('magic-missile');
-    
+
     const updatedChar = useCharacterStore.getState().activeCharacter;
-    expect(updatedChar?.spells.knownSpells).toContain('magic-missile');
+    expect(updatedChar?.spells.classSpellcasting['Wizard'].knownSpells).toContain('magic-missile');
     expect(storageService.saveCharacter).toHaveBeenCalled();
   });
 
   it('should prepare a spell', () => {
-    const mockChar = { 
-      id: '1', 
+    const mockChar = {
+      id: '1',
       name: 'Test',
-      spells: { knownSpells: ['magic-missile'], preparedSpells: [] },
-      classes: [{ classId: 'Wizard', level: 1 }],
-      abilityScores: { 
+      classes: [{ classId: 'Wizard', level: 1, subclassId: null, subclassLevel: null, hitDice: { die: 6, used: 0 } }],
+      abilityScores: {
         base: { Intelligence: 16, Constitution: 10, Wisdom: 10, Charisma: 10, Strength: 10, Dexterity: 10 },
         racialBonuses: {},
         featBonuses: {},
         temporaryBonuses: {}
+      } as any,
+      spells: {
+        classSpellcasting: {
+          Wizard: {
+            classId: 'Wizard',
+            spellcastingAbility: 'Intelligence' as any,
+            spellSaveDC: 14,
+            spellAttackBonus: 6,
+            knownSpells: ['magic-missile'],
+            preparedSpells: [],
+            maxPrepared: 4
+          }
+        },
+        spellSlots: {
+          0: { total: 0, used: 0 },
+          1: { total: 2, used: 0 },
+          2: { total: 0, used: 0 },
+          3: { total: 0, used: 0 },
+          4: { total: 0, used: 0 },
+          5: { total: 0, used: 0 },
+          6: { total: 0, used: 0 },
+          7: { total: 0, used: 0 },
+          8: { total: 0, used: 0 },
+          9: { total: 0, used: 0 }
+        },
+        pactMagicSlots: null
       },
+      resources: [],
+      hitPoints: { max: 8, current: 8, temporary: 0, deathSaves: { successes: 0, failures: 0, isStable: false } },
+      combatStats: { AC: 10, initiative: 0, speed: 30, passivePerception: 10, proficiencyBonus: 2, attacks: [] },
+      equipment: [],
+      skills: {},
+      feats: [],
       conditions: [],
-      updatedAt: ''
+      currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
+      damageDefenses: { immune: [], resistant: [], vulnerable: [] },
+      notes: '',
+      createdAt: '',
+      updatedAt: '',
+      species: 'Human',
+      speciesSubtype: null,
+      background: 'Acolyte'
     } as unknown as AppCharacter;
     
     useCharacterStore.getState().setActiveCharacter(mockChar);
     useCharacterStore.getState().prepareSpell('magic-missile');
     
     const updatedChar = useCharacterStore.getState().activeCharacter;
-    expect(updatedChar?.spells.preparedSpells).toContain('magic-missile');
+    expect(updatedChar?.spells.classSpellcasting['Wizard'].preparedSpells).toContain('magic-missile');
   });
 });

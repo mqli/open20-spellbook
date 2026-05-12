@@ -30,13 +30,13 @@ describe('CharacterService', () => {
     expect(character.classes[0].level).toBe(1);
     
     // Wizard spellcasting uses Intelligence
-    expect(character.spells.spellcastingAbility).toBe('Intelligence');
+    expect(character.spells.classSpellcasting['Wizard'].spellcastingAbility).toBe('Intelligence');
     
     // Spell DC = 8 + PB(2) + Int Mod(3) = 13
-    expect(character.spells.spellSaveDC).toBe(13);
+    expect(character.spells.classSpellcasting['Wizard'].spellSaveDC).toBe(13);
     
     // Spell Attack = PB(2) + Int Mod(3) = 5
-    expect(character.spells.spellAttackBonus).toBe(5);
+    expect(character.spells.classSpellcasting['Wizard'].spellAttackBonus).toBe(5);
   });
 
   it('should calculate correct stats for higher level characters', () => {
@@ -45,7 +45,7 @@ describe('CharacterService', () => {
     
     expect(character.classes[0].level).toBe(5);
     // PB for level 5 is 3, Int Mod is 3, so Spell Save DC = 8 + 3 + 3 = 14
-    expect(character.spells.spellSaveDC).toBe(14);
+    expect(character.spells.classSpellcasting['Wizard'].spellSaveDC).toBe(14);
   });
 
   it('should handle spell preparation', () => {
@@ -53,10 +53,10 @@ describe('CharacterService', () => {
     const spellId = 'fireball';
     
     const preparedChar = characterService.prepareSpell(character, spellId);
-    expect(preparedChar.spells.preparedSpells).toContain(spellId);
+    expect(preparedChar.spells.classSpellcasting['Wizard'].preparedSpells).toContain(spellId);
     
     const unpreparedChar = characterService.unprepareSpell(preparedChar, spellId);
-    expect(unpreparedChar.spells.preparedSpells).not.toContain(spellId);
+    expect(unpreparedChar.spells.classSpellcasting['Wizard'].preparedSpells).not.toContain(spellId);
   });
 
   it('should manage spell slots', () => {
@@ -98,14 +98,14 @@ describe('CharacterService', () => {
     
     // Learn
     const learnedChar = characterService.learnSpell(character, spellId);
-    expect(learnedChar.spells.knownSpells).toContain(spellId);
+    expect(learnedChar.spells.classSpellcasting['Wizard'].knownSpells).toContain(spellId);
     
     // Unlearn (should also remove from prepared)
     const preparedChar = characterService.prepareSpell(learnedChar, spellId);
-    expect(preparedChar.spells.preparedSpells).toContain(spellId);
+    expect(preparedChar.spells.classSpellcasting['Wizard'].preparedSpells).toContain(spellId);
     
     const unlearnedChar = characterService.unlearnSpell(preparedChar, spellId);
-    expect(unlearnedChar.spells.knownSpells).not.toContain(spellId);
-    expect(unlearnedChar.spells.preparedSpells).not.toContain(spellId);
+    expect(unlearnedChar.spells.classSpellcasting['Wizard'].knownSpells).not.toContain(spellId);
+    expect(unlearnedChar.spells.classSpellcasting['Wizard'].preparedSpells).not.toContain(spellId);
   });
 });

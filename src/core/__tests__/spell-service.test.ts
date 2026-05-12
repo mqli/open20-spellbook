@@ -94,7 +94,30 @@ describe('SpellService', () => {
   it('should check if a spell is prepared', () => {
     const mockCharacter = {
       spells: {
-        preparedSpells: ['fireball']
+        classSpellcasting: {
+          Wizard: {
+            classId: 'Wizard',
+            spellcastingAbility: 'Intelligence' as any,
+            spellSaveDC: 14,
+            spellAttackBonus: 6,
+            knownSpells: [],
+            preparedSpells: ['fireball'],
+            maxPrepared: 4
+          }
+        },
+        spellSlots: {
+          0: { total: 0, used: 0 },
+          1: { total: 2, used: 0 },
+          2: { total: 0, used: 0 },
+          3: { total: 0, used: 0 },
+          4: { total: 0, used: 0 },
+          5: { total: 0, used: 0 },
+          6: { total: 0, used: 0 },
+          7: { total: 0, used: 0 },
+          8: { total: 0, used: 0 },
+          9: { total: 0, used: 0 }
+        },
+        pactMagicSlots: null
       }
     } as unknown as AppCharacter;
     

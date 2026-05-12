@@ -11,11 +11,12 @@ import {
   rollSpellAttack,
   rollSpellDamage,
   defaultRandom,
-  getMulticlassSpellcasterLevel,
-  calculateMulticlassSpellSlots,
+  addKnownSpell,
+  removeKnownSpell,
+  knowsSpell,
   type AttackRollResult,
   type DamageRollResult
-} from 'open20-core/browser';
+} from 'open20-core';
 import type { AppCharacter } from './types';
 import { SpellService } from './spell-service';
 
@@ -39,44 +40,6 @@ export function getCasterType(character: AppCharacter): {
   const canPrepare = classIds.some(id => PREPARED_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
   const isSpellbookCaster = classIds.some(id => SPELLBOOK_CLASSES.has(id));
   return { canLearn, canPrepare, isSpellbookCaster };
-}
-
-/**
- * Calculate spell slots for a character (supports multiclass)
- * For single-class: uses class table directly
- * For multiclass: uses multiclass spellcasting rules (PHB p. 164)
- */
-function calculateSpellSlotsForCharacter(character: AppCharacter): Record<number, { total: number; used: number }> {
-  const classes = character.classes ?? [];
-  
-  // Single class or all non-caster classes
-  if (classes.length <= 1) {
-    const classId = classes[0]?.classId ?? '';
-    const level = classes[0]?.level ?? 0;
-    const slotsByLevel = dataLoader.getSpellSlots(classId, level);
-    const result: Record<number, { total: number; used: number }> = {};
-    for (let lvl = 1; lvl <= 9; lvl++) {
-      result[lvl] = { total: slotsByLevel[lvl] ?? 0, used: 0 };
-    }
-    return result;
-  }
-  
-  // Multiclass: calculate total spellcaster level and get slots
-  const totalLevel = getMulticlassSpellcasterLevel(classes as any, dataLoader);
-  if (totalLevel < 1) {
-    return {};
-  }
-  
-  const slotsByLevel = calculateMulticlassSpellSlots(totalLevel, dataLoader) as any;
-  const existingSlots = character.spells.spellSlots as any;
-  const result: Record<number, { total: number; used: number }> = {};
-  for (let lvl = 1; lvl <= 9; lvl++) {
-    const total = slotsByLevel[lvl]?.total ?? slotsByLevel[lvl.toString()]?.total ?? 0;
-    // Preserve used slots if possible
-    const existing = existingSlots?.[lvl] ?? existingSlots?.[lvl.toString()];
-    result[lvl] = { total, used: existing ? Math.min(existing.used, total) : 0 };
-  }
-  return result;
 }
 
 const SPELL_SIDE_EFFECTS: Record<string, any> = {
@@ -109,16 +72,6 @@ export class CharacterService {
       return character;
     }
     const recomputed = open20Recompute(character, dataLoader as any) as any;
-    
-    // Recalculate spell slots for multiclass characters
-    const newSlots = calculateSpellSlotsForCharacter(character);
-    if (Object.keys(newSlots).length > 0) {
-      recomputed.spells = {
-        ...recomputed.spells,
-        spellSlots: newSlots
-      };
-    }
-    
     return { ...recomputed, id: character.id } as AppCharacter;
   }
 
@@ -169,23 +122,21 @@ export class CharacterService {
   }
 
   learnSpell(character: AppCharacter, spellId: string): AppCharacter {
-    if (character.spells.knownSpells.includes(spellId)) return character;
+    if (knowsSpell(character, spellId)) return character;
+    const castingClass = Object.keys(character.spells.classSpellcasting)[0];
+    if (!castingClass) return character; // can't learn if we don't know the class spellcasting type
     return {
-      ...character,
-      spells: { ...character.spells, knownSpells: [...character.spells.knownSpells, spellId] },
+      ...addKnownSpell(character, castingClass, spellId) as any,
       updatedAt: new Date().toISOString()
     };
   }
 
   unlearnSpell(character: AppCharacter, spellId: string): AppCharacter {
+    if (!knowsSpell(character, spellId)) return character;
+    const castingClass = Object.keys(character.spells.classSpellcasting)[0];
+    if (!castingClass) return character; // can't unlearn if we don't know the class spellcasting type
     return {
-      ...character,
-      spells: {
-        ...character.spells,
-        knownSpells: character.spells.knownSpells.filter(id => id !== spellId),
-        // also unprepare if it was prepared
-        preparedSpells: character.spells.preparedSpells.filter(id => id !== spellId),
-      },
+      ...removeKnownSpell(character, castingClass, spellId) as any,
       updatedAt: new Date().toISOString()
     };
   }
