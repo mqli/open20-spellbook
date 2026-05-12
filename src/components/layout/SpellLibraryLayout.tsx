@@ -9,7 +9,6 @@ import { SpellDetailFlyout } from '../spell-library/SpellDetailFlyout';
 
 import { useCharacterStore } from '../../stores/character-store';
 import { CharacterBar } from '../character/CharacterBar';
-import { SpellSlotTracker } from '../character/SpellSlotTracker';
 
 export function SpellLibraryLayout() {
   const {
@@ -54,19 +53,20 @@ export function SpellLibraryLayout() {
   return (
     <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
       <CharacterBar />
-      <SpellSlotTracker />
 
-      {/* Sticky Header */}
-      <header className="flex-shrink-0 bg-bg-primary border-b border-border px-4 py-3 md:px-6 md:py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-medium text-text-primary">Spell Library</h1>
-
-          {/* Filter toggle pills — mutually exclusive */}
-          <div className="flex items-center gap-2">
+      {/* Compact Header */}
+      <header className="flex-shrink-0 bg-bg-primary border-b border-border px-3 md:px-4 py-2">
+        {/* Row 1: title + search + filter toggles */}
+        <div className="flex items-center gap-2 mb-1.5">
+          <h1 className="text-base font-bold text-text-primary whitespace-nowrap">Spells</h1>
+          <div className="flex-1 min-w-0">
+            <SearchBar />
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => setShowKnownOnly(!showKnownOnly)}
               className={`
-                text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all
+                text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
                 ${showKnownOnly
                   ? 'bg-info text-white border-info shadow-sm'
                   : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
@@ -77,32 +77,33 @@ export function SpellLibraryLayout() {
             <button
               onClick={() => setShowPreparedOnly(!showPreparedOnly)}
               className={`
-                text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all
+                text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
                 ${showPreparedOnly
                   ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
                   : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
               `}
             >
-              Prepared
+              Prep
             </button>
           </div>
         </div>
-        <SearchBar />
+
+        {/* Row 2: level chips */}
         <LevelTabs />
       </header>
 
       {/* Scrollable Content */}
-      <main className="flex-1 overflow-y-auto px-4 md:px-6 relative">
+      <main className="flex-1 overflow-y-auto px-3 md:px-4 relative">
         <FilterChips />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
           {spellsToDisplay.map(spell => (
             <SpellCard key={spell.id} spell={spell} />
           ))}
 
           {spellsToDisplay.length === 0 && (
-            <div className="col-span-full py-16 text-center space-y-2">
-              <p className="text-text-secondary">{emptyMessage}</p>
+            <div className="col-span-full py-12 text-center space-y-1">
+              <p className="text-text-secondary text-sm">{emptyMessage}</p>
             </div>
           )}
         </div>

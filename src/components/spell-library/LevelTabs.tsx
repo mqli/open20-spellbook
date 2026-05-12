@@ -18,17 +18,18 @@ export function LevelTabs() {
   const { selectedLevel, setSelectedLevel } = useSpellStore();
 
   return (
-    <div className="flex w-full overflow-x-auto border-b border-border hide-scrollbar">
+    <div className="flex gap-1 overflow-x-auto py-1.5 no-scrollbar">
       {LEVELS.map(({ value, label }) => {
         const isActive = selectedLevel === value;
         return (
           <button
             key={label}
             onClick={() => setSelectedLevel(value)}
-            className={`flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap
-              ${isActive 
-                ? 'border-primary-600 text-primary-600' 
-                : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border'
+            className={`
+              flex-shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium transition-all whitespace-nowrap
+              ${isActive
+                ? 'bg-primary-600 text-white shadow-sm'
+                : 'bg-bg-tertiary text-text-secondary hover:bg-bg-primary hover:text-text-primary border border-border'
               }
             `}
           >
