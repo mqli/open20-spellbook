@@ -25,6 +25,7 @@ interface SpellLibraryState {
   setShowConcentrationOnly: (show: boolean) => void;
   setShowPreparedOnly: (show: boolean) => void;
   setShowKnownOnly: (show: boolean) => void;
+  clearAllFilters: () => void;
   selectSpell: (spell: Spell | null) => void;
   closeDetail: () => void;
   
@@ -96,6 +97,20 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
 
   setShowKnownOnly: (show) => {
     set({ showKnownOnly: show, showPreparedOnly: false });
+    get().applyFilters();
+  },
+
+  clearAllFilters: () => {
+    set({
+      selectedLevel: null,
+      selectedClasses: [],
+      selectedSchools: [],
+      showRitualOnly: false,
+      showConcentrationOnly: false,
+      showPreparedOnly: false,
+      showKnownOnly: false,
+      searchQuery: '',
+    });
     get().applyFilters();
   },
 
