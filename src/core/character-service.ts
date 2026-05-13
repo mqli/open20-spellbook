@@ -78,11 +78,28 @@ export class CharacterService {
   }
 
   prepareSpell(character: AppCharacter, spellId: string): AppCharacter {
-    return { ...open20PrepareSpell(character, spellId) as any, id: character.id };
+    // Find the correct class for this spell
+    const spell = this.spellService.getSpell(spellId);
+    if (!spell) return character;
+    
+    const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
+    const spellClasses = spell.classes?.map(c => c.toLowerCase()) ?? [];
+    const matchingClass = classIds.find(id => spellClasses.includes(id));
+    
+    if (!matchingClass) return character;
+    
+    return { ...open20PrepareSpellForClass(character, matchingClass, spellId) as any, id: character.id };
   }
 
   unprepareSpell(character: AppCharacter, spellId: string): AppCharacter {
-    return { ...open20UnprepareSpell(character, spellId) as any, id: character.id };
+    // Find which class has this spell prepared
+    const classId = Object.keys(character.spells.classSpellcasting).find(
+      cls => character.spells.classSpellcasting[cls].preparedSpells.includes(spellId)
+    );
+    
+    if (!classId) return character;
+    
+    return { ...open20UnprepareSpellForClass(character, classId, spellId) as any, id: character.id };
   }
 
   prepareSpellForClass(character: AppCharacter, classId: string, spellId: string): AppCharacter {
@@ -133,20 +150,35 @@ export class CharacterService {
 
   learnSpell(character: AppCharacter, spellId: string): AppCharacter {
     if (knowsSpell(character, spellId)) return character;
-    const castingClass = Object.keys(character.spells.classSpellcasting)[0];
-    if (!castingClass) return character; // can't learn if we don't know the class spellcasting type
+    
+    // Find the correct class for this spell
+    const spell = this.spellService.getSpell(spellId);
+    if (!spell) return character;
+    
+    const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
+    const spellClasses = spell.classes?.map(c => c.toLowerCase()) ?? [];
+    const matchingClass = classIds.find(id => spellClasses.includes(id));
+    
+    if (!matchingClass) return character;
+    
     return {
-      ...addKnownSpell(character, castingClass, spellId) as any,
+      ...addKnownSpell(character, matchingClass, spellId) as any,
       updatedAt: new Date().toISOString()
     };
   }
 
   unlearnSpell(character: AppCharacter, spellId: string): AppCharacter {
     if (!knowsSpell(character, spellId)) return character;
-    const castingClass = Object.keys(character.spells.classSpellcasting)[0];
-    if (!castingClass) return character; // can't unlearn if we don't know the class spellcasting type
+    
+    // Find which class knows this spell
+    const classId = Object.keys(character.spells.classSpellcasting).find(
+      cls => character.spells.classSpellcasting[cls].knownSpells.includes(spellId)
+    );
+    
+    if (!classId) return character;
+    
     return {
-      ...removeKnownSpell(character, castingClass, spellId) as any,
+      ...removeKnownSpell(character, classId, spellId) as any,
       updatedAt: new Date().toISOString()
     };
   }

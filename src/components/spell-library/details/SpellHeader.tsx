@@ -1,6 +1,7 @@
 import { Activity } from 'lucide-react';
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from '../../../core/types';
+import { getCasterType } from '../../../core/character-service';
 
 interface SpellHeaderProps {
   spell: Spell;
@@ -25,6 +26,20 @@ export function SpellHeader({
   onPrepareToggle,
   onConcentrationToggle,
 }: SpellHeaderProps) {
+  const casterType = character ? getCasterType(character) : null;
+  
+  // Determine which actions are available
+  const canLearn = casterType?.canLearn ?? false;
+  const canPrepare = casterType?.canPrepare ?? false;
+  
+  // For known casters (Bard, Sorcerer, Warlock, Ranger): show Learn but not Prepare
+  // For prepared casters (Cleric, Druid, Paladin): show Prepare but not Learn
+  // For spellbook casters (Wizard, Artificer): show both Learn and Prepare
+  // For multiclass: show both if any class supports that action
+  
+  const showLearnButton = isClassSpell && canLearn;
+  const showPrepareButton = isClassSpell && canPrepare && (isKnown || spell.level === 0);
+  
   return (
     <div className="flex items-center gap-3">
       {spell.concentration && character && (
@@ -43,7 +58,7 @@ export function SpellHeader({
         </button>
       )}
 
-      {isClassSpell && (
+      {showLearnButton && (
         <button
           onClick={onLearnToggle}
           className={`
@@ -57,7 +72,7 @@ export function SpellHeader({
         </button>
       )}
 
-      {isClassSpell && (isKnown || spell.level === 0) && (
+      {showPrepareButton && (
         <button
           onClick={onPrepareToggle}
           className={`
