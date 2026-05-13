@@ -44,6 +44,23 @@ export function SpellDetailFlyout() {
     c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === selectedSpell.id
   ) ?? false;
 
+  // Calculate prepared count and max prepared for the spell's class
+  let preparedCount = 0;
+  let maxPrepared = 0;
+  if (activeCharacter) {
+    const classSpellcasting = activeCharacter.spells.classSpellcasting;
+    // Find the class this spell belongs to
+    const spellClasses = selectedSpell.classes ?? [];
+    const matchingClassId = Object.keys(classSpellcasting).find(cls => 
+      spellClasses.includes(cls)
+    );
+    if (matchingClassId && classSpellcasting[matchingClassId]) {
+      const classData = classSpellcasting[matchingClassId];
+      preparedCount = (classData.preparedSpells?.length ?? 0) + (classData.alwaysPreparedSpells?.length ?? 0);
+      maxPrepared = classData.maxPrepared ?? 0;
+    }
+  }
+
   // Handlers
   const handleLearnToggle = () => isKnown ? unlearnSpell(selectedSpell.id) : learnSpell(selectedSpell.id);
   const handlePrepareToggle = () => isPrepared ? unprepareSpell(selectedSpell.id) : prepareSpell(selectedSpell.id);
@@ -114,9 +131,12 @@ export function SpellDetailFlyout() {
             character={activeCharacter}
             isKnown={isKnown}
             isPrepared={isPrepared}
+            preparedCount={preparedCount}
+            maxPrepared={maxPrepared}
             onCast={() => castSpell(selectedSpell.id, selectedSpell.level)}
             onAttackRoll={handleAttackRoll}
             onDamageRoll={handleDamageRoll}
+            onPrepareToggle={handlePrepareToggle}
           />
         </Sheet.Body>
       </Sheet.Content>

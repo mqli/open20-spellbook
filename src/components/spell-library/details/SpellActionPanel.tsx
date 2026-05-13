@@ -1,16 +1,20 @@
-import { Sparkles } from 'lucide-react';
+import { Sparkles, BookOpen } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from '../../../core/types';
+import { getCasterType } from '../../../core/character-service';
 
 interface SpellActionPanelProps {
   spell: Spell;
   character: AppCharacter | null;
   isKnown: boolean;
   isPrepared: boolean;
+  preparedCount: number;
+  maxPrepared: number;
   onCast: () => void;
   onAttackRoll: () => void;
   onDamageRoll: (index: number, label: string) => void;
+  onPrepareToggle: () => void;
 }
 
 export function SpellActionPanel({
@@ -18,9 +22,12 @@ export function SpellActionPanel({
   character,
   isKnown,
   isPrepared,
+  preparedCount,
+  maxPrepared,
   onCast,
   onAttackRoll,
   onDamageRoll,
+  onPrepareToggle,
 }: SpellActionPanelProps) {
   if (!character) return null;
 
@@ -29,6 +36,9 @@ export function SpellActionPanel({
   const spellAttackBonus = primaryClassId
     ? classSpellcasting[primaryClassId].spellAttackBonus
     : 0;
+
+  const casterType = getCasterType(character);
+  const canPrepare = casterType.canPrepare;
 
   const canCast = (isKnown || spell.level === 0) && (spell.level === 0 || isPrepared) && (
     spell.level === 0 || 
@@ -39,6 +49,26 @@ export function SpellActionPanel({
     <div className="mb-8 p-6 bg-primary-500/5 rounded-2xl border border-primary-500/10 flex flex-wrap gap-4 items-center">
       <div className="text-xs font-black text-primary-700 uppercase tracking-widest mr-2">Quick Actions</div>
       
+      {canPrepare && (isKnown || spell.level === 0) && (
+        <Button 
+          variant={isPrepared ? "primary" : "secondary"} 
+          size="sm" 
+          className={isPrepared 
+            ? "bg-primary-500 text-white border-primary-600 shadow-md" 
+            : "border-primary-200 text-primary-700 hover:bg-primary-100"
+          }
+          onClick={onPrepareToggle}
+        >
+          <BookOpen className="w-3.5 h-3.5 mr-2" />
+          {isPrepared ? 'Prepared ✓' : 'Prepare'}
+          {maxPrepared > 0 && (
+            <span className="ml-1.5 text-[10px] opacity-80">
+              ({preparedCount}/{maxPrepared})
+            </span>
+          )}
+        </Button>
+      )}
+
       <Button 
         variant="primary" 
         size="sm" 

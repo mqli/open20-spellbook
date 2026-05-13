@@ -82,8 +82,8 @@ export class CharacterService {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) return character;
     
-    const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
-    const spellClasses = spell.classes?.map(c => c.toLowerCase()) ?? [];
+    const classIds = character.classes?.map(c => c.classId) ?? [];
+    const spellClasses = spell.classes ?? [];
     const matchingClass = classIds.find(id => spellClasses.includes(id));
     
     if (!matchingClass) return character;
@@ -155,8 +155,8 @@ export class CharacterService {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) return character;
     
-    const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
-    const spellClasses = spell.classes?.map(c => c.toLowerCase()) ?? [];
+    const classIds = character.classes?.map(c => c.classId) ?? [];
+    const spellClasses = spell.classes ?? [];
     const matchingClass = classIds.find(id => spellClasses.includes(id));
     
     if (!matchingClass) return character;

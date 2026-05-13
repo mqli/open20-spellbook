@@ -87,9 +87,9 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
 
   const getCasterTypeForClass = (classId: string) => {
     const classIds = [classId];
-    const KNOWN_ONLY_CLASSES = new Set(['bard', 'sorcerer', 'warlock', 'ranger']);
-    const PREPARED_ONLY_CLASSES = new Set(['cleric', 'druid', 'paladin']);
-    const SPELLBOOK_CLASSES = new Set(['wizard', 'artificer']);
+    const KNOWN_ONLY_CLASSES = new Set(['Ward', 'Sorcerer', 'Warlock', 'Ranger']);
+    const PREPARED_ONLY_CLASSES = new Set(['Cleric', 'Druid', 'Paladin']);
+    const SPELLBOOK_CLASSES = new Set(['Wizard', 'Artificer']);
 
     const canLearn = classIds.some(id => KNOWN_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
     const canPrepare = classIds.some(id => PREPARED_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
@@ -287,7 +287,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                             </div>
                           </div>
 
-                          {casterType.canPrepare && spell.level > 0 && (
+                          {casterType.canPrepare && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -296,7 +296,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                               }}
                               disabled={isAlwaysPrepared}
                               className={`
-                                p-1.5 rounded-lg transition-all border
+                                p-1.5 rounded-lg transition-all border text-[10px] font-bold
                                 ${isAlwaysPrepared
                                   ? 'bg-info/20 text-info border-info/30 cursor-default'
                                   : isManuallyPrepared
@@ -308,7 +308,14 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                               {isAlwaysPrepared ? (
                                 <Shield className="w-3 h-3 fill-current" />
                               ) : (
-                                <Star className={`w-3 h-3 ${isManuallyPrepared ? 'fill-current' : ''}`} />
+                                <>
+                                  <Star className={`w-3 h-3 ${isManuallyPrepared ? 'fill-current' : ''}`} />
+                                  {casterType.canPrepare && (
+                                    <span className="ml-1">
+                                      ({allPrepared.length}/{maxPrepared ?? 0})
+                                    </span>
+                                  )}
+                                </>
                               )}
                             </button>
                           )}
