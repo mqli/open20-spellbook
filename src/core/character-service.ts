@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createCharacter as open20CreateCharacter,
-  prepareSpell as open20PrepareSpell,
-  unprepareSpell as open20UnprepareSpell,
   prepareSpellForClass as open20PrepareSpellForClass,
   unprepareSpellForClass as open20UnprepareSpellForClass,
   consumeSpellSlot as open20ConsumeSpellSlot,
