@@ -67,24 +67,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
       alwaysPrepared: [...(classData.alwaysPreparedSpells ?? [])]
     };
   };
-
-  // Get all spell IDs for a class (for inventory display)
-  const getInventorySpellIdsForClass = (classId: string) => {
-    const classData = classSpellcasting[classId];
-    if (!classData) return [];
-
-    const casterType = getCasterTypeForClass(classId);
-
-    // For prepared casters (non-spellbook), show all class spells
-    if (casterType.canPrepare && !casterType.isSpellbookCaster) {
-      return spellService.getAllSpells()
-        .filter(s => s.classes?.includes(classId))
-        .map(s => s.id);
-    }
-    // For known/spellbook casters, show only known spells
-    return [...classData.knownSpells];
-  };
-
   const getCasterTypeForClass = (classId: string) => {
     const classIds = [classId];
     const KNOWN_ONLY_CLASSES = new Set(['Ward', 'Sorcerer', 'Warlock', 'Ranger']);
@@ -116,8 +98,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     // Get subclass name from dataLoader (id is the display name in open20-core)
     const subclassDisplay = subclassId ? (dataLoader.getSubclass(subclassId)?.id ?? subclassId) : null;
 
-    const inventoryIds = getInventorySpellIdsForClass(classId);
-    const inventorySpells = inventoryIds
+    const inventorySpells = known
       .map(id => spellService.getSpell(id))
       .filter((s): s is NonNullable<typeof s> => !!s)
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
