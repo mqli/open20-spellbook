@@ -115,7 +115,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     }
 
     // For known/spellbook casters, show only known spells
-    return [...classData.knownSpells, ...(classData.alwaysPreparedSpells ?? [])];
+    return [...classData.knownSpells];
   };
 
   const getCasterTypeForClass = (classId: string) => {
@@ -150,8 +150,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     const subclassDisplay = subclassId ? (dataLoader.getSubclass(subclassId)?.id ?? subclassId) : null;
 
     // Get inventory spell IDs, excluding always-prepared spells (shown separately)
-    const inventoryIds = getInventorySpellIdsForClass(classId)
-      .filter(id => !alwaysPrepared.includes(id));
+    const inventoryIds = getInventorySpellIdsForClass(classId);
     const inventorySpells = inventoryIds
       .map(id => spellService.getSpell(id))
       .filter((s): s is NonNullable<typeof s> => !!s)
