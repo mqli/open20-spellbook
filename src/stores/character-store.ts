@@ -172,7 +172,9 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   loadCharacters: () => {
     const chars = storageService.loadCharacters();
-    set({ characters: chars, activeCharacter: chars[0] || null });
+    // Recompute to ensure derived stats and knownSpells are up-to-date
+    const recomputed = chars.map(c => characterService.recompute(c));
+    set({ characters: recomputed, activeCharacter: recomputed[0] || null });
   },
 
   saveCharacters: () => {

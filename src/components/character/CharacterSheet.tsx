@@ -31,7 +31,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const spells = activeCharacter.spells;
   const classSpellcasting = spells.classSpellcasting;
   const stats = RulesService.getProjectedStats(activeCharacter);
-
   const concentratingCondition = activeCharacter.conditions?.find(c => c.id === 'Concentrating');
   const concentratingSpellId = (concentratingCondition as ConcentrationCondition | undefined)?.source;
 
@@ -45,7 +44,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const spellcastingClasses = activeCharacter.classes?.filter(c => 
     classSpellcasting[c.classId]
   ) ?? [];
-
   const toggleClassExpand = (classId: string) => {
     setExpandedClasses(prev => ({
       ...prev,
@@ -62,41 +60,11 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const getSpellsForClass = (classId: string) => {
     const classData = classSpellcasting[classId];
     if (!classData) return { known: [], prepared: [], alwaysPrepared: [] };
-
-    // Get always-prepared spells from class data
-    const alwaysPrepared = [...(classData.alwaysPreparedSpells ?? [])];
-    // Also get always-prepared spells from subclass
-    const charClass = activeCharacter.classes?.find(c => c.classId === classId);
-    if (charClass?.subclassId) {
-      const subclass = dataLoader.getSubclass(charClass.subclassId);
-      if (subclass?.alwaysPreparedSpells) {
-        // Flatten all spells from all levels in the subclass
-        // Handle both Map and array formats
-        const aps = subclass.alwaysPreparedSpells as any;
-        if (Array.isArray(aps)) {
-          for (const entry of aps) {
-            for (const spellId of entry.spells) {
-              if (!alwaysPrepared.includes(spellId)) {
-                alwaysPrepared.push(spellId);
-              }
-            }
-          }
-        } else if (aps instanceof Map) {
-          for (const [, spells] of aps) {
-            for (const spellId of spells) {
-              if (!alwaysPrepared.includes(spellId)) {
-                alwaysPrepared.push(spellId);
-              }
-            }
-          }
-        }
-      }
-    }
-
+    // All data comes from the character's classSpellcasting
     return {
       known: [...classData.knownSpells],
       prepared: [...classData.preparedSpells],
-      alwaysPrepared
+      alwaysPrepared: [...(classData.alwaysPreparedSpells ?? [])]
     };
   };
 
@@ -113,7 +81,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
         .filter(s => s.classes?.includes(classId))
         .map(s => s.id);
     }
-
     // For known/spellbook casters, show only known spells
     return [...classData.knownSpells];
   };
@@ -149,7 +116,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     // Get subclass name from dataLoader (id is the display name in open20-core)
     const subclassDisplay = subclassId ? (dataLoader.getSubclass(subclassId)?.id ?? subclassId) : null;
 
-    // Get inventory spell IDs, excluding always-prepared spells (shown separately)
     const inventoryIds = getInventorySpellIdsForClass(classId);
     const inventorySpells = inventoryIds
       .map(id => spellService.getSpell(id))
