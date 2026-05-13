@@ -3,6 +3,8 @@ import {
   createCharacter as open20CreateCharacter,
   prepareSpell as open20PrepareSpell,
   unprepareSpell as open20UnprepareSpell,
+  prepareSpellForClass as open20PrepareSpellForClass,
+  unprepareSpellForClass as open20UnprepareSpellForClass,
   consumeSpellSlot as open20ConsumeSpellSlot,
   recoverSpellSlot as open20RecoverSpellSlot,
   longRest as open20LongRest,
@@ -81,6 +83,14 @@ export class CharacterService {
 
   unprepareSpell(character: AppCharacter, spellId: string): AppCharacter {
     return { ...open20UnprepareSpell(character, spellId) as any, id: character.id };
+  }
+
+  prepareSpellForClass(character: AppCharacter, classId: string, spellId: string): AppCharacter {
+    return { ...open20PrepareSpellForClass(character, classId, spellId) as any, id: character.id };
+  }
+
+  unprepareSpellForClass(character: AppCharacter, classId: string, spellId: string): AppCharacter {
+    return { ...open20UnprepareSpellForClass(character, classId, spellId) as any, id: character.id };
   }
 
   consumeSpellSlot(character: AppCharacter, level: number): AppCharacter {

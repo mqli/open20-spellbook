@@ -16,6 +16,8 @@ interface CharacterState {
   
   prepareSpell: (spellId: string) => void;
   unprepareSpell: (spellId: string) => void;
+  prepareSpellForClass: (classId: string, spellId: string) => void;
+  unprepareSpellForClass: (classId: string, spellId: string) => void;
   learnSpell: (spellId: string) => void;
   unlearnSpell: (spellId: string) => void;
   castSpell: (spellId: string, level: number) => void;
@@ -82,6 +84,20 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     const updated = characterService.unprepareSpell(activeCharacter, spellId);
+    get().updateCharacter(updated);
+  },
+
+  prepareSpellForClass: (classId, spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = characterService.prepareSpellForClass(activeCharacter, classId, spellId);
+    get().updateCharacter(updated);
+  },
+
+  unprepareSpellForClass: (classId, spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = characterService.unprepareSpellForClass(activeCharacter, classId, spellId);
     get().updateCharacter(updated);
   },
 

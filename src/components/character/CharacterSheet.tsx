@@ -22,7 +22,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
 }) {
-  const { activeCharacter, consumeSpellSlot, recoverSpellSlot, prepareSpell, unprepareSpell } = useCharacterStore();
+  const { activeCharacter, consumeSpellSlot, recoverSpellSlot, prepareSpellForClass, unprepareSpellForClass } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [expandedClasses, setExpandedClasses] = useState<Record<string, boolean>>({});
 
@@ -53,9 +53,9 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     }));
   };
 
-  const handleTogglePrepare = (spellId: string, isPrepared: boolean) => {
-    if (isPrepared) unprepareSpell(spellId);
-    else prepareSpell(spellId);
+  const handleTogglePrepare = (classId: string, spellId: string, isManuallyPrepared: boolean) => {
+    if (isManuallyPrepared) unprepareSpellForClass(classId, spellId);
+    else prepareSpellForClass(classId, spellId);
   };
 
   // Get spells for a specific class
@@ -149,7 +149,9 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     // Get subclass name from dataLoader (id is the display name in open20-core)
     const subclassDisplay = subclassId ? (dataLoader.getSubclass(subclassId)?.id ?? subclassId) : null;
 
-    const inventoryIds = getInventorySpellIdsForClass(classId);
+    // Get inventory spell IDs, excluding always-prepared spells (shown separately)
+    const inventoryIds = getInventorySpellIdsForClass(classId)
+      .filter(id => !alwaysPrepared.includes(id));
     const inventorySpells = inventoryIds
       .map(id => spellService.getSpell(id))
       .filter((s): s is NonNullable<typeof s> => !!s)
@@ -325,7 +327,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isAlwaysPrepared) return;
-                                handleTogglePrepare(spell.id, isManuallyPrepared);
+                                handleTogglePrepare(classId, spell.id, isManuallyPrepared);
                               }}
                               disabled={isAlwaysPrepared}
                               className={`
