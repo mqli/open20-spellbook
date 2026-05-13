@@ -1,13 +1,13 @@
 import { useCharacterStore } from '../../stores/character-store';
 import * as RadixDialog from '@radix-ui/react-dialog';
-import { X, Sparkles, BookOpen, Flame, Wind, Pencil } from 'lucide-react';
+import { X, BookOpen, Flame, Wind, Pencil, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { spellService } from '../../core/spell-service';
 import { RulesService } from '../../core/rules-service';
 import { useSpellStore } from '../../stores/spell-store';
-import { getCasterType } from '../../core/character-service';
 import { Star, Shield } from 'lucide-react';
+import { useState } from 'react';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -23,18 +23,13 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
 }) {
   const { activeCharacter, consumeSpellSlot, recoverSpellSlot, prepareSpell, unprepareSpell } = useCharacterStore();
   const { selectSpell } = useSpellStore();
+  const [expandedClasses, setExpandedClasses] = useState<Record<string, boolean>>({});
 
   if (!activeCharacter) return null;
 
   const spells = activeCharacter.spells;
   const classSpellcasting = spells.classSpellcasting;
-  const primaryClassId = Object.keys(classSpellcasting)[0];
-  const primaryClassSpells = primaryClassId ? classSpellcasting[primaryClassId] : undefined;
-
   const stats = RulesService.getProjectedStats(activeCharacter);
-  const maxPrepared = stats.maxPreparedSpells;
-  const ability = primaryClassSpells?.spellcastingAbility ?? 'Intelligence';
-  const abilityMod = stats.abilityModifiers[ability] ?? 0;
 
   const concentratingCondition = activeCharacter.conditions?.find(c => c.id === 'Concentrating');
   const concentratingSpellId = (concentratingCondition as ConcentrationCondition | undefined)?.source;
@@ -43,46 +38,259 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     .map(([lvl, slot]) => ({ lvl: parseInt(lvl), slot: slot as { total: number; used: number } }))
     .filter(({ lvl, slot }) => lvl > 0 && slot.total > 0);
 
-  const casterType = getCasterType(activeCharacter);
-
-  // Aggregate across all classes
-  const allKnownSpells = Object.values(classSpellcasting).flatMap(c => [...c.knownSpells]);
-  const allPreparedSpells = Object.values(classSpellcasting).flatMap(c => [...c.preparedSpells]);
-  const allAlwaysPreparedSpells = Object.values(classSpellcasting).flatMap(c => [...(c.alwaysPreparedSpells ?? [])]);
-
-  const knownSpellsList = allKnownSpells;
-  const alwaysPreparedList = allAlwaysPreparedSpells;
-  const combinedKnownIds = Array.from(new Set([...knownSpellsList, ...alwaysPreparedList]));
-
-  // For Spell Inventory, show:
-  // - Multiclass or Prepared casters: ALL class spells (can prepare any from class list)
-  // - Known/Spellbook casters (single class): only known spells
   const isMulticlass = (activeCharacter.classes?.length ?? 0) > 1;
-  const inventorySpellIds = (casterType.canPrepare && !casterType.isSpellbookCaster) || isMulticlass
-    ? (() => {
-        const classIds = activeCharacter.classes?.map(c => c.classId) ?? [];
-        return spellService.getAllSpells()
-          .filter(s => s.classes?.some(c => classIds.includes(c)))
-          .map(s => s.id);
-      })()
-    : combinedKnownIds;
 
-  // Get and group spells for the inventory
-  const inventorySpells = inventorySpellIds
-    .map(id => spellService.getSpell(id))
-    .filter((s): s is NonNullable<typeof s> => !!s)
-    .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+  // Get all classes that have spellcasting
+  const spellcastingClasses = activeCharacter.classes?.filter(c => 
+    classSpellcasting[c.classId]
+  ) ?? [];
 
-  const spellsByLevel = inventorySpells.reduce((acc, spell) => {
-    const level = spell.level;
-    if (!acc[level]) acc[level] = [];
-    acc[level].push(spell);
-    return acc;
-  }, {} as Record<number, typeof inventorySpells>);
+  const toggleClassExpand = (classId: string) => {
+    setExpandedClasses(prev => ({
+      ...prev,
+      [classId]: !prev[classId]
+    }));
+  };
 
   const handleTogglePrepare = (spellId: string, isPrepared: boolean) => {
     if (isPrepared) unprepareSpell(spellId);
     else prepareSpell(spellId);
+  };
+
+  // Get spells for a specific class
+  const getSpellsForClass = (classId: string) => {
+    const classData = classSpellcasting[classId];
+    if (!classData) return { known: [], prepared: [], alwaysPrepared: [] };
+
+    return {
+      known: [...classData.knownSpells],
+      prepared: [...classData.preparedSpells],
+      alwaysPrepared: [...(classData.alwaysPreparedSpells ?? [])]
+    };
+  };
+
+  // Get all spell IDs for a class (for inventory display)
+  const getInventorySpellIdsForClass = (classId: string) => {
+    const classData = classSpellcasting[classId];
+    if (!classData) return [];
+
+    const casterType = getCasterTypeForClass(classId);
+
+    // For prepared casters (non-spellbook), show all class spells
+    if (casterType.canPrepare && !casterType.isSpellbookCaster) {
+      return spellService.getAllSpells()
+        .filter(s => s.classes?.includes(classId))
+        .map(s => s.id);
+    }
+
+    // For known/spellbook casters, show only known spells
+    return [...classData.knownSpells, ...(classData.alwaysPreparedSpells ?? [])];
+  };
+
+  const getCasterTypeForClass = (classId: string) => {
+    const classIds = [classId];
+    const KNOWN_ONLY_CLASSES = new Set(['bard', 'sorcerer', 'warlock', 'ranger']);
+    const PREPARED_ONLY_CLASSES = new Set(['cleric', 'druid', 'paladin']);
+    const SPELLBOOK_CLASSES = new Set(['wizard', 'artificer']);
+
+    const canLearn = classIds.some(id => KNOWN_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
+    const canPrepare = classIds.some(id => PREPARED_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
+    const isSpellbookCaster = classIds.some(id => SPELLBOOK_CLASSES.has(id));
+
+    return { canLearn, canPrepare, isSpellbookCaster };
+  };
+
+  // Render spells for a specific class
+  const renderClassSpells = (classId: string, classLevel: number) => {
+    const classData = classSpellcasting[classId];
+    if (!classData) return null;
+
+    const casterType = getCasterTypeForClass(classId);
+    const ability = classData.spellcastingAbility;
+    const abilityMod = stats.abilityModifiers[ability] ?? 0;
+    const spellSaveDC = classData.spellSaveDC;
+    const spellAttack = classData.spellAttackBonus;
+
+    const { known, prepared, alwaysPrepared } = getSpellsForClass(classId);
+    const allPrepared = [...prepared, ...alwaysPrepared];
+    const maxPrepared = classData.maxPrepared;
+
+    const inventoryIds = getInventorySpellIdsForClass(classId);
+    const inventorySpells = inventoryIds
+      .map(id => spellService.getSpell(id))
+      .filter((s): s is NonNullable<typeof s> => !!s)
+      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+
+    const spellsByLevel = inventorySpells.reduce((acc, spell) => {
+      const level = spell.level;
+      if (!acc[level]) acc[level] = [];
+      acc[level].push(spell);
+      return acc;
+    }, {} as Record<number, typeof inventorySpells>);
+
+    const isExpanded = expandedClasses[classId] ?? true;
+
+    return (
+      <section key={classId} className="border border-border rounded-2xl overflow-hidden">
+        {/* Class Header */}
+        <button
+          onClick={() => toggleClassExpand(classId)}
+          className="w-full p-4 bg-bg-primary hover:bg-bg-tertiary transition-colors flex items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500/10 text-primary-600">
+              {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </div>
+            <div className="text-left">
+              <div className="text-sm font-black text-text-primary capitalize">
+                {classId} {classLevel}
+              </div>
+              <div className="text-[9px] text-text-tertiary uppercase tracking-widest">
+                {ability.substring(0, 3)} • DC {spellSaveDC} • +{spellAttack}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {casterType.canPrepare && (
+              <Badge variant="purple" size="sm">
+                {allPrepared.length}/{maxPrepared}
+              </Badge>
+            )}
+          </div>
+        </button>
+
+        {/* Class Content */}
+        {isExpanded && (
+          <div className="p-4 space-y-4 border-t border-border">
+            {/* Class Stats */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
+                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Ability</div>
+                <div className="text-sm font-black text-primary-600">{ability.substring(0, 3)}</div>
+                <div className="text-[9px] font-bold text-text-tertiary mt-0.5">
+                  {abilityMod >= 0 ? '+' : ''}{abilityMod}
+                </div>
+              </div>
+              <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
+                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Save DC</div>
+                <div className="text-sm font-black text-primary-600">{spellSaveDC}</div>
+              </div>
+              <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
+                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Attack</div>
+                <div className="text-sm font-black text-primary-600">+{spellAttack}</div>
+              </div>
+            </div>
+
+            {/* Preparation Progress (for prepared casters) */}
+            {casterType.canPrepare && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[9px] font-black text-text-tertiary uppercase tracking-widest">
+                    Preparation Slots
+                  </span>
+                  <span className="text-xs font-bold text-primary-600">
+                    {allPrepared.length}/{maxPrepared}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-bg-secondary rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
+                    style={{ width: `${Math.min(100, (allPrepared.length / Math.max(1, maxPrepared)) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Known Spells Count (for spellbook/known casters) */}
+            {casterType.isSpellbookCaster && (
+              <div className="text-[10px] text-text-tertiary">
+                Known Spells: <span className="font-bold text-info">
+                  {known.filter(id => {
+                    const s = spellService.getSpell(id);
+                    return s && s.level > 0;
+                  }).length}
+                </span>
+              </div>
+            )}
+
+            {/* Spell List */}
+            <div className="space-y-4">
+              {Object.entries(spellsByLevel).map(([level, spellsAtLevel]) => (
+                <div key={level} className="space-y-1">
+                  <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest px-1">
+                    {SPELL_LEVEL_LABELS[parseInt(level)]}
+                  </div>
+                  <div className="grid gap-1">
+                    {spellsAtLevel.map(spell => {
+                      const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
+                      const isManuallyPrepared = prepared.includes(spell.id);
+                      const isPrepared = isAlwaysPrepared || isManuallyPrepared;
+
+                      return (
+                        <div
+                          key={spell.id}
+                          className={`
+                            group flex items-center justify-between p-2 pl-3 rounded-lg border transition-all cursor-pointer
+                            ${isPrepared
+                              ? 'bg-primary-50 border-primary-100 shadow-sm'
+                              : 'bg-bg-secondary border-border hover:border-primary-200'}
+                            ${isAlwaysPrepared ? 'ring-1 ring-info/30 bg-info/5' : ''}
+                          `}
+                          onClick={() => {
+                            selectSpell(spell);
+                            onOpenChange(false);
+                          }}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <div className={`text-xs font-bold truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
+                                {spell.name}
+                              </div>
+                              {isAlwaysPrepared && (
+                                <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" />
+                              )}
+                            </div>
+                            <div className="text-[9px] text-text-tertiary uppercase tracking-tight">
+                              {spell.school} • {spell.castingTime}
+                            </div>
+                          </div>
+
+                          {casterType.canPrepare && spell.level > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isAlwaysPrepared) return;
+                                handleTogglePrepare(spell.id, isManuallyPrepared);
+                              }}
+                              disabled={isAlwaysPrepared}
+                              className={`
+                                p-1.5 rounded-lg transition-all border
+                                ${isAlwaysPrepared
+                                  ? 'bg-info/20 text-info border-info/30 cursor-default'
+                                  : isManuallyPrepared
+                                  ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
+                                  : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
+                              `}
+                              title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+                            >
+                              {isAlwaysPrepared ? (
+                                <Shield className="w-3 h-3 fill-current" />
+                              ) : (
+                                <Star className={`w-3 h-3 ${isManuallyPrepared ? 'fill-current' : ''}`} />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+    );
   };
 
   return (
@@ -98,9 +306,11 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                 {activeCharacter.name}
               </h2>
               <div className="flex gap-2 mt-2 flex-wrap">
-                <Badge variant="purple" size="sm">
-                  {activeCharacter.classes?.[0]?.classId} {activeCharacter.classes?.[0]?.level}
-                </Badge>
+                {activeCharacter.classes?.map((c, i) => (
+                  <Badge key={i} variant={i === 0 ? "purple" : "slate"} size="sm">
+                    {c.classId} {c.level}
+                  </Badge>
+                ))}
                 <Badge variant="slate" size="sm">{activeCharacter.species}</Badge>
               </div>
             </div>
@@ -120,32 +330,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
             </div>
           </header>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-8">
-
-            {/* Casting Stats */}
-            <section>
-              <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                <Sparkles className="w-3 h-3 text-primary-500" />
-                Spellcasting
-              </h3>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-bg-primary p-4 rounded-2xl border border-border text-center">
-                  <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-1">Ability</div>
-                  <div className="text-base font-black text-primary-600">{ability.substring(0, 3)}</div>
-                  <div className="text-[10px] font-bold text-text-tertiary mt-0.5">
-                    {abilityMod >= 0 ? '+' : ''}{abilityMod}
-                  </div>
-                </div>
-                <div className="bg-bg-primary p-4 rounded-2xl border border-border text-center">
-                  <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-1">Save DC</div>
-                  <div className="text-base font-black text-primary-600">{stats.spellSaveDC}</div>
-                </div>
-                <div className="bg-bg-primary p-4 rounded-2xl border border-border text-center">
-                  <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-1">Attack</div>
-                  <div className="text-base font-black text-primary-600">+{stats.spellAttackBonus}</div>
-                </div>
-              </div>
-            </section>
+          <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6">
 
             {/* Concentration */}
             {concentratingSpellId && (
@@ -162,12 +347,15 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               </section>
             )}
 
-            {/* Spell Slots */}
+            {/* Combined Spell Slots (for multiclass) */}
             {slotEntries.length > 0 && (
               <section>
                 <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                   <Flame className="w-3 h-3 text-primary-500" />
                   Spell Slots
+                  {isMulticlass && (
+                    <span className="text-[8px] font-normal text-text-tertiary normal-case">(Combined)</span>
+                  )}
                 </h3>
                 <div className="space-y-3">
                   {slotEntries.map(({ lvl, slot }) => {
@@ -206,133 +394,18 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               </section>
             )}
 
-            {/* Preparation — only for casters who prepare spells */}
-            {casterType.canPrepare && (
+            {/* Per-Class Spellcasting Sections */}
+            {spellcastingClasses.length > 0 && (
               <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] flex items-center gap-2">
-                    <BookOpen className="w-3 h-3 text-primary-500" />
-                    Preparation
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    {casterType.isSpellbookCaster && (
-                      <span className="text-[10px] text-text-tertiary">
-                        Known: <span className="font-bold text-info">{knownSpellsList.filter(id => {
-                          const s = spellService.getSpell(id);
-                          return s && s.level > 0;
-                        }).length}</span>
-                      </span>
-                    )}
-                    {casterType.canPrepare && !casterType.isSpellbookCaster && (
-                      <span className="text-[10px] text-text-tertiary">
-                        Class Spells: <span className="font-bold text-info">{inventorySpells.filter(s => s.level > 0).length}</span>
-                      </span>
-                    )}
-                    <span className="text-sm font-black text-primary-600">
-                      {allPreparedSpells.length}
-                      <span className="text-text-tertiary font-normal text-xs"> / {maxPrepared}</span>
-                    </span>
-                  </div>
+                <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <BookOpen className="w-3 h-3 text-primary-500" />
+                  Class Spellcasting
+                </h3>
+                <div className="space-y-3">
+                  {spellcastingClasses.map(c => renderClassSpells(c.classId, c.level))}
                 </div>
-                <div className="h-2 bg-bg-primary rounded-full overflow-hidden border border-border">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
-                    style={{ width: `${Math.min(100, (allPreparedSpells.length / Math.max(1, maxPrepared)) * 100)}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-text-tertiary mt-2 text-center">
-                  {maxPrepared - allPreparedSpells.length > 0
-                    ? `${maxPrepared - allPreparedSpells.length} slot${maxPrepared - allPreparedSpells.length !== 1 ? 's' : ''} remaining`
-                    : 'Preparation limit reached'}
-                </p>
               </section>
             )}
-
-            {/* Spell Inventory */}
-            <section>
-              <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4">
-                Spell Inventory
-              </h3>
-              {inventorySpells.length === 0 ? (
-                <div className="text-center py-8 bg-bg-primary rounded-2xl border border-dashed border-border">
-                  <p className="text-xs text-text-tertiary">No spells available.</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {Object.entries(spellsByLevel).map(([level, spellsAtLevel]) => (
-                    <div key={level} className="space-y-2">
-                      <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest px-1">
-                        {SPELL_LEVEL_LABELS[parseInt(level)]}
-                      </div>
-                      <div className="grid gap-1">
-                        {spellsAtLevel.map(spell => {
-                          const isAlwaysPrepared = alwaysPreparedList.includes(spell.id);
-                          const isManuallyPrepared = allPreparedSpells.includes(spell.id);
-                          const isPrepared = isAlwaysPrepared || isManuallyPrepared;
-
-                          return (
-                            <div 
-                              key={spell.id}
-                              className={`
-                                group flex items-center justify-between p-2 pl-3 rounded-xl border transition-all cursor-pointer
-                                ${isPrepared 
-                                  ? 'bg-primary-50 border-primary-100 shadow-sm' 
-                                  : 'bg-bg-primary border-border hover:border-primary-200'}
-                                ${isAlwaysPrepared ? 'ring-1 ring-info/30 bg-info/5' : ''}
-                              `}
-                              onClick={() => {
-                                selectSpell(spell);
-                                onOpenChange(false);
-                              }}
-                            >
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  <div className={`text-xs font-bold truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
-                                    {spell.name}
-                                  </div>
-                                  {isAlwaysPrepared && (
-                                    <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" />
-                                  )}
-                                </div>
-                                <div className="text-[9px] text-text-tertiary uppercase tracking-tight">
-                                  {spell.school} • {spell.castingTime}
-                                </div>
-                              </div>
-                              
-                              {casterType.canPrepare && spell.level > 0 && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (isAlwaysPrepared) return;
-                                    handleTogglePrepare(spell.id, isManuallyPrepared);
-                                  }}
-                                  disabled={isAlwaysPrepared}
-                                  className={`
-                                    p-1.5 rounded-lg transition-all border
-                                    ${isAlwaysPrepared
-                                      ? 'bg-info/20 text-info border-info/30 cursor-default'
-                                      : isManuallyPrepared
-                                      ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
-                                      : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
-                                  `}
-                                  title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
-                                >
-                                  {isAlwaysPrepared ? (
-                                    <Shield className="w-3.5 h-3.5 fill-current" />
-                                  ) : (
-                                    <Star className={`w-3.5 h-3.5 ${isManuallyPrepared ? 'fill-current' : ''}`} />
-                                  )}
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
 
           </div>
 
