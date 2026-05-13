@@ -6,6 +6,7 @@ import { Input } from '../ui/Input';
 import { useCharacterStore } from '../../stores/character-store';
 import { characterService } from '../../core/character-service';
 import type { CharacterCreationParams } from '../../core/types';
+import { dataLoader } from '../../core/data-loader';
 
 
 const CLASSES = [
@@ -62,7 +63,8 @@ export function CharacterModal({
     Wisdom: 10,
     Charisma: 10
   });
-  const [additionalClasses, setAdditionalClasses] = useState<Array<{ classId: string; level: number }>>([]);
+  const [subclassId, setSubclassId] = useState<string>('');
+  const [additionalClasses, setAdditionalClasses] = useState<Array<{ classId: string; level: number; subclassId?: string }>>([]);
 
   const handleAbilityChange = (name: string, value: string) => {
     setAbilities(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
@@ -74,6 +76,7 @@ export function CharacterModal({
       setName(editingCharacter.name);
       setCharClass(editingCharacter.classes[0]?.classId || 'Wizard');
       setLevel(editingCharacter.classes[0]?.level || 1);
+      setSubclassId(editingCharacter.classes[0]?.subclassId ?? '');
       setSpecies(editingCharacter.species);
       setBackground(editingCharacter.background);
       
@@ -90,7 +93,8 @@ export function CharacterModal({
       setAdditionalClasses(
         editingCharacter.classes.slice(1).map(c => ({
           classId: c.classId,
-          level: c.level
+          level: c.level,
+          subclassId: c.subclassId ?? undefined
         }))
       );
     } else {
@@ -98,6 +102,7 @@ export function CharacterModal({
       setName('');
       setCharClass('Wizard');
       setLevel(1);
+      setSubclassId('');
       setSpecies('Human');
       setBackground('sage');
       setAbilities({
@@ -116,6 +121,7 @@ export function CharacterModal({
       backgroundId: background,
       classId: charClass,
       classLevel: level,
+      subclassId: subclassId || undefined,
       abilityScores: abilities,
       additionalClasses: additionalClasses.length > 0 ? additionalClasses : undefined,
     };
@@ -162,7 +168,7 @@ export function CharacterModal({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">Class</label>
-                    <select value={charClass} onChange={(e) => setCharClass(e.target.value)} className="w-full bg-bg-primary border border-border rounded-xl px-3 py-2.5 text-sm font-medium">
+                    <select value={charClass} onChange={(e) => { setCharClass(e.target.value); setSubclassId(''); }} className="w-full bg-bg-primary border border-border rounded-xl px-3 py-2.5 text-sm font-medium">
                       {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
@@ -171,6 +177,23 @@ export function CharacterModal({
                     <Input type="number" min={1} max={20} value={level} onChange={(e) => setLevel(parseInt(e.target.value) || 1)} />
                   </div>
                 </div>
+
+                {/* Subclass Selection for Primary Class */}
+                {dataLoader.getSubclassesForClass(charClass).length > 0 && (
+                  <div>
+                    <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">Subclass</label>
+                    <select
+                      value={subclassId}
+                      onChange={(e) => setSubclassId(e.target.value)}
+                      className="w-full bg-bg-primary border border-border rounded-xl px-3 py-2.5 text-sm font-medium"
+                    >
+                      <option value="">None</option>
+                      {dataLoader.getSubclassesForClass(charClass).map((sub) => (
+                        <option key={sub.id} value={sub.id}>{sub.id}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -195,7 +218,7 @@ export function CharacterModal({
                       type="button" 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => setAdditionalClasses(prev => [...prev, { classId: 'Fighter', level: 1 }])}
+                      onClick={() => setAdditionalClasses(prev => [...prev, { classId: 'Fighter', level: 1, subclassId: undefined }])}
                       className="h-7 text-[9px]"
                     >
                       + Add Class
@@ -203,44 +226,67 @@ export function CharacterModal({
                   </div>
                   
                   {additionalClasses.map((ac, idx) => (
-                    <div key={idx} className="grid grid-cols-12 gap-2 items-end bg-bg-primary/30 p-2 rounded-xl border border-border/50">
-                      <div className="col-span-7">
-                        <select 
-                          value={ac.classId} 
-                          onChange={(e) => {
-                            const newClasses = [...additionalClasses];
-                            newClasses[idx].classId = e.target.value;
-                            setAdditionalClasses(newClasses);
-                          }}
-                          className="w-full bg-bg-primary border border-border rounded-lg px-2 py-1.5 text-xs font-medium"
-                        >
-                          {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
+                    <div key={idx} className="space-y-2 bg-bg-primary/30 p-3 rounded-xl border border-border/50">
+                      <div className="grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-7">
+                          <select 
+                            value={ac.classId} 
+                            onChange={(e) => {
+                              const newClasses = [...additionalClasses];
+                              newClasses[idx].classId = e.target.value;
+                              newClasses[idx].subclassId = undefined;
+                              setAdditionalClasses(newClasses);
+                            }}
+                            className="w-full bg-bg-primary border border-border rounded-lg px-2 py-1.5 text-xs font-medium"
+                          >
+                            {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div className="col-span-3">
+                          <Input 
+                            type="number" 
+                            min={1} 
+                            value={ac.level} 
+                            onChange={(e) => {
+                              const newClasses = [...additionalClasses];
+                              newClasses[idx].level = parseInt(e.target.value) || 1;
+                              setAdditionalClasses(newClasses);
+                            }}
+                            className="h-8 px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setAdditionalClasses(prev => prev.filter((_, i) => i !== idx))}
+                            className="h-8 w-full text-danger hover:text-danger hover:bg-danger/10"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="col-span-3">
-                        <Input 
-                          type="number" 
-                          min={1} 
-                          value={ac.level} 
-                          onChange={(e) => {
-                            const newClasses = [...additionalClasses];
-                            newClasses[idx].level = parseInt(e.target.value) || 1;
-                            setAdditionalClasses(newClasses);
-                          }}
-                          className="h-8 px-2 py-1 text-xs"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => setAdditionalClasses(prev => prev.filter((_, i) => i !== idx))}
-                          className="h-8 w-full text-danger hover:text-danger hover:bg-danger/10"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
+                      
+                      {/* Subclass for additional class */}
+                      {dataLoader.getSubclassesForClass(ac.classId).length > 0 && (
+                        <div>
+                          <select
+                            value={ac.subclassId ?? ''}
+                            onChange={(e) => {
+                              const newClasses = [...additionalClasses];
+                              newClasses[idx].subclassId = e.target.value || undefined;
+                              setAdditionalClasses(newClasses);
+                            }}
+                            className="w-full bg-bg-primary border border-border rounded-lg px-2 py-1.5 text-xs font-medium"
+                          >
+                            <option value="">No Subclass</option>
+                            {dataLoader.getSubclassesForClass(ac.classId).map((sub) => (
+                              <option key={sub.id} value={sub.id}>{sub.id}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

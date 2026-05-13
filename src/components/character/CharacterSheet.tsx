@@ -8,6 +8,7 @@ import { RulesService } from '../../core/rules-service';
 import { useSpellStore } from '../../stores/spell-store';
 import { Star, Shield } from 'lucide-react';
 import { useState } from 'react';
+import { dataLoader } from '../../core/data-loader';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -62,10 +63,40 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     const classData = classSpellcasting[classId];
     if (!classData) return { known: [], prepared: [], alwaysPrepared: [] };
 
+    // Get always-prepared spells from class data
+    const alwaysPrepared = [...(classData.alwaysPreparedSpells ?? [])];
+    // Also get always-prepared spells from subclass
+    const charClass = activeCharacter.classes?.find(c => c.classId === classId);
+    if (charClass?.subclassId) {
+      const subclass = dataLoader.getSubclass(charClass.subclassId);
+      if (subclass?.alwaysPreparedSpells) {
+        // Flatten all spells from all levels in the subclass
+        // Handle both Map and array formats
+        const aps = subclass.alwaysPreparedSpells as any;
+        if (Array.isArray(aps)) {
+          for (const entry of aps) {
+            for (const spellId of entry.spells) {
+              if (!alwaysPrepared.includes(spellId)) {
+                alwaysPrepared.push(spellId);
+              }
+            }
+          }
+        } else if (aps instanceof Map) {
+          for (const [, spells] of aps) {
+            for (const spellId of spells) {
+              if (!alwaysPrepared.includes(spellId)) {
+                alwaysPrepared.push(spellId);
+              }
+            }
+          }
+        }
+      }
+    }
+
     return {
       known: [...classData.knownSpells],
       prepared: [...classData.preparedSpells],
-      alwaysPrepared: [...(classData.alwaysPreparedSpells ?? [])]
+      alwaysPrepared
     };
   };
 
@@ -101,7 +132,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   };
 
   // Render spells for a specific class
-  const renderClassSpells = (classId: string, classLevel: number) => {
+  const renderClassSpells = (classId: string, classLevel: number, subclassId?: string | null) => {
     const classData = classSpellcasting[classId];
     if (!classData) return null;
 
@@ -114,6 +145,9 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     const { known, prepared, alwaysPrepared } = getSpellsForClass(classId);
     const allPrepared = [...prepared, ...alwaysPrepared];
     const maxPrepared = classData.maxPrepared;
+
+    // Get subclass name from dataLoader (id is the display name in open20-core)
+    const subclassDisplay = subclassId ? (dataLoader.getSubclass(subclassId)?.id ?? subclassId) : null;
 
     const inventoryIds = getInventorySpellIdsForClass(classId);
     const inventorySpells = inventoryIds
@@ -142,8 +176,13 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </div>
             <div className="text-left">
-              <div className="text-sm font-black text-text-primary capitalize">
+              <div className="text-sm font-black text-text-primary capitalize flex items-center gap-2">
                 {classId} {classLevel}
+                {subclassDisplay && (
+                  <span className="text-[10px] font-normal text-primary-600 bg-primary-500/10 px-2 py-0.5 rounded-full">
+                    {subclassDisplay}
+                  </span>
+                )}
               </div>
               <div className="text-[9px] text-text-tertiary uppercase tracking-widest">
                 {ability.substring(0, 3)} • DC {spellSaveDC} • +{spellAttack}
@@ -210,6 +249,32 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                     return s && s.level > 0;
                   }).length}
                 </span>
+              </div>
+            )}
+
+            {/* Always Prepared Spells (from subclass or class features) */}
+            {alwaysPrepared.length > 0 && (
+              <div>
+                <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-2 flex items-center gap-1">
+                  <Shield className="w-2.5 h-2.5 text-info" />
+                  Always Prepared
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {alwaysPrepared.map(spellId => {
+                    const spell = spellService.getSpell(spellId);
+                    if (!spell) return null;
+                    return (
+                      <Badge key={spellId} variant="info" size="sm" className="cursor-pointer hover:bg-info/30"
+                        onClick={() => {
+                          selectSpell(spell);
+                          onOpenChange(false);
+                        }}
+                      >
+                        {spell.name}
+                      </Badge>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
@@ -402,7 +467,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                   Class Spellcasting
                 </h3>
                 <div className="space-y-3">
-                  {spellcastingClasses.map(c => renderClassSpells(c.classId, c.level))}
+                  {spellcastingClasses.map(c => renderClassSpells(c.classId, c.level, c.subclassId))}
                 </div>
               </section>
             )}

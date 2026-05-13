@@ -8,6 +8,7 @@ export interface CharacterCreationParams {
   backgroundId: string;
   classId: string;
   classLevel?: number;
+  subclassId?: string;
   abilityScores: Record<AbilityName, number>;
   additionalClasses?: Array<{
     classId: string;
