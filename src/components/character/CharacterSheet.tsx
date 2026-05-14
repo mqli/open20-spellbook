@@ -1,17 +1,11 @@
-import { useCharacterStore } from '../../stores/character-store';
 import * as RadixDialog from '@radix-ui/react-dialog';
-import { X, BookOpen, Flame, Wind, Pencil, ChevronDown, ChevronRight } from 'lucide-react';
+import { X, Pencil } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
-import { spellService } from '../../core/spell-service';
-import { RulesService } from '../../core/rules-service';
-import { useSpellStore } from '../../stores/spell-store';
-import { Star, Shield } from 'lucide-react';
-import { useState } from 'react';
-import { dataLoader } from '../../core/data-loader';
-import { getCasterTypeForClass } from '../../core/character-service';
-
-const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
+import { useCharacterStore } from '../../stores/character-store';
+import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
+import { SpellSlotsSection } from './CharacterSheet/SpellSlotsSection';
+import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
 
 interface ConcentrationCondition {
   id: string;
@@ -23,281 +17,22 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
 }) {
-  const { activeCharacter, consumeSpellSlot, recoverSpellSlot, prepareSpellForClass, unprepareSpellForClass } = useCharacterStore();
-  const { selectSpell } = useSpellStore();
-  const [expandedClasses, setExpandedClasses] = useState<Record<string, boolean>>({});
+  const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
 
   if (!activeCharacter) return null;
 
-  const spells = activeCharacter.spells;
-  const classSpellcasting = spells.classSpellcasting;
-  const stats = RulesService.getProjectedStats(activeCharacter);
-  const concentratingCondition = activeCharacter.conditions?.find(c => c.id === 'Concentrating');
-  const concentratingSpellId = (concentratingCondition as ConcentrationCondition | undefined)?.source;
+  const { spells, classes, conditions } = activeCharacter;
+  const classSpellcasting = spells.classSpellcasting ?? {};
 
   const slotEntries = Object.entries(spells.spellSlots ?? {})
-    .map(([lvl, slot]) => ({ lvl: parseInt(lvl), slot: slot as { total: number; used: number } }))
+    .map(([lvl, slot]) => ({ lvl: parseInt(lvl, 10), slot: slot as { total: number; used: number } }))
     .filter(({ lvl, slot }) => lvl > 0 && slot.total > 0);
 
-  const isMulticlass = (activeCharacter.classes?.length ?? 0) > 1;
+  const isMulticlass = (classes?.length ?? 0) > 1;
 
-  // Get all classes that have spellcasting
-  const spellcastingClasses = activeCharacter.classes?.filter(c => 
-    classSpellcasting[c.classId]
-  ) ?? [];
-  const toggleClassExpand = (classId: string) => {
-    setExpandedClasses(prev => ({
-      ...prev,
-      [classId]: !prev[classId]
-    }));
-  };
+  const concentratingSpellId = (conditions?.find(c => c.id === 'Concentrating') as ConcentrationCondition | undefined)?.source;
 
-  const handleTogglePrepare = (classId: string, spellId: string, isManuallyPrepared: boolean) => {
-    if (isManuallyPrepared) unprepareSpellForClass(classId, spellId);
-    else prepareSpellForClass(classId, spellId);
-  };
-
-  // Get spells for a specific class
-  const getSpellsForClass = (classId: string) => {
-    const classData = classSpellcasting[classId];
-    if (!classData) return { known: [], prepared: [], alwaysPrepared: [] };
-    // All data comes from the character's classSpellcasting
-    return {
-      known: [...classData.knownSpells],
-      prepared: [...classData.preparedSpells],
-      alwaysPrepared: [...(classData.alwaysPreparedSpells ?? [])]
-    };
-  };
-
-  // Render spells for a specific class
-  const renderClassSpells = (classId: string, classLevel: number, subclassId?: string | null) => {
-    const classData = classSpellcasting[classId];
-    if (!classData) return null;
-
-    const casterType = getCasterTypeForClass(classId);
-    const ability = classData.spellcastingAbility;
-    const abilityMod = stats.abilityModifiers[ability] ?? 0;
-    const spellSaveDC = classData.spellSaveDC;
-    const spellAttack = classData.spellAttackBonus;
-
-    const { known, prepared, alwaysPrepared } = getSpellsForClass(classId);
-    const allPrepared = [...prepared, ...alwaysPrepared];
-    const maxPrepared = classData.maxPrepared;
-
-    // Get subclass name from dataLoader (id is the display name in open20-core)
-    const subclassDisplay = subclassId ? (dataLoader.getSubclass(subclassId)?.id ?? subclassId) : null;
-
-    const inventorySpells = known
-      .map(id => spellService.getSpell(id))
-      .filter((s): s is NonNullable<typeof s> => !!s)
-      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
-
-    const spellsByLevel = inventorySpells.reduce((acc, spell) => {
-      const level = spell.level;
-      if (!acc[level]) acc[level] = [];
-      acc[level].push(spell);
-      return acc;
-    }, {} as Record<number, typeof inventorySpells>);
-
-    const isExpanded = expandedClasses[classId] ?? true;
-
-    return (
-      <section key={classId} className="border border-border rounded-2xl overflow-hidden">
-        {/* Class Header */}
-        <Button
-          variant="ghost"
-          onClick={() => toggleClassExpand(classId)}
-          className="w-full p-4 bg-bg-primary hover:bg-bg-tertiary transition-colors flex items-center justify-between gap-3"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500/10 text-primary-600">
-              {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            </div>
-            <div className="text-left">
-              <div className="text-sm font-black text-text-primary capitalize flex items-center gap-2">
-                {classId} {classLevel}
-                {subclassDisplay && (
-                  <span className="text-[10px] font-normal text-primary-600 bg-primary-500/10 px-2 py-0.5 rounded-full">
-                    {subclassDisplay}
-                  </span>
-                )}
-              </div>
-              <div className="text-[9px] text-text-tertiary uppercase tracking-widest">
-                {ability.substring(0, 3)} • DC {spellSaveDC} • +{spellAttack}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {casterType.canPrepare && (
-              <Badge variant="purple" size="sm">
-                {allPrepared.length}/{maxPrepared}
-              </Badge>
-            )}
-          </div>
-        </Button>
-
-        {/* Class Content */}
-        {isExpanded && (
-          <div className="p-4 space-y-4 border-t border-border">
-            {/* Class Stats */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
-                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Ability</div>
-                <div className="text-sm font-black text-primary-600">{ability.substring(0, 3)}</div>
-                <div className="text-[9px] font-bold text-text-tertiary mt-0.5">
-                  {abilityMod >= 0 ? '+' : ''}{abilityMod}
-                </div>
-              </div>
-              <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
-                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Save DC</div>
-                <div className="text-sm font-black text-primary-600">{spellSaveDC}</div>
-              </div>
-              <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
-                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Attack</div>
-                <div className="text-sm font-black text-primary-600">+{spellAttack}</div>
-              </div>
-            </div>
-
-            {/* Preparation Progress (for prepared casters) */}
-            {casterType.canPrepare && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-black text-text-tertiary uppercase tracking-widest">
-                    Preparation Slots
-                  </span>
-                  <span className="text-xs font-bold text-primary-600">
-                    {allPrepared.length}/{maxPrepared}
-                  </span>
-                </div>
-                <div className="h-1.5 bg-bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
-                    style={{ width: `${Math.min(100, (allPrepared.length / Math.max(1, maxPrepared)) * 100)}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Known Spells Count (for spellbook/known casters) */}
-            {casterType.isSpellbookCaster && (
-              <div className="text-[10px] text-text-tertiary">
-                Known Spells: <span className="font-bold text-info">
-                  {known.filter(id => {
-                    const s = spellService.getSpell(id);
-                    return s && s.level > 0;
-                  }).length}
-                </span>
-              </div>
-            )}
-
-            {/* Always Prepared Spells (from subclass or class features) */}
-            {alwaysPrepared.length > 0 && (
-              <div>
-                <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-2 flex items-center gap-1">
-                  <Shield className="w-2.5 h-2.5 text-info" />
-                  Always Prepared
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {alwaysPrepared.map(spellId => {
-                    const spell = spellService.getSpell(spellId);
-                    if (!spell) return null;
-                    return (
-                      <Badge key={spellId} variant="info" size="sm" className="cursor-pointer hover:bg-info/30"
-                        onClick={() => {
-                          selectSpell(spell);
-                          onOpenChange(false);
-                        }}
-                      >
-                        {spell.name}
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Spell List */}
-            <div className="space-y-4">
-              {Object.entries(spellsByLevel).map(([level, spellsAtLevel]) => (
-                <div key={level} className="space-y-1">
-                  <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest px-1">
-                    {SPELL_LEVEL_LABELS[parseInt(level)]}
-                  </div>
-                  <div className="grid gap-1">
-                    {spellsAtLevel.map(spell => {
-                      const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
-                      const isManuallyPrepared = prepared.includes(spell.id);
-                      const isPrepared = isAlwaysPrepared || isManuallyPrepared;
-
-                      return (
-                        <div
-                          key={spell.id}
-                          className={`
-                            group flex items-center justify-between p-2 pl-3 rounded-lg border transition-all cursor-pointer
-                            ${isPrepared
-                              ? 'bg-primary-50 border-primary-100 shadow-sm'
-                              : 'bg-bg-secondary border-border hover:border-primary-200'}
-                            ${isAlwaysPrepared ? 'ring-1 ring-info/30 bg-info/5' : ''}
-                          `}
-                          onClick={() => {
-                            selectSpell(spell);
-                            onOpenChange(false);
-                          }}
-                        >
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <div className={`text-xs font-bold truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
-                                {spell.name}
-                              </div>
-                              {isAlwaysPrepared && (
-                                <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" />
-                              )}
-                            </div>
-                            <div className="text-[9px] text-text-tertiary uppercase tracking-tight">
-                              {spell.school} • {spell.castingTime}
-                            </div>
-                          </div>
-
-                          {casterType.canPrepare && (
-                            <Button
-                              variant={isManuallyPrepared ? 'primary' : 'ghost'}
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (isAlwaysPrepared) return;
-                                handleTogglePrepare(classId, spell.id, isManuallyPrepared);
-                              }}
-                              disabled={isAlwaysPrepared}
-                              className={`p-1.5 border text-[10px] font-bold ${
-                                isAlwaysPrepared
-                                  ? 'bg-info/20 text-info border-info/30 cursor-default'
-                                  : isManuallyPrepared
-                                  ? 'border-primary-600 shadow-sm'
-                                  : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'
-                              }`}
-                              title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
-                            >
-                              {isAlwaysPrepared ? (
-                                <Shield className="w-3 h-3 fill-current" />
-                              ) : (
-                                <>
-                                  <Star className={`w-3 h-3 ${isManuallyPrepared ? 'fill-current' : ''}`} />
-                                </>
-                              )}
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-    );
-  };
+  const spellcastingClasses = classes?.filter(c => classSpellcasting[c.classId]) ?? [];
 
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -312,7 +47,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                 {activeCharacter.name}
               </h2>
               <div className="flex gap-2 mt-2 flex-wrap">
-                {activeCharacter.classes?.map((c, i) => (
+                {classes?.map((c, i) => (
                   <Badge key={i} variant={i === 0 ? "purple" : "slate"} size="sm">
                     {c.classId} {c.level}
                   </Badge>
@@ -331,11 +66,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                 <Pencil className="w-4 h-4" />
               </Button>
               <RadixDialog.Close asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-2 text-text-tertiary hover:text-text-primary"
-                >
+                <Button variant="ghost" size="sm" className="p-2 text-text-tertiary hover:text-text-primary">
                   <X className="w-5 h-5" />
                 </Button>
               </RadixDialog.Close>
@@ -346,79 +77,36 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
 
             {/* Concentration */}
             {concentratingSpellId && (
-              <section className="bg-amber-500/10 border border-amber-500/25 rounded-2xl p-4 flex items-center gap-3">
-                <div className="p-2 bg-amber-500/15 rounded-xl text-amber-500 flex-shrink-0">
-                  <Wind className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Concentrating</div>
-                  <div className="text-sm font-bold text-text-primary truncate capitalize">
-                    {concentratingSpellId.replace(/-/g, ' ')}
-                  </div>
-                </div>
-              </section>
+              <ConcentrationBanner concentratingSpellId={concentratingSpellId} />
             )}
 
-            {/* Combined Spell Slots (for multiclass) */}
-            {slotEntries.length > 0 && (
-              <section>
-                <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                  <Flame className="w-3 h-3 text-primary-500" />
-                  Spell Slots
-                  {isMulticlass && (
-                    <span className="text-[8px] font-normal text-text-tertiary normal-case">(Combined)</span>
-                  )}
-                </h3>
-                <div className="space-y-3">
-                  {slotEntries.map(({ lvl, slot }) => {
-                    const available = slot.total - slot.used;
-                    return (
-                      <div key={lvl} className="flex items-center gap-3">
-                        <span className="text-[10px] font-black text-text-tertiary uppercase w-10 flex-shrink-0">
-                          {SPELL_LEVEL_LABELS[lvl]}
-                        </span>
-                        <div className="flex gap-1.5 flex-1">
-                          {Array.from({ length: slot.total }).map((_, i) => {
-                            const isAvailable = i < available;
-                            return (
-                              <button
-                                key={i}
-                                title={isAvailable ? `Use level ${lvl} slot` : `Recover level ${lvl} slot`}
-                                onClick={() => isAvailable ? consumeSpellSlot(lvl) : recoverSpellSlot(lvl)}
-                                className={`
-                                  w-5 h-5 rounded-md border transition-all duration-150 hover:scale-110
-                                  ${isAvailable
-                                    ? 'bg-primary-500 border-primary-600 shadow-sm shadow-primary-500/30'
-                                    : 'bg-bg-tertiary border-border opacity-30 hover:opacity-60'
-                                  }
-                                `}
-                              />
-                            );
-                          })}
-                        </div>
-                        <span className="text-[10px] font-bold text-text-tertiary flex-shrink-0 w-8 text-right">
-                          {available}/{slot.total}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
+            {/* Combined Spell Slots */}
+            <SpellSlotsSection
+              slotEntries={slotEntries}
+              isMulticlass={isMulticlass}
+              onConsumeSlot={consumeSpellSlot}
+              onRecoverSlot={recoverSpellSlot}
+            />
 
             {/* Per-Class Spellcasting Sections */}
             {spellcastingClasses.length > 0 && (
               <section>
                 <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                  <BookOpen className="w-3 h-3 text-primary-500" />
                   Class Spellcasting
                 </h3>
                 <div className="space-y-3">
-                  {spellcastingClasses.map(c => renderClassSpells(c.classId, c.level, c.subclassId))}
+                  {spellcastingClasses.map(c => (
+                    <ClassSpellSection
+                      key={c.classId}
+                      classId={c.classId}
+                      classLevel={c.level}
+                      subclassId={c.subclassId}
+                      onOpenChange={onOpenChange}
+                    />
+                  ))}
                 </div>
               </section>
             )}
-
           </div>
 
           {/* Footer */}
