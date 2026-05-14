@@ -170,7 +170,7 @@ export function CharacterBar() {
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">ATK</div>
               <div className="text-xs font-bold text-primary-600">+{spellAttackBonus}</div>
             </div>
-          </button>
+          </Button>
 
           <SpellSlots activeCharacter={activeCharacter} />
 

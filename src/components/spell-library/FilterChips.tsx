@@ -39,14 +39,14 @@ export function FilterChips() {
           <FilterChip 
             variant={showRitualOnly ? 'info' : 'slate'}
             active={showRitualOnly}
-            onClick={() => setShowRitualOnly(!showRitualOnly)}
+            onPressedChange={(pressed) => setShowRitualOnly(pressed)}
           >
             Ritual
           </FilterChip>
           <FilterChip 
             variant={showConcentrationOnly ? 'warning' : 'slate'}
             active={showConcentrationOnly}
-            onClick={() => setShowConcentrationOnly(!showConcentrationOnly)}
+            onPressedChange={(pressed) => setShowConcentrationOnly(pressed)}
           >
             Concentration
           </FilterChip>
@@ -62,7 +62,7 @@ export function FilterChips() {
                 key={cls}
                 variant={selectedClasses.includes(cls) ? 'purple' : 'slate'}
                 active={selectedClasses.includes(cls)}
-                onClick={() => toggleClassFilter(cls)}
+                onPressedChange={() => toggleClassFilter(cls)}
                 size="sm"
               >
                 {cls}
@@ -81,7 +81,7 @@ export function FilterChips() {
                 key={school}
                 variant={selectedSchools.includes(school) ? 'purple' : 'slate'}
                 active={selectedSchools.includes(school)}
-                onClick={() => toggleSchoolFilter(school)}
+                onPressedChange={() => toggleSchoolFilter(school)}
                 size="sm"
               >
                 {school}

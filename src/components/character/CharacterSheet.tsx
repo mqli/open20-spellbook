@@ -9,6 +9,7 @@ import { useSpellStore } from '../../stores/spell-store';
 import { Star, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { dataLoader } from '../../core/data-loader';
+import { getCasterTypeForClass } from '../../core/character-service';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -66,18 +67,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
       prepared: [...classData.preparedSpells],
       alwaysPrepared: [...(classData.alwaysPreparedSpells ?? [])]
     };
-  };
-  const getCasterTypeForClass = (classId: string) => {
-    const classIds = [classId];
-    const KNOWN_ONLY_CLASSES = new Set(['Ward', 'Sorcerer', 'Warlock', 'Ranger']);
-    const PREPARED_ONLY_CLASSES = new Set(['Cleric', 'Druid', 'Paladin']);
-    const SPELLBOOK_CLASSES = new Set(['Wizard', 'Artificer']);
-
-    const canLearn = classIds.some(id => KNOWN_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
-    const canPrepare = classIds.some(id => PREPARED_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
-    const isSpellbookCaster = classIds.some(id => SPELLBOOK_CLASSES.has(id));
-
-    return { canLearn, canPrepare, isSpellbookCaster };
   };
 
   // Render spells for a specific class
@@ -145,7 +134,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               </Badge>
             )}
           </div>
-        </button>
+        </Button>
 
         {/* Class Content */}
         {isExpanded && (

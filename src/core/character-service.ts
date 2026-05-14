@@ -26,8 +26,8 @@ import { dataLoader } from './data-loader';
 // - Known casters: learn a fixed list; cast any known (no preparation)
 // - Prepared casters: prepare from full class list after each long rest
 // - Spellbook casters: learn spells into a spellbook, then prepare from it daily
-const KNOWN_ONLY_CLASSES = new Set(['bard', 'sorcerer', 'warlock', 'ranger']);
-const PREPARED_ONLY_CLASSES = new Set(['cleric', 'druid', 'paladin']);
+const KNOWN_ONLY_CLASSES = new Set(['bard', 'sorcerer', 'warlock']);
+const PREPARED_ONLY_CLASSES = new Set(['cleric', 'druid', 'paladin', 'ranger']);
 const SPELLBOOK_CLASSES = new Set(['wizard', 'artificer']);
 
 export function getCasterType(character: AppCharacter): {
@@ -40,6 +40,19 @@ export function getCasterType(character: AppCharacter): {
   const canPrepare = classIds.some(id => PREPARED_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id));
   const isSpellbookCaster = classIds.some(id => SPELLBOOK_CLASSES.has(id));
   return { canLearn, canPrepare, isSpellbookCaster };
+}
+
+export function getCasterTypeForClass(classId: string): {
+  canLearn: boolean;
+  canPrepare: boolean;
+  isSpellbookCaster: boolean;
+} {
+  const id = classId.toLowerCase();
+  return {
+    canLearn: KNOWN_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id),
+    canPrepare: PREPARED_ONLY_CLASSES.has(id) || SPELLBOOK_CLASSES.has(id),
+    isSpellbookCaster: SPELLBOOK_CLASSES.has(id),
+  };
 }
 
 const SPELL_SIDE_EFFECTS: Record<string, any> = {
