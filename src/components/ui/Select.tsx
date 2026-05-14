@@ -2,12 +2,16 @@ import * as RadixSelect from '@radix-ui/react-select';
 import { cn } from '../../utils/helpers';
 import { ChevronDown, ChevronUp, Check } from 'lucide-react';
 
+interface SelectTriggerProps extends RadixSelect.SelectTriggerProps {
+  placeholder?: string;
+}
+
 export const Select = {
   Root: RadixSelect.Root,
   Group: RadixSelect.Group,
   Value: RadixSelect.Value,
   
-  Trigger: ({ className, children, ...props }: RadixSelect.SelectTriggerProps) => (
+  Trigger: ({ className, children, placeholder, ...props }: SelectTriggerProps) => (
     <RadixSelect.Trigger
       className={cn(
         'flex h-10 w-full items-center justify-between rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50',
@@ -15,6 +19,7 @@ export const Select = {
       )}
       {...props}
     >
+      <RadixSelect.Value placeholder={placeholder} />
       {children}
       <RadixSelect.Icon asChild>
         <ChevronDown className="h-4 w-4 opacity-50" />
