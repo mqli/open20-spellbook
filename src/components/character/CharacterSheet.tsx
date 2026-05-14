@@ -282,11 +282,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                               ) : (
                                 <>
                                   <Star className={`w-3 h-3 ${isManuallyPrepared ? 'fill-current' : ''}`} />
-                                  {casterType.canPrepare && (
-                                    <span className="ml-1">
-                                      ({allPrepared.length}/{maxPrepared ?? 0})
-                                    </span>
-                                  )}
                                 </>
                               )}
                             </Button>
