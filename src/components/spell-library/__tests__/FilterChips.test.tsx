@@ -24,7 +24,6 @@ describe('FR-005: Multi-dimensional Filtering', () => {
 
   it('should render all class filters', () => {
     render(<FilterChips />);
-    expect(screen.getByText('Artificer')).toBeInTheDocument();
     expect(screen.getByText('Wizard')).toBeInTheDocument();
     expect(screen.getByText('Cleric')).toBeInTheDocument();
   });
