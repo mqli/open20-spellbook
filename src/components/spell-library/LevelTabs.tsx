@@ -1,4 +1,5 @@
 import { useSpellStore } from '../../stores/spell-store';
+import { Button } from '../ui/Button';
 
 const LEVELS = [
   { value: null, label: 'All' },
@@ -22,19 +23,17 @@ export function LevelTabs() {
       {LEVELS.map(({ value, label }) => {
         const isActive = selectedLevel === value;
         return (
-          <button
+          <Button
             key={label}
+            variant={isActive ? 'primary' : 'secondary'}
+            size="sm"
             onClick={() => setSelectedLevel(value)}
-            className={`
-              flex-shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium transition-all whitespace-nowrap
-              ${isActive
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'bg-bg-tertiary text-text-secondary hover:bg-bg-primary hover:text-text-primary border border-border'
-              }
-            `}
+            className={`flex-shrink-0 rounded-full whitespace-nowrap ${
+              isActive ? 'shadow-sm' : 'border border-border'
+            }`}
           >
             {label}
-          </button>
+          </Button>
         );
       })}
     </div>

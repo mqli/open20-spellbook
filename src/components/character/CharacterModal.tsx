@@ -8,35 +8,10 @@ import { characterService } from '../../core/character-service';
 import type { CharacterCreationParams } from '../../core/types';
 import { dataLoader } from '../../core/data-loader';
 
-
-const CLASSES = [
-  'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 
-  'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
-];
-
-const SPECIES = [
-  'Human', 'Elf', 'Dwarf', 'Halfling', 'Dragonborn', 
-  'Gnome', 'Tiefling', 'Orc', 'Goliath', 'Half-Elf', 'Half-Orc', 'Aasimar'
-];
-
-const BACKGROUNDS = [
-  { id: 'acolyte', name: 'Acolyte' },
-  { id: 'artisan', name: 'Artisan' },
-  { id: 'charlatan', name: 'Charlatan' },
-  { id: 'criminal', name: 'Criminal' },
-  { id: 'entertainer', name: 'Entertainer' },
-  { id: 'farmer', name: 'Farmer' },
-  { id: 'guard', name: 'Guard' },
-  { id: 'guide', name: 'Guide' },
-  { id: 'hermit', name: 'Hermit' },
-  { id: 'merchant', name: 'Merchant' },
-  { id: 'noble', name: 'Noble' },
-  { id: 'sage', name: 'Sage' },
-  { id: 'sailor', name: 'Sailor' },
-  { id: 'scribe', name: 'Scribe' },
-  { id: 'soldier', name: 'Soldier' },
-  { id: 'wayfarer', name: 'Wayfarer' }
-];
+// Get dynamic data from open20-core
+const CLASSES = dataLoader.getAllClasses().map(c => c.id);
+const SPECIES = dataLoader.getAllSpecies().map(s => s.id);
+const BACKGROUNDS = dataLoader.getAllBackgrounds().map(b => ({ id: b.id, name: b.name }));
 
 export function CharacterModal({ 
   open, 

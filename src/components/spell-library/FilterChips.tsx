@@ -1,8 +1,11 @@
 import { useSpellStore } from '../../stores/spell-store';
 import { FilterChip } from '../ui/FilterChip';
+import { Button } from '../ui/Button';
+import { dataLoader } from '../../core/data-loader';
 
-const CLASSES = ['Artificer', 'Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger', 'Sorcerer', 'Warlock', 'Wizard'];
+const CLASSES = dataLoader.getAllClasses().map(c => c.id);
 const SCHOOLS = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
+
 
 export function FilterChips() {
   const { 
@@ -20,12 +23,14 @@ export function FilterChips() {
     <div className="py-2 space-y-3">
       {activeFilterCount > 0 && (
         <div className="flex justify-end">
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={clearAllFilters}
-            className="text-xs text-text-secondary hover:text-danger transition-colors"
+            className="text-text-secondary hover:text-danger"
           >
             Clear{activeFilterCount > 1 ? ` ${activeFilterCount} filters` : ' filter'}
-          </button>
+          </Button>
         </div>
       )}
 

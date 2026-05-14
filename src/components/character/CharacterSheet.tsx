@@ -115,7 +115,8 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
     return (
       <section key={classId} className="border border-border rounded-2xl overflow-hidden">
         {/* Class Header */}
-        <button
+        <Button
+          variant="ghost"
           onClick={() => toggleClassExpand(classId)}
           className="w-full p-4 bg-bg-primary hover:bg-bg-tertiary transition-colors flex items-center justify-between gap-3"
         >
@@ -269,21 +270,22 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                           </div>
 
                           {casterType.canPrepare && (
-                            <button
+                            <Button
+                              variant={isManuallyPrepared ? 'primary' : 'ghost'}
+                              size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isAlwaysPrepared) return;
                                 handleTogglePrepare(classId, spell.id, isManuallyPrepared);
                               }}
                               disabled={isAlwaysPrepared}
-                              className={`
-                                p-1.5 rounded-lg transition-all border text-[10px] font-bold
-                                ${isAlwaysPrepared
+                              className={`p-1.5 border text-[10px] font-bold ${
+                                isAlwaysPrepared
                                   ? 'bg-info/20 text-info border-info/30 cursor-default'
                                   : isManuallyPrepared
-                                  ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
-                                  : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
-                              `}
+                                  ? 'border-primary-600 shadow-sm'
+                                  : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'
+                              }`}
                               title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
                             >
                               {isAlwaysPrepared ? (
@@ -298,7 +300,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                                   )}
                                 </>
                               )}
-                            </button>
+                            </Button>
                           )}
                         </div>
                       );
@@ -335,17 +337,23 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={onEdit}
-                className="p-2 hover:bg-bg-tertiary rounded-full transition-colors text-text-tertiary hover:text-primary-600"
+                className="p-2 text-text-tertiary hover:text-primary-600"
                 title="Edit character"
               >
                 <Pencil className="w-4 h-4" />
-              </button>
+              </Button>
               <RadixDialog.Close asChild>
-                <button className="p-2 hover:bg-bg-tertiary rounded-full transition-colors text-text-tertiary hover:text-text-primary">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 text-text-tertiary hover:text-text-primary"
+                >
                   <X className="w-5 h-5" />
-                </button>
+                </Button>
               </RadixDialog.Close>
             </div>
           </header>

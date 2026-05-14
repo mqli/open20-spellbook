@@ -138,14 +138,16 @@ export function CharacterBar() {
               </button>
             ))}
 
-            <div className="border-t border-border mt-1 pt-1">
-              <button
+            <div className="border-t border-border mt-1 pt-1 px-1">
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleCreate}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs text-text-tertiary hover:bg-bg-tertiary hover:text-primary-600 transition-colors"
+                className="w-full justify-start text-text-tertiary hover:text-primary-600"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3 h-3 mr-2" />
                 Add character
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -154,9 +156,11 @@ export function CharacterBar() {
       {/* Right: stats + slots + long rest */}
       {activeCharacter && (
         <div className="flex items-center gap-3 flex-shrink-0">
-          <button
-            className="hidden sm:flex gap-3 text-center cursor-pointer hover:bg-bg-tertiary px-1.5 py-0.5 rounded transition-colors"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setIsSheetOpen(true)}
+            className="hidden sm:flex gap-3 text-center"
           >
             <div>
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">DC</div>

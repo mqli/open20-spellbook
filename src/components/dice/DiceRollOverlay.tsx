@@ -1,6 +1,7 @@
 import { useRollStore } from '../../stores/roll-store';
 import { Dices, X } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '../ui/Button';
 
 export function DiceRollOverlay() {
   const { latestRoll } = useRollStore();
@@ -40,12 +41,14 @@ export function DiceRollOverlay() {
             </div>
           </div>
 
-          <button 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setDismissedRollId(latestRoll.id)}
-            className="p-2 hover:bg-bg-tertiary rounded-full text-text-tertiary transition-colors"
+            className="p-2 text-text-tertiary"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

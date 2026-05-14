@@ -7,6 +7,7 @@ import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { useRollStore } from '../../stores/roll-store';
 import { Sheet } from '../ui/Sheet';
+import { Button } from '../ui/Button';
 import { characterService } from '../../core/character-service';
 import { spellService } from '../../core/spell-service';
 
@@ -96,9 +97,14 @@ export function SpellDetailFlyout() {
     <Sheet open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
       <Sheet.Content side="right">
         <Sheet.Header>
-          <button onClick={closeDetail} className="p-2 hover:bg-bg-tertiary rounded-md md:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={closeDetail}
+            className="p-2 hover:bg-bg-tertiary rounded-md md:hidden"
+          >
             <ArrowLeft className="w-5 h-5 text-text-secondary" />
-          </button>
+          </Button>
           
           <div className="w-12 h-1.5 bg-border rounded-full mx-auto md:hidden absolute left-1/2 -translate-x-1/2 top-2" />
 
@@ -114,8 +120,14 @@ export function SpellDetailFlyout() {
             onConcentrationToggle={handleConcentrationToggle}
           />
 
-          <Sheet.Close className="p-2 hover:bg-bg-tertiary rounded-md relative right-0 top-0">
-            <X className="w-5 h-5 text-text-secondary" />
+          <Sheet.Close asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 hover:bg-bg-tertiary rounded-md relative right-0 top-0"
+            >
+              <X className="w-5 h-5 text-text-secondary" />
+            </Button>
           </Sheet.Close>
         </Sheet.Header>
 

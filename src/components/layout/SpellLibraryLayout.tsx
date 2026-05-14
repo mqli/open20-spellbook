@@ -7,6 +7,7 @@ import { FilterChips } from '../spell-library/FilterChips';
 import { SpellCard } from '../spell-library/SpellCard';
 import { SpellDetailFlyout } from '../spell-library/SpellDetailFlyout';
 
+import { Button } from '../ui/Button';
 import { useCharacterStore } from '../../stores/character-store';
 import { getCasterType } from '../../core/character-service';
 import { CharacterBar } from '../character/CharacterBar';
@@ -67,30 +68,30 @@ export function SpellLibraryLayout() {
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {casterType.canLearn && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowKnownOnly(!showKnownOnly)}
-                className={`
-                  text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
-                  ${showKnownOnly
+                className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all ${
+                  showKnownOnly
                     ? 'bg-info text-white border-info shadow-sm'
-                    : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
-                `}
+                    : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'
+                }`}
               >
                 Known
-              </button>
+              </Button>
             )}
             {casterType.canPrepare && (
-              <button
+              <Button
+                variant={showPreparedOnly ? 'primary' : 'ghost'}
+                size="sm"
                 onClick={() => setShowPreparedOnly(!showPreparedOnly)}
-                className={`
-                  text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all
-                  ${showPreparedOnly
-                    ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
-                    : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'}
-                `}
+                className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                  showPreparedOnly ? 'border-primary-600 shadow-sm' : 'border-border'
+                }`}
               >
                 Prep
-              </button>
+              </Button>
             )}
           </div>
         </div>
