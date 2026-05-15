@@ -1,5 +1,6 @@
 import { Sparkles, BookOpen } from 'lucide-react';
 import { Button } from '../../ui/Button';
+import { Surface } from '../../ui/Surface';
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from '../../../core/types';
 import { getCasterType } from '../../../core/character-service';
@@ -48,7 +49,7 @@ export function SpellActionPanel({
   );
 
   return (
-    <div className="mb-8 p-6 bg-primary-500/5 rounded-2xl border border-primary-500/10 flex flex-wrap gap-4 items-center">
+    <Surface variant="tint" padding="lg" className="mb-8 flex flex-wrap gap-4 items-center">
       <div className="text-xs font-black text-primary-700 uppercase tracking-widest mr-2">Quick Actions</div>
 
       {canPrepare && (isKnown || spell.level === 0) && (
@@ -98,6 +99,6 @@ export function SpellActionPanel({
           Roll {entry.dice} {entry.type}
         </Button>
       ))}
-    </div>
+    </Surface>
   );
 }

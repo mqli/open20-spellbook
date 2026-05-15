@@ -114,3 +114,30 @@ export const buttonSizeVariants = {
   md: 'px-4 py-2',
   lg: 'px-6 py-3 text-lg',
 } as const;
+
+// --- Surface Variants ---
+// Container surface styles for panels, cards, sections.
+// Used in: Surface
+export const surfaceVariants = {
+  default: 'bg-bg-secondary border-border',
+  primary: 'bg-bg-primary border-primary-200',
+  elevated: 'bg-bg-primary border-border shadow-md',
+  ghost: 'bg-transparent border-border/50',
+  tint: 'bg-primary-500/5 border-primary-500/10',
+} as const;
+
+export const surfacePaddingVariants = {
+  none: 'p-0',
+  xs: 'p-2',
+  sm: 'p-3',
+  md: 'p-4',
+  lg: 'p-6',
+} as const;
+
+export const surfaceShadowVariants = {
+  none: '',
+  sm: 'shadow-sm',
+  md: 'shadow-md',
+  lg: 'shadow-lg',
+  xl: 'shadow-2xl',
+} as const;

@@ -2,6 +2,7 @@ import { useRollStore } from '../../stores/roll-store';
 import { Dices, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { IconButton } from '../ui/IconButton';
+import { Surface } from '../ui/Surface';
 
 export function DiceRollOverlay() {
   const { latestRoll } = useRollStore();
@@ -42,7 +43,7 @@ export function DiceRollOverlay() {
         {/* Glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-info rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
-        <div className="relative bg-bg-primary border border-primary-200 rounded-2xl shadow-2xl p-6 flex items-center gap-6 min-w-[320px]">
+        <Surface variant="primary" padding="lg" shadow="xl" className="relative rounded-2xl flex items-center gap-6 min-w-[320px]">
           <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white shadow-inner transform rotate-3 hover:rotate-0 transition-transform">
             <Dices className="w-8 h-8" />
           </div>
@@ -69,7 +70,7 @@ export function DiceRollOverlay() {
           >
             <X className="w-4 h-4" />
           </IconButton>
-        </div>
+        </Surface>
       </div>
     </div>
   );

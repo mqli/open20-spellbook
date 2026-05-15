@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { Surface } from '@/components/ui/Surface';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { CLASSES } from './constants';
@@ -18,7 +19,7 @@ export function AdditionalClassEntryComponent({
   onRemove 
 }: AdditionalClassEntryProps) {
   return (
-    <div className="space-y-2 bg-bg-primary/30 p-3 rounded-xl border border-border/50">
+    <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
       <div className="grid grid-cols-12 gap-2 items-end">
         <div className="col-span-7">
           <Select.Root 
@@ -61,6 +62,6 @@ export function AdditionalClassEntryComponent({
         onChange={(value) => onUpdate(entry.id, { subclassId: value || undefined })}
         label="Subclass"
       />
-    </div>
+    </Surface>
   );
 }

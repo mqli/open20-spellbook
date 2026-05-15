@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/Input';
+import { Surface } from '@/components/ui/Surface';
 
 interface AbilityScoresSectionProps {
   abilities: Record<string, number>;
@@ -7,7 +8,7 @@ interface AbilityScoresSectionProps {
 
 export function AbilityScoresSection({ abilities, onChange }: AbilityScoresSectionProps) {
   return (
-    <div className="bg-bg-primary/50 p-6 rounded-2xl border border-border shadow-inner">
+    <Surface variant="primary" padding="lg" className="bg-bg-primary/50 shadow-inner">
       <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-6 text-center">
         Ability Scores
       </label>
@@ -28,6 +29,6 @@ export function AbilityScoresSection({ abilities, onChange }: AbilityScoresSecti
           </div>
         ))}
       </div>
-    </div>
+    </Surface>
   );
 }

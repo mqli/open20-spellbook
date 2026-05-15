@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
+import { Surface } from '../../ui/Surface';
 import { spellService } from '../../../core/spell-service';
 import { RulesService } from '../../../core/rules-service';
 import { getCasterTypeForClass } from '../../../core/character-service';
@@ -63,7 +64,7 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
   };
 
   return (
-    <section className="border border-border rounded-2xl overflow-hidden">
+    <Surface variant="default" padding="none" className="overflow-hidden">
       {/* Class Header */}
       <Button
         variant="ghost"
@@ -102,21 +103,21 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
         <div className="p-4 space-y-4 border-t border-border">
           {/* Class Stats */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
+            <Surface variant="default" padding="sm" className="text-center">
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Ability</div>
               <div className="text-sm font-black text-primary-600">{ability.substring(0, 3)}</div>
               <div className="text-[9px] font-bold text-text-tertiary mt-0.5">
                 {abilityMod >= 0 ? '+' : ''}{abilityMod}
               </div>
-            </div>
-            <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
+            </Surface>
+            <Surface variant="default" padding="sm" className="text-center">
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Save DC</div>
               <div className="text-sm font-black text-primary-600">{spellSaveDC}</div>
-            </div>
-            <div className="bg-bg-secondary p-3 rounded-xl border border-border text-center">
+            </Surface>
+            <Surface variant="default" padding="sm" className="text-center">
               <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Attack</div>
               <div className="text-sm font-black text-primary-600">+{spellAttack}</div>
-            </div>
+            </Surface>
           </div>
 
           {/* Preparation Progress */}
@@ -200,6 +201,6 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
           </div>
         </div>
       )}
-    </section>
+    </Surface>
   );
 }
