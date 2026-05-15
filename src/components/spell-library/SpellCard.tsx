@@ -3,7 +3,7 @@ import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { Badge } from '../ui/Badge';
 import { IconButton } from '../ui/IconButton';
-import { Card } from '../ui/Card';
+import { Surface } from '../ui/Surface';
 import { spellService } from '../../core/spell-service';
 import { getCasterType } from '../../core/character-service';
 import { Sparkles, Activity, BookMarked, Star } from 'lucide-react';
@@ -67,22 +67,27 @@ export function SpellCard({ spell }: SpellCardProps) {
     }
   };
 
-  const cardVariant = isConcentratingOnThis
+  const surfaceVariant = isConcentratingOnThis
     ? 'warning'
     : isPrepared
     ? 'selected'
     : isKnown
     ? 'info'
-    : 'interactive';
+    : 'default';
+
+  const surfaceClassName = !isConcentratingOnThis && !isPrepared && !isKnown
+    ? 'cursor-pointer hover:shadow-md hover:border-primary-300'
+    : '';
 
   return (
-    <Card
-      variant={cardVariant}
+    <Surface
+      variant={surfaceVariant}
+      padding="md"
       onClick={() => selectSpell(spell)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectSpell(spell); }}
-      className="w-full text-left cursor-pointer relative overflow-hidden"
+      className={`w-full text-left relative overflow-hidden ${surfaceClassName}`}
     >
       {/* Background glow for prepared */}
       {isPrepared && (
@@ -157,6 +162,6 @@ export function SpellCard({ spell }: SpellCardProps) {
           )}
         </div>
       </div>
-    </Card>
+    </Surface>
   );
 }

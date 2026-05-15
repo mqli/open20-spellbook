@@ -124,6 +124,9 @@ export const surfaceVariants = {
   elevated: 'bg-bg-primary border-border shadow-md',
   ghost: 'bg-transparent border-border/50',
   tint: 'bg-primary-500/5 border-primary-500/10',
+  selected: 'border-primary-400 shadow-md ring-1 ring-primary-400/60',
+  warning: 'border-warning ring-2 ring-warning/50 bg-warning/5',
+  info: 'border-info/50 shadow-sm',
 } as const;
 
 export const surfacePaddingVariants = {

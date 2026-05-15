@@ -37,7 +37,6 @@ Location: `src/components/ui/`
 | `Badge` | — | Status/label indicators with variant + size |
 | `Button` | — | Actions with variant + size |
 | `IconButton` | — | Icon-only buttons with variant + active state |
-| `Card` | — | Container with variant (default, interactive, selected, warning) |
 | `Surface` | — | Generic surface/plane with variant + padding + shadow |
 | `Dialog` | `@radix-ui/react-dialog` | Modal dialogs |
 | `Sheet` | `@radix-ui/react-dialog` | Side panel (right/left/bottom) |
@@ -200,7 +199,6 @@ All planned shared UI components have been implemented:
 | `Badge` | ✅ | `ui/Badge.tsx` |
 | `Button` | ✅ | `ui/Button.tsx` |
 | `IconButton` | ✅ | `ui/IconButton.tsx` |
-| `Card` | ✅ | `ui/Card.tsx` |
 | `Surface` | ✅ | `ui/Surface.tsx` |
 | `EmptyState` | ✅ | `ui/EmptyState.tsx` |
 | `SlotPips` | ✅ | `ui/SlotPips.tsx` |
