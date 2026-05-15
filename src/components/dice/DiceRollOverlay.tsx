@@ -7,26 +7,25 @@ import { Surface } from '../ui/Surface';
 export function DiceRollOverlay() {
   const { latestRoll } = useRollStore();
   const [dismissedRollId, setDismissedRollId] = useState<string | null>(null);
-  const [shouldRender, setShouldRender] = useState(false);
 
   // Reset dismissed state when latestRoll changes (new roll)
   useEffect(() => {
-    if (latestRoll) {
+    if (!latestRoll) return;
+
+    // Defer state update to avoid cascading renders
+    const timer = setTimeout(() => {
       setDismissedRollId(null);
-      setShouldRender(true);
-    } else {
-      setShouldRender(false);
-    }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [latestRoll?.id]);
 
-  if (!latestRoll || !shouldRender) return null;
+  if (!latestRoll) return null;
 
   const isVisible = latestRoll.id !== dismissedRollId;
 
   const handleTransitionEnd = () => {
-    if (!isVisible) {
-      setShouldRender(false);
-    }
+    // Animation complete - no state update needed
   };
 
   return (

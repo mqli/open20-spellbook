@@ -6,6 +6,7 @@ import { LevelTabs } from '../spell-library/LevelTabs';
 import { FilterChips } from '../spell-library/FilterChips';
 import { SpellCard } from '../spell-library/SpellCard';
 import { SpellDetailFlyout } from '../spell-library/SpellDetailFlyout';
+import { Surface } from '../ui/Surface';
 
 import { Toggle } from '../ui/Toggle';
 import { EmptyState } from '../ui/EmptyState';
@@ -60,7 +61,7 @@ export function SpellLibraryLayout() {
       <CharacterBar />
 
       {/* Compact Header */}
-      <header className="flex-shrink-0 bg-bg-primary border-b border-border px-3 md:px-4 py-2">
+      <Surface variant="default" className="rounded-none border-b px-3 md:px-4 py-2">
         {/* Row 1: title + search + filter toggles */}
         <div className="flex items-center gap-2 mb-1.5">
           <h1 className="text-base font-bold text-text-primary whitespace-nowrap">Spells</h1>
@@ -93,7 +94,7 @@ export function SpellLibraryLayout() {
 
         {/* Row 2: level chips */}
         <LevelTabs />
-      </header>
+      </Surface>
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto px-3 md:px-4 relative">

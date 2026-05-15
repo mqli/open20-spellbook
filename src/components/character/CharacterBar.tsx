@@ -3,6 +3,7 @@ import { useCharacterStore } from '../../stores/character-store';
 import type { AppCharacter } from '../../core/types';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
+import { Surface } from '../ui/Surface';
 import { DropdownMenu } from '../ui/DropdownMenu';
 import { SlotPips } from '../ui/SlotPips';
 import { CharacterModal } from './CharacterModal';
@@ -40,7 +41,7 @@ export function CharacterBar() {
   const spellAttackBonus = primaryClassSpells?.spellAttackBonus ?? 0;
 
   return (
-    <div className="bg-bg-secondary border-b border-border px-3 py-1.5 flex items-center justify-between gap-2">
+    <Surface variant="default" className="border-b rounded-none px-3 py-1.5 flex items-center justify-between gap-2">
       {/* Left: active character + dropdown */}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
@@ -152,6 +153,6 @@ export function CharacterBar() {
           if (activeCharacter) handleEdit(activeCharacter.id);
         }}
       />
-    </div>
+    </Surface>
   );
 }

@@ -1,5 +1,6 @@
 import { Star, Shield } from 'lucide-react';
 import { Button } from '../../ui/Button';
+import { Surface } from '../../ui/Surface';
 import { getCasterTypeForClass } from '../../../core/character-service';
 import type { Spell } from '../../../core/types';
 
@@ -22,7 +23,8 @@ export function SpellEntry({
   const isPrepared = isAlwaysPrepared || isManuallyPrepared;
 
   return (
-    <div
+    <Surface
+      variant="default"
       className={`
         group flex items-center justify-between p-2 pl-3 rounded-lg border transition-all cursor-pointer
         ${isPrepared
@@ -75,6 +77,6 @@ export function SpellEntry({
           )}
         </Button>
       )}
-    </div>
+    </Surface>
   );
 }
