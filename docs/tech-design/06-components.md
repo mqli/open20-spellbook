@@ -1,223 +1,197 @@
-## 7. Component Specifications
+## 6. Component Specifications
 
-### 7.1 SpellLibrary Component
+### 6.1 UI Architecture Principles
+
+1. **Radix UI as Foundation**: All interactive components (Dialog, Tabs, Toggle, DropdownMenu) must wrap Radix UI primitives
+2. **Shared UI Components**: Common patterns live in `src/components/ui/` using CVA (class-variance-authority) for variant management
+3. **Minimize Inline Classes**: Domain components should compose shared UI components rather than apply raw Tailwind classes
+4. **CVA for Variants**: Use `class-variance-authority` for any component with visual variants
+5. **Design Tokens**: Variant classes live in `src/styles/design-tokens.ts` — never duplicate variant strings across files
+
+---
+
+### 6.2 Design Tokens
+
+**File**: `src/styles/design-tokens.ts`
+
+Centralizes variant classes and color values used across shared UI components.
+
+**Exports**:
+- `colors` — CSS variable values for inline styles
+- `*Variants` — Variant class strings for CVA (e.g., `badgeVariants`, `buttonVariants`, `toggleVariants`)
+- `*SizeVariants` — Size class strings (e.g., `badgeToggleSizeVariants`, `buttonSizeVariants`)
+
+**Why Extract Tokens?**
+- Single source of truth for variant classes
+- Easy design system updates (change once, all components update)
+- TypeScript preserves literal types via `as const`
+
+---
+
+### 6.3 Shared UI Component Library
+
+Location: `src/components/ui/`
+
+| Component | Radix Primitive | Purpose |
+|-----------|----------------|---------|
+| `Badge` | — | Status/label indicators with variant + size |
+| `Button` | — | Actions with variant + size |
+| `Dialog` | `@radix-ui/react-dialog` | Modal dialogs |
+| `Sheet` | `@radix-ui/react-dialog` | Side panel (right/left/bottom) |
+| `Tabs` | `@radix-ui/react-tabs` | Tab navigation |
+| `Toggle` | `@radix-ui/react-toggle` | Stateful button with `data-[state=on]` |
+| `DropdownMenu` | `@radix-ui/react-dropdown-menu` | Context menus |
+| `Input` | — | Text inputs |
+| `Select` | — | Single-select dropdowns |
+| `Switch` | — | Toggle switches |
+| `Slider` | — | Range inputs |
+| `Tooltip` | — | Hover tooltips |
+| `FilterChip` | — | Removable filter indicators |
+
+**Pattern**: All shared components use CVA with variants imported from `design-tokens.ts`.
+
+---
+
+### 6.4 Domain Components (High-Level)
+
+#### Layout Components
+
+| Component | Location | Description |
+|-----------|----------|-------------|
+| `SpellLibraryLayout` | `layout/` | Main spell browser container. Composes SearchBar, LevelTabs, FilterChips, SpellCard grid, and SpellDetailFlyout |
+| `CharacterBar` | `character/` | Top bar showing active character name + quick stats |
+
+#### Spell Library Components
+
+| Component | Location | Description |
+|-----------|----------|-------------|
+| `SearchBar` | `spell-library/` | Search input wrapping `ui/Input` |
+| `LevelTabs` | `spell-library/` | Level filter wrapping `ui/Tabs` |
+| `FilterChips` | `spell-library/` | Active filters wrapping `ui/FilterChip` |
+| `SpellCard` | `spell-library/` | Individual spell card. Composes `Badge` for level/school/status. Uses `IconButton` pattern for actions |
+| `SpellDetailFlyout` | `spell-library/` | Slide-in detail panel reading from `useSpellStore` |
+
+#### Character Sheet Components
+
+| Component | Location | Description |
+|-----------|----------|-------------|
+| `CharacterSheet` | `character/` | Side panel wrapping `ui/Sheet`. Shows character info, spell slots, and per-class spell sections |
+| `ConcentrationBanner` | `character/CharacterSheet/` | Active concentration indicator |
+| `SpellSlotsSection` | `character/CharacterSheet/` | Spell slot display wrapping `SlotPips` |
+| `ClassSpellSection` | `character/CharacterSheet/` | Per-class prepared/known spell list |
+
+---
+
+### 6.5 Component Hierarchy
+
+```
+App
+├── SpellLibraryLayout          # Main spell browser
+│   ├── CharacterBar            # Top bar with char name + stats
+│   ├── SearchBar               # Search input (uses ui/Input)
+│   ├── LevelTabs               # Level filter (uses ui/Tabs)
+│   ├── FilterChips             # Active filters (uses ui/FilterChip)
+│   ├── SpellCard               # Individual spell card
+│   └── SpellDetailFlyout       # Slide-in detail panel
+│
+└── CharacterSheet (Sheet)      # Side panel (uses ui/Sheet)
+    ├── ConcentrationBanner     # Active concentration indicator
+    ├── SpellSlotsSection       # Slot display (uses SlotPips)
+    └── ClassSpellSection       # Per-class spell list
+        └── SpellEntry          # Individual spell in prep list
+```
+
+---
+
+### 6.6 Store Interfaces (Reference)
+
+#### `useSpellStore`
 
 ```typescript
-// src/components/spell-library/SpellLibrary.tsx
-import { useEffect } from 'react';
-import { useSpellStore } from '../../stores';
-import { SpellCard } from './SpellCard';
-import { SpellDetail } from './SpellDetail';
-import { SearchBar } from './SearchBar';
-import { FilterChips } from './FilterChips';
-import { LevelTabs } from './LevelTabs';
+interface SpellLibraryState {
+  // Data
+  spells: Spell[];
+  filteredSpells: Spell[];
 
-export function SpellLibrary() {
-  const {
-    spells,
-    filteredSpells,
-    isDetailOpen,
-    selectedSpell,
-    loadSpells,
-    applyFilters,
-  } = useSpellStore();
+  // Filters
+  searchQuery: string;
+  selectedLevel: number | null;
+  selectedClasses: string[];
+  selectedSchools: string[];
+  showRitualOnly: boolean;
+  showConcentrationOnly: boolean;
+  showPreparedOnly: boolean;
+  showKnownOnly: boolean;
 
-  useEffect(() => {
-    loadSpells();
-  }, []);
+  // Detail view
+  selectedSpell: Spell | null;
+  isDetailOpen: boolean;
 
-  return (
-    <div className="spell-library">
-      <SearchBar />
-      <LevelTabs />
-      <FilterChips />
-      
-      <div className="spell-list">
-        {filteredSpells.map(spell => (
-          <SpellCard key={spell.id} spell={spell} />
-        ))}
-      </div>
-
-      {isDetailOpen && selectedSpell && (
-        <SpellDetail spell={selectedSpell} />
-      )}
-    </div>
-  );
+  // Actions
+  setSpells: (spells: Spell[]) => void;
+  setSearchQuery: (query: string) => void;
+  setSelectedLevel: (level: number | null) => void;
+  toggleClassFilter: (className: string) => void;
+  toggleSchoolFilter: (school: string) => void;
+  setShowRitualOnly: (show: boolean) => void;
+  setShowConcentrationOnly: (show: boolean) => void;
+  setShowPreparedOnly: (show: boolean) => void;
+  setShowKnownOnly: (show: boolean) => void;
+  clearAllFilters: () => void;
+  selectSpell: (spell: Spell | null) => void;
+  closeDetail: () => void;
+  applyFilters: () => void;
 }
 ```
 
-### 7.2 SpellCard Component
+#### `useCharacterStore`
 
 ```typescript
-// src/components/spell-library/SpellCard.tsx
-import type { Spell } from 'open20-core';
-import { useSpellStore, useCharacterStore } from '../../stores';
-import { getLevelColor, getSchoolColor } from '../../utils/constants';
+interface CharacterState {
+  activeCharacter: AppCharacter | null;
+  characters: AppCharacter[];
+  isLoading: boolean;
+  error: string | null;
 
-interface SpellCardProps {
-  spell: Spell;
-}
+  // Character management
+  setActiveCharacter: (character: AppCharacter) => void;
+  createCharacter: (params: CharacterCreationParams) => void;
+  updateCharacter: (character: AppCharacter) => void;
+  deleteCharacter: (id: string) => void;
 
-export function SpellCard({ spell }: SpellCardProps) {
-  const { selectSpell, isSpellPrepared } = useSpellStore();
-  const { activeCharacter } = useCharacterStore();
+  // Spell management
+  prepareSpell: (spellId: string) => void;
+  unprepareSpell: (spellId: string) => void;
+  prepareSpellForClass: (classId: string, spellId: string) => void;
+  unprepareSpellForClass: (classId: string, spellId: string) => void;
+  learnSpell: (spellId: string) => void;
+  unlearnSpell: (spellId: string) => void;
+  castSpell: (spellId: string, level: number) => void;
 
-  const isPrepared = activeCharacter 
-    ? isSpellPrepared(activeCharacter, spell.id)
-    : false;
+  // Slot management
+  consumeSpellSlot: (level: number) => void;
+  recoverSpellSlot: (level: number) => void;
+  longRest: () => void;
+  shortRest: () => void;
 
-  const schoolColor = getSchoolColor(spell.school);
-  const levelColor = getLevelColor(spell.level);
+  // Concentration
+  startConcentration: (spellId: string) => void;
+  endConcentration: () => void;
 
-  return (
-    <div 
-      className="spell-card cursor-pointer hover:shadow-md transition-all"
-      onClick={() => selectSpell(spell)}
-    >
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="spell-name text-lg font-medium">{spell.name}</h3>
-        <span 
-          className="badge text-xs px-2 py-1 rounded-full"
-          style={{ backgroundColor: `${levelColor}20`, color: levelColor }}
-        >
-          {spell.level === 0 ? 'Cantrip' : `L${spell.level}`}
-        </span>
-      </div>
-
-      <div className="spell-card-meta flex gap-2 text-sm">
-        <span className="spell-school" style={{ color: schoolColor }}>
-          {spell.school}
-        </span>
-        <span className="spell-components">
-          {spell.components.V && 'V'}
-          {spell.components.S && 'S'}
-          {spell.components.M && 'M'}
-        </span>
-      </div>
-
-      <div className="spell-card-info flex gap-4 text-sm text-gray-600 mt-1">
-        <span>Casting: {spell.castingTime}</span>
-        <span>Range: {spell.range}</span>
-      </div>
-
-      {isPrepared && (
-        <div className="prepared-indicator text-green-600 text-sm mt-1">
-          ✓ Prepared
-        </div>
-      )}
-
-      {spell.concentration && (
-        <div className="concentration-indicator text-amber-600 text-sm mt-1">
-          ● Concentration
-        </div>
-      )}
-    </div>
-  );
+  // Persistence
+  loadCharacters: () => void;
+  saveCharacters: () => void;
 }
 ```
 
-### 7.3 CharacterSheet Component
+**Note**: `spellSaveDC` and `spellAttackBonus` are NOT store selectors — they are computed from `activeCharacter.spells.classSpellcasting[classId]` in UI components.
 
-```typescript
-// src/components/character-sheet/CharacterSheet.tsx
-import { useCharacterStore } from '../../stores';
-import { SpellSlots } from './SpellSlots';
-import { ConcentrationIndicator } from './ConcentrationIndicator';
-import { PreparedSpells } from './PreparedSpells';
-import { DiceRoller } from './DiceRoller';
+---
 
-export function CharacterSheet() {
-  const { activeCharacter, longRest, spellSaveDC, spellAttackBonus } = useCharacterStore();
+### 6.7 TODO: Extract to Shared UI
 
-  if (!activeCharacter) {
-    return <div>No character selected. Create one!</div>;
-  }
-
-  return (
-    <div className="character-sheet">
-      <header className="character-header">
-        <h1>{activeCharacter.name}</h1>
-        <span className="character-class">
-          Level {activeCharacter.level} {activeCharacter.classes[0].name}
-        </span>
-        <div className="character-stats">
-          <span>INT +{activeCharacter.abilityScores.int}</span>
-          <span>Prof +{activeCharacter.proficiencyBonus}</span>
-        </div>
-      </header>
-
-      <div className="character-stats-bar">
-        <div className="stat">
-          <label>Spell Save DC</label>
-          <value>{spellSaveDC}</value>
-        </div>
-        <div className="stat">
-          <label>Attack Bonus</label>
-          <value>{spellAttackBonus}</value>
-        </div>
-      </div>
-
-      <ConcentrationIndicator />
-      <SpellSlots />
-      <PreparedSpells />
-
-      <button onClick={() => longRest()}>
-        Long Rest — Recover All Slots
-      </button>
-    </div>
-  );
-}
-```
-
-### 7.4 SpellSlots Component
-
-```typescript
-// src/components/character-sheet/SpellSlots.tsx
-import { useCharacterStore } from '../../stores';
-import type { SpellSlotMap } from 'open20-core';
-
-export function SpellSlots() {
-  const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
-  
-  if (!activeCharacter) return null;
-
-  const slots = activeCharacter.spellSlots;
-
-  return (
-    <section className="spell-slots">
-      <h2>Spell Slots</h2>
-
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(level => {
-        const slotInfo = slots[level];
-        if (!slotInfo || slotInfo.total === 0) return null;
-
-        return (
-          <div key={level} className="slot-row">
-            <label>
-              {level === 0 ? 'Cantrips' : `Level ${level}`}
-            </label>
-            <div className="slot-circles">
-              {Array.from({ length: slotInfo.total }, (_, i) => (
-                <button
-                  key={i}
-                  className={`slot-circle ${i < slotInfo.used ? 'expended' : 'available'`}
-                  onClick={() => {
-                    if (i < slotInfo.used) {
-                      recoverSpellSlot(level);
-                    } else {
-                      consumeSpellSlot(level);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-            <span className="slot-count">
-              {slotInfo.total - slotInfo.used}/{slotInfo.total}
-            </span>
-          </div>
-        );
-      })}
-    </section>
-  );
-}
-```
+1. **`IconButton`** — Consistent icon-only button styling (extract from `SpellCard` action buttons)
+2. **`Card`** — Base card with variants (default, interactive, selected, warning) for `SpellCard`
+3. **`EmptyState`** — Consistent empty/zero-state messaging
+4. **`SlotPips`** — Reusable pip display (extract from `SpellSlotPips`)
+5. **`SectionHeader`** — Consistent section headers with icon + action
