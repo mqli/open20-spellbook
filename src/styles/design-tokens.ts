@@ -90,14 +90,15 @@ export const toggleVariants = {
 } as const;
 
 // --- Button Variants ---
-// Solid / ghost button styles.
+// Solid / ghost / outline button styles.
 // Used in: Button
 export const buttonVariants = {
-  primary: 'bg-primary-600 hover:bg-primary-800 text-white',
-  secondary: 'bg-bg-tertiary hover:bg-border text-text-primary',
+  primary: 'bg-primary-600 hover:bg-primary-700 text-white border border-primary-700 shadow-md',
+  secondary: 'bg-bg-tertiary hover:bg-border text-text-primary border border-border',
+  outline: 'bg-transparent hover:bg-primary-100 text-primary-700 border border-primary-200',
   ghost: 'hover:bg-bg-tertiary text-primary-600 dark:text-primary-400',
-  danger: 'bg-danger hover:bg-red-700 text-white',
-  warning: 'bg-warning hover:bg-amber-600 text-white',
+  danger: 'bg-danger hover:bg-red-700 text-white border border-red-700',
+  warning: 'bg-warning hover:bg-amber-600 text-white border border-amber-600',
 } as const;
 
 // --- Size Variants (shared by Badge + Toggle) ---

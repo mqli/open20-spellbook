@@ -31,32 +31,30 @@ export function SpellActionPanel({
 }: SpellActionPanelProps) {
   if (!character) return null;
 
-  const classSpellcasting = character.spells.classSpellcasting;
-  const primaryClassId = Object.keys(classSpellcasting)[0];
+  const spells = character.spells ?? { classSpellcasting: {}, spellSlots: {} };
+  const classSpellcasting = spells.classSpellcasting;
+  const primaryClassId = Object.keys(classSpellcasting)[0] ?? null;
   const spellAttackBonus = primaryClassId
-    ? classSpellcasting[primaryClassId].spellAttackBonus
+    ? classSpellcasting[primaryClassId]?.spellAttackBonus ?? 0
     : 0;
 
   const casterType = getCasterType(character);
   const canPrepare = casterType.canPrepare;
 
+  const spellSlots = spells.spellSlots;
   const canCast = (isKnown || spell.level === 0) && (spell.level === 0 || isPrepared) && (
-    spell.level === 0 || 
-    (character.spells.spellSlots[spell.level]?.total ?? 0) > (character.spells.spellSlots[spell.level]?.used ?? 0)
+    spell.level === 0 ||
+    (spellSlots[spell.level]?.total ?? 0) > (spellSlots[spell.level]?.used ?? 0)
   );
 
   return (
     <div className="mb-8 p-6 bg-primary-500/5 rounded-2xl border border-primary-500/10 flex flex-wrap gap-4 items-center">
       <div className="text-xs font-black text-primary-700 uppercase tracking-widest mr-2">Quick Actions</div>
-      
+
       {canPrepare && (isKnown || spell.level === 0) && (
-        <Button 
-          variant={isPrepared ? "primary" : "secondary"} 
-          size="sm" 
-          className={isPrepared 
-            ? "bg-primary-500 text-white border-primary-600 shadow-md" 
-            : "border-primary-200 text-primary-700 hover:bg-primary-100"
-          }
+        <Button
+          variant={isPrepared ? 'primary' : 'outline'}
+          size="sm"
           onClick={onPrepareToggle}
         >
           <BookOpen className="w-3.5 h-3.5 mr-2" />
@@ -69,10 +67,9 @@ export function SpellActionPanel({
         </Button>
       )}
 
-      <Button 
-        variant="primary" 
-        size="sm" 
-        className="bg-primary-600 hover:bg-primary-700 text-white border-primary-700 shadow-md"
+      <Button
+        variant="primary"
+        size="sm"
         onClick={onCast}
         disabled={!canCast}
       >
@@ -81,22 +78,21 @@ export function SpellActionPanel({
       </Button>
 
       {spell.attack && (
-        <Button 
-          variant="primary" 
-          size="sm" 
+        <Button
+          variant="primary"
+          size="sm"
           className="shadow-lg shadow-primary-500/20"
           onClick={onAttackRoll}
         >
-          Roll Attack (+{spellAttackBonus ?? 0})
+          Roll Attack (+{spellAttackBonus})
         </Button>
       )}
-      
+
       {spell.damage?.entries.map((entry, i) => (
-        <Button 
-          key={i} 
-          variant="secondary" 
-          size="sm" 
-          className="border-primary-200 text-primary-700 hover:bg-primary-100"
+        <Button
+          key={`${entry.dice}-${entry.type}`}
+          variant="outline"
+          size="sm"
           onClick={() => onDamageRoll(i, `${entry.type} Damage`)}
         >
           Roll {entry.dice} {entry.type}
