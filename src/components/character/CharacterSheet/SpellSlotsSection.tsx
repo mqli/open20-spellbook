@@ -1,5 +1,6 @@
 import { Flame } from 'lucide-react';
-import { SpellSlotPips } from './SpellSlotPips';
+import { SlotPips } from '../../ui/SlotPips';
+import { SectionHeader } from '../../ui/SectionHeader';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -22,34 +23,27 @@ export function SpellSlotsSection({
 
   return (
     <section>
-      <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-        <Flame className="w-3 h-3 text-primary-500" />
-        Spell Slots
-        {isMulticlass && (
-          <span className="text-[8px] font-normal text-text-tertiary normal-case">(Combined)</span>
-        )}
-      </h3>
+      <SectionHeader
+        icon={<Flame className="w-3 h-3" />}
+        title="Spell Slots"
+        action={isMulticlass ? <span className="text-[8px]">(Combined)</span> : undefined}
+      />
       <div className="space-y-3">
-        {slotEntries.map(({ lvl, slot }) => {
-          const available = slot.total - slot.used;
-          return (
-            <div key={lvl} className="flex items-center gap-3">
-              <span className="text-[10px] font-black text-text-tertiary uppercase w-10 flex-shrink-0">
-                {SPELL_LEVEL_LABELS[lvl]}
-              </span>
-              <SpellSlotPips
-                level={lvl}
-                total={slot.total}
-                used={slot.used}
-                onConsume={onConsumeSlot}
-                onRecover={onRecoverSlot}
-              />
-              <span className="text-[10px] font-bold text-text-tertiary flex-shrink-0 w-8 text-right">
-                {available}/{slot.total}
-              </span>
-            </div>
-          );
-        })}
+        {slotEntries.map(({ lvl, slot }) => (
+          <div key={lvl} className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-text-tertiary uppercase w-10 flex-shrink-0">
+              {SPELL_LEVEL_LABELS[lvl]}
+            </span>
+            <SlotPips
+              total={slot.total}
+              used={slot.used}
+              onPipClick={(_index, isUsed) => isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl)}
+            />
+            <span className="text-[10px] font-bold text-text-tertiary flex-shrink-0 w-8 text-right">
+              {slot.total - slot.used}/{slot.total}
+            </span>
+          </div>
+        ))}
       </div>
     </section>
   );

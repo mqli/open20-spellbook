@@ -2,6 +2,8 @@ import type { Spell } from 'open20-core';
 import { useSpellStore } from '../../stores/spell-store';
 import { useCharacterStore } from '../../stores/character-store';
 import { Badge } from '../ui/Badge';
+import { IconButton } from '../ui/IconButton';
+import { Card } from '../ui/Card';
 import { spellService } from '../../core/spell-service';
 import { getCasterType } from '../../core/character-service';
 import { Sparkles, Activity, BookMarked, Star } from 'lucide-react';
@@ -65,22 +67,22 @@ export function SpellCard({ spell }: SpellCardProps) {
     }
   };
 
+  const cardVariant = isConcentratingOnThis
+    ? 'warning'
+    : isPrepared
+    ? 'selected'
+    : isKnown
+    ? 'info'
+    : 'interactive';
+
   return (
-    <div
+    <Card
+      variant={cardVariant}
       onClick={() => selectSpell(spell)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectSpell(spell); }}
-      className={`
-        w-full text-left bg-bg-secondary border rounded-xl p-4 transition-all duration-200 group relative overflow-hidden cursor-pointer
-        ${isConcentratingOnThis
-          ? 'border-warning ring-2 ring-warning/50 bg-warning/5'
-          : isPrepared
-          ? 'border-primary-400 shadow-md ring-1 ring-primary-400/60'
-          : isKnown
-          ? 'border-info/50 shadow-sm'
-          : 'border-border shadow-sm hover:shadow-md hover:border-primary-300'}
-      `}
+      className="w-full text-left cursor-pointer relative overflow-hidden"
     >
       {/* Background glow for prepared */}
       {isPrepared && (
@@ -120,53 +122,41 @@ export function SpellCard({ spell }: SpellCardProps) {
         <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
           {/* Concentration toggle — only if spell requires it and character is active */}
           {spell.concentration && activeCharacter && (
-            <button
+            <IconButton
+              variant="warning"
+              active={isConcentratingOnThis}
               onClick={handleConcentrationToggle}
-              className={`
-                p-1.5 rounded-lg transition-all border
-                ${isConcentratingOnThis
-                  ? 'bg-warning text-white border-warning shadow-sm'
-                  : 'bg-bg-tertiary text-text-tertiary hover:bg-warning/10 hover:text-warning border-border'}
-              `}
               title={isConcentratingOnThis ? 'End Concentration' : 'Start Concentration'}
             >
               <Activity className="w-3.5 h-3.5" />
-            </button>
+            </IconButton>
           )}
 
           {/* Learn toggle — for casters who "learn" spells; cantrips only for spellbook casters */}
           {isClassSpell && casterType.canLearn && (spell.level > 0 || casterType.isSpellbookCaster) && (
-            <button
+            <IconButton
+              variant="info"
+              active={isKnown}
               onClick={handleLearnToggle}
-              className={`
-                p-1.5 rounded-lg transition-all border
-                ${isKnown
-                  ? 'bg-info text-white border-info shadow-sm'
-                  : 'bg-bg-tertiary text-text-tertiary hover:bg-info/10 hover:text-info border-border'}
-              `}
               title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
             >
               <BookMarked className="w-3.5 h-3.5" />
-            </button>
+            </IconButton>
           )}
 
           {/* Prepare toggle — only for casters who prepare spells (not cantrips) */}
           {isClassSpell && casterType.canPrepare && spell.level > 0 && (
-            <button
+            <IconButton
+              variant="primary"
+              active={isPrepared}
               onClick={handlePrepareToggle}
-              className={`
-                p-1.5 rounded-lg transition-all border
-                ${isPrepared
-                  ? 'bg-primary-500 text-white border-primary-600 shadow-sm'
-                  : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'}
-              `}
               title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
             >
               <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
-            </button>
+            </IconButton>
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

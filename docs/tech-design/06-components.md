@@ -36,6 +36,8 @@ Location: `src/components/ui/`
 |-----------|----------------|---------|
 | `Badge` | — | Status/label indicators with variant + size |
 | `Button` | — | Actions with variant + size |
+| `IconButton` | — | Icon-only buttons with variant + active state |
+| `Card` | — | Container with variant (default, interactive, selected, warning) |
 | `Dialog` | `@radix-ui/react-dialog` | Modal dialogs |
 | `Sheet` | `@radix-ui/react-dialog` | Side panel (right/left/bottom) |
 | `Tabs` | `@radix-ui/react-tabs` | Tab navigation |
@@ -68,7 +70,7 @@ Location: `src/components/ui/`
 | `SearchBar` | `spell-library/` | Search input wrapping `ui/Input` |
 | `LevelTabs` | `spell-library/` | Level filter wrapping `ui/Tabs` |
 | `FilterChips` | `spell-library/` | Active filters wrapping `ui/FilterChip` |
-| `SpellCard` | `spell-library/` | Individual spell card. Composes `Badge` for level/school/status. Uses `IconButton` pattern for actions |
+| `SpellCard` | `spell-library/` | Individual spell card. Composes `Card` + `Badge` + `IconButton` |
 | `SpellDetailFlyout` | `spell-library/` | Slide-in detail panel reading from `useSpellStore` |
 
 #### Character Sheet Components
@@ -91,7 +93,7 @@ App
 │   ├── SearchBar               # Search input (uses ui/Input)
 │   ├── LevelTabs               # Level filter (uses ui/Tabs)
 │   ├── FilterChips             # Active filters (uses ui/FilterChip)
-│   ├── SpellCard               # Individual spell card
+│   ├── SpellCard               # Individual spell card (uses Card + Badge + IconButton)
 │   └── SpellDetailFlyout       # Slide-in detail panel
 │
 └── CharacterSheet (Sheet)      # Side panel (uses ui/Sheet)
@@ -188,10 +190,27 @@ interface CharacterState {
 
 ---
 
-### 6.7 TODO: Extract to Shared UI
+### 6.7 Shared UI Components (Complete)
 
-1. **`IconButton`** — Consistent icon-only button styling (extract from `SpellCard` action buttons)
-2. **`Card`** — Base card with variants (default, interactive, selected, warning) for `SpellCard`
-3. **`EmptyState`** — Consistent empty/zero-state messaging
-4. **`SlotPips`** — Reusable pip display (extract from `SpellSlotPips`)
-5. **`SectionHeader`** — Consistent section headers with icon + action
+All planned shared UI components have been implemented:
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| `Badge` | ✅ | `ui/Badge.tsx` |
+| `Button` | ✅ | `ui/Button.tsx` |
+| `IconButton` | ✅ | `ui/IconButton.tsx` |
+| `Card` | ✅ | `ui/Card.tsx` |
+| `EmptyState` | ✅ | `ui/EmptyState.tsx` |
+| `SlotPips` | ✅ | `ui/SlotPips.tsx` |
+| `SectionHeader` | ✅ | `ui/SectionHeader.tsx` |
+| `Dialog` | ✅ | `ui/Dialog.tsx` |
+| `Sheet` | ✅ | `ui/Sheet.tsx` |
+| `Tabs` | ✅ | `ui/Tabs.tsx` |
+| `Toggle` | ✅ | `ui/Toggle.tsx` |
+| `DropdownMenu` | ✅ | `ui/DropdownMenu.tsx` |
+| `Input` | ✅ | `ui/Input.tsx` |
+| `Select` | ✅ | `ui/Select.tsx` |
+| `Switch` | ✅ | `ui/Switch.tsx` |
+| `Slider` | ✅ | `ui/Slider.tsx` |
+| `Tooltip` | ✅ | `ui/Tooltip.tsx` |
+| `FilterChip` | ✅ | `ui/FilterChip.tsx` |

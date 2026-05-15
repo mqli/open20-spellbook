@@ -1,48 +1,79 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/helpers';
-import type { ComponentPropsWithoutRef } from 'react';
+
+const dialogVariants = cva(
+  'fixed z-50 bg-bg-secondary rounded-lg shadow-xl p-6 max-h-[85vh] overflow-y-auto outline-none',
+  {
+    variants: {
+      position: {
+        center: 'top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]',
+        left: 'top-0 left-0 h-full',
+        right: 'top-0 right-0 h-full',
+      },
+    },
+    defaultVariants: { position: 'center' },
+  }
+);
+
+const overlayVariants = cva(
+  'fixed inset-0 z-40 animate-fade-in',
+  {
+    variants: {
+      variant: {
+        default: 'bg-black/50',
+        blur: 'bg-black/40 backdrop-blur-sm',
+      },
+    },
+    defaultVariants: { variant: 'blur' },
+  }
+);
 
 export const Dialog = {
   Root: RadixDialog.Root,
   Trigger: RadixDialog.Trigger,
-  
-  Content: ({ className, children, ...props }: RadixDialog.DialogContentProps) => (
+
+  Overlay: ({ variant, className, ...props }: VariantProps<typeof overlayVariants> & { className?: string }) => (
+    <RadixDialog.Overlay
+      className={cn(overlayVariants({ variant }), className)}
+      {...props}
+    />
+  ),
+
+  Content: ({ position, className, children, ...props }: VariantProps<typeof dialogVariants> & RadixDialog.DialogContentProps) => (
     <RadixDialog.Portal>
-      <RadixDialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-fade-in" />
+      <Dialog.Overlay />
       <RadixDialog.Content
-        className={cn(
-          'fixed z-50 bg-bg-secondary rounded-lg shadow-xl',
-          'p-6 max-h-[85vh] overflow-y-auto',
-          'top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]',
-          className
-        )}
+        className={cn(dialogVariants({ position }), className)}
         {...props}
       >
         {children}
       </RadixDialog.Content>
     </RadixDialog.Portal>
   ),
-  
-  Header: ({ className, children, ...props }: ComponentPropsWithoutRef<'div'>) => (
+
+  Header: ({ className, children, ...props }: { className?: string; children: React.ReactNode }) => (
     <div className={cn('mb-4 pb-4 border-b border-border', className)} {...props}>
       {children}
     </div>
   ),
-  
-  Title: ({ className, ...props }: RadixDialog.DialogTitleProps) => (
+
+  Title: ({ className, children, ...props }: RadixDialog.DialogTitleProps) => (
     <RadixDialog.Title
       className={cn('text-xl font-bold text-text-primary', className)}
       {...props}
-    />
+    >
+      {children}
+    </RadixDialog.Title>
   ),
-  
+
   Description: ({ className, ...props }: RadixDialog.DialogDescriptionProps) => (
     <RadixDialog.Description
       className={cn('text-sm text-text-secondary mt-1', className)}
       {...props}
     />
   ),
-  
+
   Close: ({ className, children, ...props }: RadixDialog.DialogCloseProps) => (
     <RadixDialog.Close
       className={cn(

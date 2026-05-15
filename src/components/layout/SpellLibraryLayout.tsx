@@ -7,7 +7,8 @@ import { FilterChips } from '../spell-library/FilterChips';
 import { SpellCard } from '../spell-library/SpellCard';
 import { SpellDetailFlyout } from '../spell-library/SpellDetailFlyout';
 
-import { Button } from '../ui/Button';
+import { Toggle } from '../ui/Toggle';
+import { EmptyState } from '../ui/EmptyState';
 import { useCharacterStore } from '../../stores/character-store';
 import { getCasterType } from '../../core/character-service';
 import { CharacterBar } from '../character/CharacterBar';
@@ -68,30 +69,24 @@ export function SpellLibraryLayout() {
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {casterType.canLearn && (
-              <Button
-                variant="ghost"
+              <Toggle
+                variant="info"
                 size="sm"
-                onClick={() => setShowKnownOnly(!showKnownOnly)}
-                className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border transition-all ${
-                  showKnownOnly
-                    ? 'bg-info text-white border-info shadow-sm'
-                    : 'bg-transparent text-text-tertiary border-border hover:bg-bg-tertiary'
-                }`}
+                pressed={showKnownOnly}
+                onPressedChange={() => setShowKnownOnly(!showKnownOnly)}
               >
                 Known
-              </Button>
+              </Toggle>
             )}
             {casterType.canPrepare && (
-              <Button
-                variant={showPreparedOnly ? 'primary' : 'ghost'}
+              <Toggle
+                variant="purple"
                 size="sm"
-                onClick={() => setShowPreparedOnly(!showPreparedOnly)}
-                className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${
-                  showPreparedOnly ? 'border-primary-600 shadow-sm' : 'border-border'
-                }`}
+                pressed={showPreparedOnly}
+                onPressedChange={() => setShowPreparedOnly(!showPreparedOnly)}
               >
                 Prep
-              </Button>
+              </Toggle>
             )}
           </div>
         </div>
@@ -108,13 +103,11 @@ export function SpellLibraryLayout() {
           {spellsToDisplay.map(spell => (
             <SpellCard key={spell.id} spell={spell} />
           ))}
-
-          {spellsToDisplay.length === 0 && (
-            <div className="col-span-full py-12 text-center space-y-1">
-              <p className="text-text-secondary text-sm">{emptyMessage}</p>
-            </div>
-          )}
         </div>
+
+        {spellsToDisplay.length === 0 && (
+          <EmptyState title={emptyMessage} />
+        )}
       </main>
 
       <SpellDetailFlyout />
