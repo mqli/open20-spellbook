@@ -131,10 +131,10 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
                   {allPrepared.length}/{maxPrepared}
                 </span>
               </div>
-              <div className="h-1.5 bg-bg-secondary rounded-full overflow-hidden">
+              <div className="h-2.5 bg-bg-tertiary rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500"
-                  style={{ width: `${Math.min(100, (allPrepared.length / Math.max(1, maxPrepared)) * 100)}%` }}
+                  className="h-full bg-primary-400 transition-all duration-500 rounded-full"
+                  style={{ width: `${Math.min(100, (allPrepared.length / Math.max(1, maxPrepared || 1)) * 100)}%` }}
                 />
               </div>
             </div>

@@ -7,7 +7,7 @@ const pipVariants = cva(
     variants: {
       state: {
         available: 'bg-primary-500 border-primary-600 shadow-sm shadow-primary-500/30',
-        used: 'bg-bg-tertiary border-border opacity-40 hover:opacity-70',
+        used: 'bg-gray-300 border-gray-400',
         empty: 'bg-transparent border-dashed border-border/50',
       },
       size: {

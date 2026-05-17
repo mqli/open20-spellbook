@@ -38,16 +38,21 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   isLoading: false,
   error: null,
 
-  setActiveCharacter: (character) => set({ activeCharacter: character }),
+  setActiveCharacter: (character) => {
+    set({ activeCharacter: character });
+    if (character) {
+      localStorage.setItem('spellbook-active-character', character.id);
+    } else {
+      localStorage.removeItem('spellbook-active-character');
+    }
+  },
 
   createCharacter: (params) => {
     try {
       const newChar = characterService.createCharacter(params);
       const { characters } = get();
-      set({ 
-        characters: [...characters, newChar],
-        activeCharacter: newChar
-      });
+      set({ characters: [...characters, newChar] });
+      get().setActiveCharacter(newChar);
       get().saveCharacters();
     } catch (err) {
       set({ error: err instanceof Error ? err.message : 'Failed to create character' });
@@ -66,10 +71,16 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   deleteCharacter: (id) => {
     const { characters, activeCharacter } = get();
     const updatedChars = characters.filter(c => c.id !== id);
+    const newActive = activeCharacter?.id === id ? null : activeCharacter;
     set({
       characters: updatedChars,
-      activeCharacter: activeCharacter?.id === id ? null : activeCharacter
+      activeCharacter: newActive
     });
+    if (newActive) {
+      localStorage.setItem('spellbook-active-character', newActive.id);
+    } else {
+      localStorage.removeItem('spellbook-active-character');
+    }
     storageService.deleteCharacter(id);
   },
 
@@ -174,7 +185,15 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const chars = storageService.loadCharacters();
     // Recompute to ensure derived stats and knownSpells are up-to-date
     const recomputed = chars.map(c => characterService.recompute(c));
-    set({ characters: recomputed, activeCharacter: recomputed[0] || null });
+
+    // Restore previously selected character, or fall back to first character
+    const savedActiveId = localStorage.getItem('spellbook-active-character');
+    const savedChar = savedActiveId ? recomputed.find(c => c.id === savedActiveId) : null;
+
+    set({
+      characters: recomputed,
+      activeCharacter: savedChar || recomputed[0] || null
+    });
   },
 
   saveCharacters: () => {

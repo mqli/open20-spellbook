@@ -3,7 +3,7 @@ import { FilterChip } from '../ui/FilterChip';
 import { Button } from '../ui/Button';
 import { dataLoader } from '../../core/data-loader';
 
-const CLASSES = dataLoader.getAllClasses().map(c => c.id);
+const CLASSES = dataLoader.getAllClasses().filter(c => !!c.spellcasting).map(c => c.id);
 const SCHOOLS = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
 
 

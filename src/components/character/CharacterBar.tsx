@@ -8,7 +8,7 @@ import { DropdownMenu } from '../ui/DropdownMenu';
 import { SlotPips } from '../ui/SlotPips';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
-import { Plus, User, Moon, FileText, ChevronDown } from 'lucide-react';
+import { Plus, User, Moon, FileText, ChevronDown, ChevronRight } from 'lucide-react';
 
 export function CharacterBar() {
   const { characters, activeCharacter, setActiveCharacter, longRest, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
@@ -31,7 +31,7 @@ export function CharacterBar() {
     setActiveCharacter(char);
   };
 
-  const displayChar = activeCharacter ?? characters[0];
+  const displayChar = activeCharacter;
 
   // Get spellcasting stats from the primary spellcasting class
   const primaryClassSpells = activeCharacter?.spells?.classSpellcasting
@@ -39,6 +39,10 @@ export function CharacterBar() {
     : undefined;
   const spellSaveDC = primaryClassSpells?.spellSaveDC ?? 0;
   const spellAttackBonus = primaryClassSpells?.spellAttackBonus ?? 0;
+
+  // Compute total character level for multi-class display
+  const totalLevel = activeCharacter?.classes?.reduce((sum, c) => sum + c.level, 0) ?? 0;
+  const hasSpellcasting = spellSaveDC > 0 || spellAttackBonus > 0;
 
   return (
     <Surface variant="default" className="border-b rounded-none px-3 py-1.5 flex items-center justify-between gap-2">
@@ -56,7 +60,7 @@ export function CharacterBar() {
             </span>
             {displayChar && (
               <span className="text-[9px] font-black text-text-tertiary uppercase tracking-widest ml-0.5">
-                Lvl {displayChar.classes?.[0]?.level ?? 1}
+                Lvl {totalLevel || 1}
               </span>
             )}
             <ChevronDown className="w-3 h-3 text-text-tertiary" />
@@ -72,12 +76,13 @@ export function CharacterBar() {
               <User className="w-3 h-3 flex-shrink-0" />
               <span className="flex-1 truncate">{char.name}</span>
               <span className="text-[9px] font-black text-text-tertiary uppercase">
-                Lvl {char.classes?.[0]?.level ?? 1}
+                Lvl {char.classes?.reduce((s, c) => s + c.level, 0) || 1}
               </span>
               {activeCharacter?.id === char.id && (
                 <IconButton
                   variant="default"
                   size="sm"
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); handleEdit(char.id); }}
                   className="hover:text-primary-600"
                 >
@@ -97,21 +102,27 @@ export function CharacterBar() {
       {/* Right: stats + slots + long rest */}
       {activeCharacter && (
         <div className="flex items-center gap-3 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsSheetOpen(true)}
-            className="hidden sm:flex gap-3 text-center"
-          >
-            <div>
-              <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">DC</div>
-              <div className="text-xs font-bold text-primary-600">{spellSaveDC}</div>
-            </div>
-            <div>
-              <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">ATK</div>
-              <div className="text-xs font-bold text-primary-600">+{spellAttackBonus}</div>
-            </div>
-          </Button>
+          {hasSpellcasting && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSheetOpen(true)}
+              className="flex items-center gap-1.5 sm:gap-3 text-center border border-transparent hover:border-primary-200 hover:bg-primary-50/50 transition-colors"
+              title="Open character sheet"
+            >
+              <div>
+                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">DC</div>
+                <div className="text-xs font-bold text-primary-600">{spellSaveDC}</div>
+              </div>
+              {spellAttackBonus > 0 && (
+                <div className="hidden sm:block">
+                  <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">ATK</div>
+                  <div className="text-xs font-bold text-primary-600">+{spellAttackBonus}</div>
+                </div>
+              )}
+              <ChevronRight className="w-3 h-3 text-text-tertiary opacity-60" />
+            </Button>
+          )}
 
           {/* Spell Slots using SlotPips */}
           {activeCharacter.spells?.spellSlots &&
