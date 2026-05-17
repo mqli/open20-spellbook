@@ -1,6 +1,7 @@
 import { Wind } from 'lucide-react';
 import { spellService } from '../../../core/spell-service';
 import { Surface } from '../../ui/Surface';
+import { Text } from '../../ui/Text';
 
 interface ConcentrationBannerProps {
   concentratingSpellId: string;
@@ -15,10 +16,10 @@ export function ConcentrationBanner({ concentratingSpellId }: ConcentrationBanne
         <Wind className="w-4 h-4" />
       </Surface>
       <div className="min-w-0">
-        <div className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Concentrating</div>
-        <div className="text-sm font-bold text-text-primary truncate">
+        <Text variant="label" className="text-amber-600">Concentrating</Text>
+        <Text weight="bold" className="truncate">
           {spellName}
-        </div>
+        </Text>
       </div>
     </Surface>
   );

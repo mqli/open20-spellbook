@@ -1,6 +1,7 @@
 import { useSpellStore } from '../../stores/spell-store';
 import { FilterChip } from '../ui/FilterChip';
 import { Button } from '../ui/Button';
+import { Text } from '../ui/Text';
 import { dataLoader } from '../../core/data-loader';
 
 const CLASSES = dataLoader.getAllClasses().filter(c => !!c.spellcasting).map(c => c.id);
@@ -54,7 +55,7 @@ export function FilterChips() {
       </div>
 
       <div>
-        <h4 className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider mb-1.5">Classes</h4>
+        <Text as="h4" size="sm" weight="medium" color="tertiary" className="uppercase tracking-wider mb-1.5">Classes</Text>
         <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
           <div className="flex flex-wrap gap-1.5">
             {CLASSES.map(cls => (
@@ -73,7 +74,7 @@ export function FilterChips() {
       </div>
 
       <div>
-        <h4 className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider mb-1.5">Schools</h4>
+        <Text as="h4" size="sm" weight="medium" color="tertiary" className="uppercase tracking-wider mb-1.5">Schools</Text>
         <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
           <div className="flex flex-wrap gap-1.5">
             {SCHOOLS.map(school => (

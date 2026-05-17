@@ -144,3 +144,42 @@ export const surfaceShadowVariants = {
   lg: 'shadow-lg',
   xl: 'shadow-2xl',
 } as const;
+
+// --- Text Variants ---
+// Typography styles for consistent text rendering.
+// Used in: Text
+export const textVariants = {
+  // Semantic variants
+  label: 'text-[9px] font-black text-text-tertiary uppercase tracking-widest',
+  labelSm: 'text-[10px] font-bold text-text-tertiary uppercase tracking-widest',
+  caption: 'text-[10px] text-text-tertiary',
+  bodySm: 'text-xs text-text-secondary',
+  body: 'text-sm text-text-secondary',
+  bodyBold: 'text-sm font-bold text-text-primary',
+  heading: 'font-bold text-text-primary',
+  headingSm: 'text-sm font-black text-text-primary',
+} as const;
+
+export const textSizeVariants = {
+  xs: 'text-[10px]',
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg',
+  '2xl': 'text-xl',
+} as const;
+
+export const textColorVariants = {
+  primary: 'text-text-primary',
+  secondary: 'text-text-secondary',
+  tertiary: 'text-text-tertiary',
+  accent: 'text-primary-600 dark:text-primary-400',
+} as const;
+
+export const textWeightVariants = {
+  normal: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+  bold: 'font-bold',
+  black: 'font-black',
+} as const;

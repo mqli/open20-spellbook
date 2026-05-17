@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Select } from '@/components/ui/Select';
+import { Text } from '@/components/ui/Text';
 import { dataLoader } from '@/core/data-loader';
 
 interface SubclassSelectProps {
@@ -28,9 +29,9 @@ export function SubclassSelect({
   
   return (
     <div>
-      <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">
+      <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
         {label || 'Subclass'}
-      </label>
+      </Text>
       <Select.Root 
         value={selectValue} 
         onValueChange={(val) => onChange(val === '_none' ? '' : val)}

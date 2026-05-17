@@ -1,5 +1,6 @@
 import { cn } from '../../utils/helpers';
 import type { ReactNode } from 'react';
+import { Text } from './Text';
 
 interface SectionHeaderProps {
   icon?: ReactNode;
@@ -17,9 +18,9 @@ export function SectionHeader({
   return (
     <div className={cn('flex items-center gap-2 mb-4', className)}>
       {icon && <span className="text-primary-500">{icon}</span>}
-      <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] flex-1">
+      <Text as="h3" variant="labelSm" weight="black" className="tracking-[0.2em] flex-1">
         {title}
-      </h3>
+      </Text>
       {action && <div>{action}</div>}
     </div>
   );

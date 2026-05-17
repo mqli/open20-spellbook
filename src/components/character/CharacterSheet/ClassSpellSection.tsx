@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Surface } from '../../ui/Surface';
+import { Text } from '../../ui/Text';
 import { spellService } from '../../../core/spell-service';
 import { RulesService } from '../../../core/rules-service';
 import { getCasterTypeForClass } from '../../../core/character-service';
@@ -76,17 +77,17 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
             {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </div>
           <div className="text-left">
-            <div className="text-sm font-black text-text-primary capitalize flex items-center gap-2">
-              {classId} {classLevel}
+            <div className="flex items-center gap-2">
+              <Text as="span" weight="black" className="capitalize">{classId} {classLevel}</Text>
               {subclassDisplay && (
                 <span className="text-[10px] font-normal text-primary-600 bg-primary-500/10 px-2 py-0.5 rounded-full">
                   {subclassDisplay}
                 </span>
               )}
             </div>
-            <div className="text-[9px] text-text-tertiary uppercase tracking-widest">
+            <Text variant="caption" className="uppercase tracking-widest text-[9px]">
               {ability.substring(0, 3)} • DC {spellSaveDC} • +{spellAttack}
-            </div>
+            </Text>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -104,19 +105,19 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
           {/* Class Stats */}
           <div className="grid grid-cols-3 gap-2">
             <Surface variant="default" padding="sm" className="text-center">
-              <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Ability</div>
-              <div className="text-sm font-black text-primary-600">{ability.substring(0, 3)}</div>
-              <div className="text-[9px] font-bold text-text-tertiary mt-0.5">
+              <Text variant="label" className="mb-1">Ability</Text>
+              <Text weight="black" color="accent">{ability.substring(0, 3)}</Text>
+              <Text variant="caption" weight="bold" className="mt-0.5">
                 {abilityMod >= 0 ? '+' : ''}{abilityMod}
-              </div>
+              </Text>
             </Surface>
             <Surface variant="default" padding="sm" className="text-center">
-              <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Save DC</div>
-              <div className="text-sm font-black text-primary-600">{spellSaveDC}</div>
+              <Text variant="label" className="mb-1">Save DC</Text>
+              <Text weight="black" color="accent">{spellSaveDC}</Text>
             </Surface>
             <Surface variant="default" padding="sm" className="text-center">
-              <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest mb-1">Attack</div>
-              <div className="text-sm font-black text-primary-600">+{spellAttack}</div>
+              <Text variant="label" className="mb-1">Attack</Text>
+              <Text weight="black" color="accent">+{spellAttack}</Text>
             </Surface>
           </div>
 
@@ -124,12 +125,10 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
           {casterType.canPrepare && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-black text-text-tertiary uppercase tracking-widest">
-                  Preparation Slots
-                </span>
-                <span className="text-xs font-bold text-primary-600">
+                <Text variant="label">Preparation Slots</Text>
+                <Text weight="bold" size="sm" color="accent">
                   {allPrepared.length}/{maxPrepared}
-                </span>
+                </Text>
               </div>
               <div className="h-2.5 bg-bg-tertiary rounded-full overflow-hidden">
                 <div
@@ -143,22 +142,22 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
           {/* Known Spells Count */}
           {casterType.isSpellbookCaster && (
             <div className="text-[10px] text-text-tertiary">
-              Known Spells: <span className="font-bold text-info">
+              Known Spells: <Text weight="bold" className="text-info">
                 {known.filter(id => {
                   const s = spellService.getSpell(id);
                   return s && s.level > 0;
                 }).length}
-              </span>
+              </Text>
             </div>
           )}
 
           {/* Always Prepared Spells */}
           {alwaysPrepared.length > 0 && (
             <div>
-              <div className="text-[9px] font-black text-text-tertiary uppercase tracking-widest mb-2 flex items-center gap-1">
+              <Text as="div" variant="label" className="mb-2 flex items-center gap-1">
                 <Shield className="w-2.5 h-2.5 text-info" />
                 Always Prepared
-              </div>
+              </Text>
               <div className="flex flex-wrap gap-1">
                 {alwaysPrepared.map(spellId => {
                   const spell = spellService.getSpell(spellId);
@@ -179,9 +178,9 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
           <div className="space-y-4">
             {Object.entries(spellsByLevel).map(([level, spellsAtLevel]) => (
               <div key={level} className="space-y-1">
-                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest px-1">
+                <Text as="div" variant="label" className="text-[8px] px-1">
                   {SPELL_LEVEL_LABELS[parseInt(level, 10)]}
-                </div>
+                </Text>
                 <div className="grid gap-1">
                   {spellsAtLevel.map(spell => (
                     <SpellEntry

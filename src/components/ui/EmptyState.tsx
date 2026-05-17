@@ -1,5 +1,6 @@
 import { cn } from '../../utils/helpers';
 import type { ReactNode } from 'react';
+import { Text } from './Text';
 
 interface EmptyStateProps {
   icon?: ReactNode;
@@ -23,9 +24,9 @@ export function EmptyState({
           {icon}
         </div>
       )}
-      <p className="text-text-secondary text-sm font-medium">{title}</p>
+      <Text variant="body" weight="medium">{title}</Text>
       {description && (
-        <p className="text-text-tertiary text-xs max-w-xs">{description}</p>
+        <Text variant="caption" className="max-w-xs">{description}</Text>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

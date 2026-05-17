@@ -1,6 +1,7 @@
 import { Flame } from 'lucide-react';
 import { SlotPips } from '../../ui/SlotPips';
 import { SectionHeader } from '../../ui/SectionHeader';
+import { Text } from '../../ui/Text';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
@@ -26,22 +27,22 @@ export function SpellSlotsSection({
       <SectionHeader
         icon={<Flame className="w-3 h-3" />}
         title="Spell Slots"
-        action={isMulticlass ? <span className="text-[8px]">(Combined)</span> : undefined}
+        action={isMulticlass ? <Text size="xs">(Combined)</Text> : undefined}
       />
       <div className="space-y-3">
         {slotEntries.map(({ lvl, slot }) => (
           <div key={lvl} className="flex items-center gap-3">
-            <span className="text-[10px] font-black text-text-tertiary uppercase w-10 flex-shrink-0">
+            <Text variant="label" className="w-10 flex-shrink-0">
               {SPELL_LEVEL_LABELS[lvl]}
-            </span>
+            </Text>
             <SlotPips
               total={slot.total}
               used={slot.used}
               onPipClick={(_index, isUsed) => isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl)}
             />
-            <span className="text-[10px] font-bold text-text-tertiary flex-shrink-0 w-8 text-right">
+            <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
               {slot.total - slot.used}/{slot.total}
-            </span>
+            </Text>
           </div>
         ))}
       </div>

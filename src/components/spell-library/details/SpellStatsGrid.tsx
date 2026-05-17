@@ -1,5 +1,6 @@
 import type { Spell } from 'open20-core';
 import { Surface } from '../../ui/Surface';
+import { Text } from '../../ui/Text';
 
 interface SpellStatsGridProps {
   spell: Spell;
@@ -25,12 +26,12 @@ export function SpellStatsGrid({ spell }: SpellStatsGridProps) {
     <dl className="grid grid-cols-2 gap-3 mb-8">
       {stats.map((stat) => (
         <Surface key={stat.label} variant="default" padding="sm" className="overflow-hidden">
-          <dt className="text-[10px] font-black text-text-tertiary uppercase tracking-widest mb-1 truncate">
+          <Text variant="labelSm" weight="black" className="mb-1 truncate">
             {stat.label}
-          </dt>
-          <dd className="text-xs font-bold text-text-primary break-words">
+          </Text>
+          <Text variant="bodyBold" className="break-words">
             {stat.value}
-          </dd>
+          </Text>
         </Surface>
       ))}
     </dl>

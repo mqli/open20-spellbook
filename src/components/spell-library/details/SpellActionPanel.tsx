@@ -1,6 +1,7 @@
 import { Sparkles, BookOpen } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Surface } from '../../ui/Surface';
+import { Text } from '../../ui/Text';
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from '../../../core/types';
 import { getCasterType } from '../../../core/character-service';
@@ -50,7 +51,7 @@ export function SpellActionPanel({
 
   return (
     <Surface variant="tint" padding="lg" className="mb-8 flex flex-wrap gap-4 items-center">
-      <div className="text-xs font-black text-primary-700 uppercase tracking-widest mr-2">Quick Actions</div>
+      <Text size="sm" weight="black" className="uppercase tracking-widest mr-2 text-primary-700">Quick Actions</Text>
 
       {canPrepare && (isKnown || spell.level === 0) && (
         <Button
@@ -61,9 +62,7 @@ export function SpellActionPanel({
           <BookOpen className="w-3.5 h-3.5 mr-2" />
           {isPrepared ? 'Prepared ✓' : 'Prepare'}
           {maxPrepared > 0 && (
-            <span className="ml-1.5 text-[10px] opacity-80">
-              ({preparedCount}/{maxPrepared})
-            </span>
+            <Text size="xs" className="opacity-80 ml-1.5">({preparedCount}/{maxPrepared})</Text>
           )}
         </Button>
       )}

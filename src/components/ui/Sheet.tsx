@@ -1,6 +1,7 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { cn } from '../../utils/helpers';
 import type { ReactNode } from 'react';
+import { Text } from './Text';
 
 interface SheetProps extends RadixDialog.DialogProps {
   children?: ReactNode;
@@ -53,8 +54,8 @@ Sheet.Header = ({ children, className }: { children: ReactNode; className?: stri
 );
 
 Sheet.Title = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <RadixDialog.Title className={cn('text-lg font-semibold text-text-primary', className)}>
-    {children}
+  <RadixDialog.Title asChild>
+    <Text as="h2" size="xl" weight="semibold" className={className}>{children}</Text>
   </RadixDialog.Title>
 );
 

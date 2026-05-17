@@ -1,6 +1,7 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/helpers';
+import { Text } from './Text';
 
 const dialogVariants = cva(
   'fixed z-50 bg-bg-secondary rounded-lg shadow-xl p-6 max-h-[85vh] overflow-y-auto outline-none',
@@ -59,19 +60,15 @@ export const Dialog = {
   ),
 
   Title: ({ className, children, ...props }: RadixDialog.DialogTitleProps) => (
-    <RadixDialog.Title
-      className={cn('text-xl font-bold text-text-primary', className)}
-      {...props}
-    >
-      {children}
+    <RadixDialog.Title asChild {...props}>
+      <Text as="h2" size="2xl" weight="bold" className={className}>{children}</Text>
     </RadixDialog.Title>
   ),
 
-  Description: ({ className, ...props }: RadixDialog.DialogDescriptionProps) => (
-    <RadixDialog.Description
-      className={cn('text-sm text-text-secondary mt-1', className)}
-      {...props}
-    />
+  Description: ({ className, children, ...props }: RadixDialog.DialogDescriptionProps) => (
+    <RadixDialog.Description asChild {...props}>
+      <Text variant="body" className={cn('mt-1', className)}>{children}</Text>
+    </RadixDialog.Description>
   ),
 
   Close: ({ className, children, ...props }: RadixDialog.DialogCloseProps) => (

@@ -1,6 +1,7 @@
 import { X, Pencil } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { Text } from '../ui/Text';
 import { Sheet } from '../ui/Sheet';
 import { useCharacterStore } from '../../stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
@@ -85,9 +86,9 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
           {/* Per-Class Spellcasting Sections */}
           {spellcastingClasses.length > 0 && (
             <section>
-              <h3 className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+              <Text as="h3" variant="labelSm" weight="black" className="tracking-[0.2em] mb-4 flex items-center gap-2">
                 Class Spellcasting
-              </h3>
+              </Text>
               <div className="space-y-3">
                 {spellcastingClasses.map(c => (
                   <ClassSpellSection

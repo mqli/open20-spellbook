@@ -2,6 +2,7 @@ import { useRollStore } from '../../stores/roll-store';
 import { Dices, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { IconButton } from '../ui/IconButton';
+import { Text } from '../ui/Text';
 import { Surface } from '../ui/Surface';
 
 export function DiceRollOverlay() {
@@ -48,16 +49,16 @@ export function DiceRollOverlay() {
           </div>
 
           <div className="flex-1">
-            <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em] mb-1">
+            <Text weight="black" color="accent" className="uppercase tracking-[0.2em] mb-1">
               {latestRoll.label || 'Roll Result'}
-            </div>
+            </Text>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-text-primary tabular-nums">
+              <Text as="span" className="text-4xl font-black tabular-nums">
                 {latestRoll.total}
-              </span>
-              <span className="text-xs font-medium text-text-tertiary">
+              </Text>
+              <Text as="span" size="xs" weight="medium" color="tertiary">
                 {latestRoll.expression}
-              </span>
+              </Text>
             </div>
           </div>
 

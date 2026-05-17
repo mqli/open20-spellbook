@@ -4,6 +4,7 @@ import { useCharacterStore } from '../../stores/character-store';
 import { Badge } from '../ui/Badge';
 import { IconButton } from '../ui/IconButton';
 import { Surface } from '../ui/Surface';
+import { Text } from '../ui/Text';
 import { spellService } from '../../core/spell-service';
 import { getCasterType } from '../../core/character-service';
 import { Sparkles, Activity, BookMarked, Star } from 'lucide-react';
@@ -97,9 +98,9 @@ export function SpellCard({ spell }: SpellCardProps) {
       )}
 
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-bold text-text-primary group-hover:text-primary-600 transition-colors leading-tight pr-8">
+        <Text as="h3" variant="heading" className="group-hover:text-primary-600 transition-colors leading-tight pr-8">
           {spell.name}
-        </h3>
+        </Text>
         <div className="flex gap-1">
           {spell.ritual && <Badge variant="info" size="sm">R</Badge>}
           {spell.concentration && <Badge variant="warning" size="sm">C</Badge>}
@@ -110,7 +111,7 @@ export function SpellCard({ spell }: SpellCardProps) {
         <Badge variant={spell.level === 0 ? 'slate' : 'purple'} size="sm" className="font-black">
           {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
         </Badge>
-        <span className="text-[10px] text-text-tertiary uppercase font-bold tracking-widest">{spell.school}</span>
+        <Text variant="labelSm">{spell.school}</Text>
         {isKnown && !isPrepared && (
           <Badge variant="info" size="sm">Known</Badge>
         )}
@@ -120,9 +121,9 @@ export function SpellCard({ spell }: SpellCardProps) {
       </div>
 
       <div className="flex items-center justify-between mt-auto">
-        <span className="text-[10px] text-text-tertiary font-medium">
+        <Text variant="caption">
           {spell.castingTime} • <span className="uppercase opacity-70">{spell.source}</span>
-        </span>
+        </Text>
 
         <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
           {/* Concentration toggle — only if spell requires it and character is active */}

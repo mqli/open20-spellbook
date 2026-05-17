@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/Input';
+import { Text } from '@/components/ui/Text';
 import { Surface } from '@/components/ui/Surface';
 
 interface AbilityScoresSectionProps {
@@ -9,15 +10,15 @@ interface AbilityScoresSectionProps {
 export function AbilityScoresSection({ abilities, onChange }: AbilityScoresSectionProps) {
   return (
     <Surface variant="primary" padding="lg" className="bg-bg-primary/50 shadow-inner">
-      <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-6 text-center">
+      <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-6 text-center">
         Ability Scores
-      </label>
+      </Text>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">
         {Object.keys(abilities).map((ability) => (
           <div key={ability}>
-            <label className="block text-[10px] font-bold text-text-secondary uppercase mb-1">
+            <Text as="label" size="sm" weight="bold" color="secondary" className="block uppercase mb-1">
               {ability.substring(0, 3)}
-            </label>
+            </Text>
             <Input 
               type="number" 
               min={1} 

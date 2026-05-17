@@ -4,6 +4,7 @@ import type { AppCharacter } from '../../core/types';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
 import { Surface } from '../ui/Surface';
+import { Text } from '../ui/Text';
 import { DropdownMenu } from '../ui/DropdownMenu';
 import { SlotPips } from '../ui/SlotPips';
 import { CharacterModal } from './CharacterModal';
@@ -55,13 +56,13 @@ export function CharacterBar() {
             className="flex items-center gap-1.5 border border-primary-400 bg-bg-primary shadow-sm"
           >
             <User className="w-3 h-3 text-primary-500" />
-            <span className="font-bold text-xs text-text-primary whitespace-nowrap">
+            <Text weight="bold" size="sm" color="primary" className="whitespace-nowrap">
               {displayChar ? displayChar.name : 'No character'}
-            </span>
+            </Text>
             {displayChar && (
-              <span className="text-[9px] font-black text-text-tertiary uppercase tracking-widest ml-0.5">
+              <Text variant="label" className="ml-0.5">
                 Lvl {totalLevel || 1}
-              </span>
+              </Text>
             )}
             <ChevronDown className="w-3 h-3 text-text-tertiary" />
           </Button>
@@ -75,9 +76,9 @@ export function CharacterBar() {
             >
               <User className="w-3 h-3 flex-shrink-0" />
               <span className="flex-1 truncate">{char.name}</span>
-              <span className="text-[9px] font-black text-text-tertiary uppercase">
+              <Text variant="label">
                 Lvl {char.classes?.reduce((s, c) => s + c.level, 0) || 1}
-              </span>
+              </Text>
               {activeCharacter?.id === char.id && (
                 <IconButton
                   variant="default"
@@ -111,13 +112,13 @@ export function CharacterBar() {
               title="Open character sheet"
             >
               <div>
-                <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">DC</div>
-                <div className="text-xs font-bold text-primary-600">{spellSaveDC}</div>
+                <Text variant="label" className="mb-0.5">DC</Text>
+                <Text weight="bold" size="sm" color="accent">{spellSaveDC}</Text>
               </div>
               {spellAttackBonus > 0 && (
                 <div className="hidden sm:block">
-                  <div className="text-[8px] font-black text-text-tertiary uppercase tracking-widest">ATK</div>
-                  <div className="text-xs font-bold text-primary-600">+{spellAttackBonus}</div>
+                  <Text variant="label" className="mb-0.5">ATK</Text>
+                  <Text weight="bold" size="sm" color="accent">+{spellAttackBonus}</Text>
                 </div>
               )}
               <ChevronRight className="w-3 h-3 text-text-tertiary opacity-60" />
@@ -146,7 +147,7 @@ export function CharacterBar() {
             className="text-text-secondary hover:text-primary-600 h-7 px-1.5"
           >
             <Moon className="w-3.5 h-3.5 md:mr-1" />
-            <span className="hidden md:inline text-xs">Rest</span>
+            <Text size="sm" className="hidden md:inline">Rest</Text>
           </Button>
         </div>
       )}

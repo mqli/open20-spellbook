@@ -1,6 +1,7 @@
 import { Star, Shield } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Surface } from '../../ui/Surface';
+import { Text } from '../../ui/Text';
 import { getCasterTypeForClass } from '../../../core/character-service';
 import type { Spell } from '../../../core/types';
 
@@ -39,16 +40,16 @@ export function SpellEntry({
     >
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <div className={`text-xs font-bold truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
+          <Text as="div" weight="bold" className={`truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
             {spell.name}
-          </div>
+          </Text>
           {isAlwaysPrepared && (
             <Shield className="w-2.5 h-2.5 text-info fill-current opacity-60" />
           )}
         </div>
-        <div className="text-[9px] text-text-tertiary uppercase tracking-tight">
+        <Text as="div" variant="caption" className="uppercase tracking-tight">
           {spell.school} • {spell.castingTime}
-        </div>
+        </Text>
       </div>
 
       {casterType.canPrepare && (

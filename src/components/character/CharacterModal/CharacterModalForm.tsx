@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Dialog } from '@/components/ui/Dialog';
+import { Text } from '@/components/ui/Text';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
@@ -96,9 +97,9 @@ export function CharacterModalForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">
+                <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                   Character Name
-                </label>
+                </Text>
                 <Input 
                   value={formData.name} 
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} 
@@ -110,9 +111,9 @@ export function CharacterModalForm({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">
+                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Class
-                  </label>
+                  </Text>
                   <Select.Root 
                     value={formData.charClass} 
                     onValueChange={(value) => { 
@@ -128,9 +129,9 @@ export function CharacterModalForm({
                   </Select.Root>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">
+                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Level
-                  </label>
+                  </Text>
                   <Input 
                     type="number" 
                     min={1} 
@@ -149,9 +150,9 @@ export function CharacterModalForm({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">
+                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Species
-                  </label>
+                  </Text>
                   <Select.Root 
                     value={formData.species} 
                     onValueChange={(value) => setFormData(prev => ({ ...prev, species: value }))}
@@ -165,9 +166,9 @@ export function CharacterModalForm({
                   </Select.Root>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2">
+                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Background
-                  </label>
+                  </Text>
                   <Select.Root 
                     value={formData.background} 
                     onValueChange={(value) => setFormData(prev => ({ ...prev, background: value }))}
@@ -185,9 +186,9 @@ export function CharacterModalForm({
               {/* Multiclass Section */}
               <div className="pt-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em]">
+                  <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
                     Multiclass
-                  </label>
+                  </Text>
                   <Button 
                     type="button" 
                     variant="ghost" 
