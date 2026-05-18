@@ -2,13 +2,13 @@ import type { Spell } from 'open20-core';
 
 type RawComponents = readonly string[] | string | Record<string, unknown>;
 
-interface RawSpell extends Partial<Omit<Spell, 'components' | 'classes' | 'level'>> {
+export interface RawSpell extends Partial<Omit<Spell, 'components' | 'classes' | 'level' | 'description'>> {
   id?: string;
   name: string;
   level?: number | string;
   components?: RawComponents;
   classes?: readonly string[] | string;
-  description?: string;
+  description?: string | string[];
 }
 
 /**
@@ -38,8 +38,8 @@ export class SchemaService {
       .filter((c): c is string => !!c);
   }
 
-  private static inferClassesFromDescription(description: string): string[] {
-    const desc = description || '';
+  private static inferClassesFromDescription(description: string | string[]): string[] {
+    const desc = Array.isArray(description) ? description.join(' ') : (description || '');
 
     // Most 2024 entries start with "Level 3 Evocation (Sorcerer, Wizard)".
     const headerMatch = desc.match(/^(?:level\s+\d+\s+|[\d\w-]+-level\s+)?[a-z]+\s+(?:cantrip\s+)?\(([^)]+)\)/i);
@@ -85,7 +85,15 @@ export class SchemaService {
         classes = [...this.ALL_SPELLCASTING_CLASSES];
       }
 
-      // 3. Return strictly typed Spell
+      // 3. Normalize description to readonly string[]
+      let description: readonly string[] = [];
+      if (typeof raw.description === 'string') {
+        description = raw.description ? [raw.description] : [];
+      } else if (Array.isArray(raw.description)) {
+        description = [...raw.description];
+      }
+
+      // 4. Return strictly typed Spell
       return {
         ...raw,
         id: raw.id || raw.name.toLowerCase().replace(/\s+/g, '-'),
@@ -95,7 +103,7 @@ export class SchemaService {
         ritual: !!raw.ritual,
         concentration: !!raw.concentration,
         source: raw.source || 'SRD',
-        description: raw.description || '',
+        description,
       } as Spell;
     });
   }

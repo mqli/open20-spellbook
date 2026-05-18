@@ -24,8 +24,8 @@ export function CharacterBar() {
 
   const handleEdit = (id: string) => {
     setEditingId(id);
-    setIsModalOpen(true);
     setIsSheetOpen(false);
+    setIsModalOpen(true);
   };
 
   const handleSelect = (char: AppCharacter) => {
@@ -79,17 +79,15 @@ export function CharacterBar() {
               <Text variant="label">
                 Lvl {char.classes?.reduce((s, c) => s + c.level, 0) || 1}
               </Text>
-              {activeCharacter?.id === char.id && (
-                <IconButton
-                  variant="default"
-                  size="sm"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => { e.stopPropagation(); handleEdit(char.id); }}
-                  className="hover:text-primary-600"
-                >
-                  <FileText className="w-2.5 h-2.5" />
-                </IconButton>
-              )}
+              <IconButton
+                variant="default"
+                size="sm"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEdit(char.id); }}
+                className="hover:text-primary-600 ml-1"
+              >
+                <FileText className="w-2.5 h-2.5" />
+              </IconButton>
             </DropdownMenu.Item>
           ))}
           <DropdownMenu.Separator />

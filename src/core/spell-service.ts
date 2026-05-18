@@ -20,7 +20,7 @@ export class SpellService {
 
   getAllSpells(): Spell[] {
     if (!this.cachedSpells) {
-      const rawSpells = dataLoader.getAllSpells();
+      const rawSpells = dataLoader.getAllSpells() as unknown as import('./schema-service').RawSpell[];
       this.cachedSpells = SchemaService.transformSpells(rawSpells);
     }
     return this.cachedSpells;

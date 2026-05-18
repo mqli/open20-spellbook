@@ -22,15 +22,39 @@ export function SpellContent({ spell }: SpellContentProps) {
       </div>
 
       <div className="prose prose-sm dark:prose-invert max-w-none mb-6">
-        <Text variant="body" className="leading-relaxed whitespace-pre-wrap">
-          {spell.description}
-        </Text>
+        {spell.description.map((paragraph, i) => (
+          <Text key={i} variant="body" className="leading-relaxed mb-4 last:mb-0">
+            {paragraph}
+          </Text>
+        ))}
       </div>
 
-      {spell.upcast && (
+      {spell.level === 0 && spell.cantripUpgrade && (
+        <div className="pl-4 border-l-4 border-accent mb-6 py-1">
+          <Text size="sm" color="secondary" weight="medium" className="uppercase mb-2">Cantrip Upgrade</Text>
+          {spell.cantripUpgrade.map((upgrade, i) => (
+            <div key={i} className="mb-2 last:mb-0">
+              <Text size="sm" weight="medium" className="text-accent">
+                At Character Level {upgrade.atCharacterLevel}:
+              </Text>
+              {upgrade.damage?.map((d, j) => (
+                <Text key={j} variant="body" className="ml-2">
+                  {d.dice} {d.type} damage
+                </Text>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {spell.usingAHigherLevelSpellSlot && (
         <div className="pl-4 border-l-4 border-primary-400 mb-6 py-1">
           <Text size="sm" color="secondary" weight="medium" className="uppercase mb-1">At Higher Levels</Text>
-          <Text variant="body">{spell.upcast}</Text>
+          {spell.usingAHigherLevelSpellSlot.map((paragraph, i) => (
+            <Text key={i} variant="body" className="leading-relaxed mb-4 last:mb-0">
+              {paragraph}
+            </Text>
+          ))}
         </div>
       )}
 
