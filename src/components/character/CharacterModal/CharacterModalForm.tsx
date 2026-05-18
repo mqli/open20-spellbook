@@ -83,13 +83,15 @@ export function CharacterModalForm({
           <Dialog.Title className="text-2xl font-black text-text-primary uppercase tracking-tight">
             {editingCharacter ? 'Edit Character' : 'Create Your Hero'}
           </Dialog.Title>
-          <Dialog.Close>
-            <button 
-              className="p-2 hover:bg-bg-tertiary rounded-full transition-colors text-text-secondary hover:text-text-primary"
+          <Dialog.Close asChild>
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="p-2 rounded-full"
               disabled={isSubmitting}
             >
               <X className="w-6 h-6" />
-            </button>
+            </Button>
           </Dialog.Close>
         </div>
 

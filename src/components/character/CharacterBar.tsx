@@ -16,16 +16,19 @@ export function CharacterBar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleCreate = () => {
     setEditingId(undefined);
-    setIsModalOpen(true);
+    setIsDropdownOpen(false);
+    requestAnimationFrame(() => setIsModalOpen(true));
   };
 
   const handleEdit = (id: string) => {
     setEditingId(id);
+    setIsDropdownOpen(false);
     setIsSheetOpen(false);
-    setIsModalOpen(true);
+    requestAnimationFrame(() => setIsModalOpen(true));
   };
 
   const handleSelect = (char: AppCharacter) => {
@@ -48,7 +51,7 @@ export function CharacterBar() {
   return (
     <Surface variant="default" className="border-b rounded-none px-3 py-1.5 flex items-center justify-between gap-2">
       {/* Left: active character + dropdown */}
-      <DropdownMenu.Root>
+      <DropdownMenu.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenu.Trigger asChild>
           <Button
             variant="ghost"
@@ -82,7 +85,6 @@ export function CharacterBar() {
               <IconButton
                 variant="default"
                 size="sm"
-                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEdit(char.id); }}
                 className="hover:text-primary-600 ml-1"
               >
