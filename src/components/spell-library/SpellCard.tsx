@@ -23,15 +23,33 @@ export function SpellCard({ spell }: SpellCardProps) {
   const {
     activeCharacter,
     learnSpell, unlearnSpell,
+    learnCantrip, unlearnCantrip,
     prepareSpell, unprepareSpell,
     startConcentration, endConcentration,
   } = useCharacterStore();
+
+  // Helper to get the first matching classId for this spell
+  const getMatchingClassId = (): string | null => {
+    if (!activeCharacter) return null;
+    const classIds = activeCharacter.classes?.map(c => c.classId) ?? [];
+    const spellClasses = spell.classes ?? [];
+    return classIds.find(id => spellClasses.includes(id)) ?? null;
+  };
 
   const isKnown = activeCharacter ? spellService.isSpellKnown(activeCharacter, spell.id) : false;
   const isPrepared = activeCharacter ? spellService.isSpellPrepared(activeCharacter, spell.id) : false;
   const isConcentratingOnThis = activeCharacter?.conditions.some(
     c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === spell.id
   ) ?? false;
+
+  // Check if cantrip is known
+  const isCantripKnown = ((): boolean => {
+    if (!activeCharacter || spell.level !== 0) return false;
+    const classId = getMatchingClassId();
+    if (!classId) return false;
+    const classData = activeCharacter.spells.classSpellcasting[classId];
+    return classData?.knownCantrips.includes(spell.id) ?? false;
+  })();
 
   // A spell is "actionable" if there's an active character whose class includes it
   const isClassSpell = activeCharacter
@@ -43,10 +61,23 @@ export function SpellCard({ spell }: SpellCardProps) {
 
   const handleLearnToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isKnown) {
-      unlearnSpell(spell.id);
+    const classId = getMatchingClassId();
+    if (!classId) return;
+
+    if (spell.level === 0) {
+      // Cantrip
+      if (isCantripKnown) {
+        unlearnCantrip(classId, spell.id);
+      } else {
+        learnCantrip(classId, spell.id);
+      }
     } else {
-      learnSpell(spell.id);
+      // Regular spell
+      if (isKnown) {
+        unlearnSpell(spell.id);
+      } else {
+        learnSpell(spell.id);
+      }
     }
   };
 
@@ -72,11 +103,11 @@ export function SpellCard({ spell }: SpellCardProps) {
     ? 'warning'
     : isPrepared
     ? 'selected'
-    : isKnown
+    : (isKnown || isCantripKnown)
     ? 'info'
     : 'default';
 
-  const surfaceClassName = !isConcentratingOnThis && !isPrepared && !isKnown
+  const surfaceClassName = !isConcentratingOnThis && !isPrepared && !isKnown && !isCantripKnown
     ? 'cursor-pointer hover:shadow-md hover:border-primary-300'
     : '';
 
@@ -112,7 +143,7 @@ export function SpellCard({ spell }: SpellCardProps) {
           {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
         </Badge>
         <Text variant="labelSm">{spell.school}</Text>
-        {isKnown && !isPrepared && (
+        {(isKnown || isCantripKnown) && !isPrepared && (
           <Badge variant="info" size="sm">Known</Badge>
         )}
         {isPrepared && (
@@ -138,13 +169,13 @@ export function SpellCard({ spell }: SpellCardProps) {
             </IconButton>
           )}
 
-          {/* Learn toggle — for casters who "learn" spells; cantrips only for spellbook casters */}
-          {isClassSpell && casterType.canLearn && (spell.level > 0 || casterType.isSpellbookCaster) && (
+          {/* Learn toggle — for casters who "learn" spells; cantrips for all casters now */}
+          {isClassSpell && casterType.canLearn && (
             <IconButton
               variant="info"
-              active={isKnown}
+              active={spell.level === 0 ? isCantripKnown : isKnown}
               onClick={handleLearnToggle}
-              title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
+              title={spell.level === 0 ? (isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip') : (isKnown ? 'Unlearn Spell' : 'Learn Spell')}
             >
               <BookMarked className="w-3.5 h-3.5" />
             </IconButton>

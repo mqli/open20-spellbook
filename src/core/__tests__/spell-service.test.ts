@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { spellService } from '../spell-service';
 import { SchemaService } from '../schema-service';
 import type { AppCharacter } from '../types';
+import type { AbilityName } from 'open20-core';
 
 // Mock the dataLoader to have controlled test data
 vi.mock('../data-loader', () => ({
@@ -97,7 +98,7 @@ describe('SpellService', () => {
         classSpellcasting: {
           Wizard: {
             classId: 'Wizard',
-            spellcastingAbility: 'Intelligence' as any,
+            spellcastingAbility: 'Intelligence' as AbilityName,
             spellSaveDC: 14,
             spellAttackBonus: 6,
             knownSpells: [],

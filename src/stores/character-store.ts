@@ -20,6 +20,9 @@ interface CharacterState {
   unprepareSpellForClass: (classId: string, spellId: string) => void;
   learnSpell: (spellId: string) => void;
   unlearnSpell: (spellId: string) => void;
+  learnCantrip: (classId: string, spellId: string) => void;
+  unlearnCantrip: (classId: string, spellId: string) => void;
+  replaceCantrip: (classId: string, oldSpellId: string, newSpellId: string) => void;
   castSpell: (spellId: string, level: number) => void;
   consumeSpellSlot: (level: number) => void;
   recoverSpellSlot: (level: number) => void;
@@ -123,6 +126,27 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     const updated = characterService.unlearnSpell(activeCharacter, spellId);
+    get().updateCharacter(updated);
+  },
+
+  learnCantrip: (classId, spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = characterService.learnCantrip(activeCharacter, classId, spellId);
+    get().updateCharacter(updated);
+  },
+
+  unlearnCantrip: (classId, spellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = characterService.unlearnCantrip(activeCharacter, classId, spellId);
+    get().updateCharacter(updated);
+  },
+
+  replaceCantrip: (classId, oldSpellId, newSpellId) => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+    const updated = characterService.replaceCantrip(activeCharacter, classId, oldSpellId, newSpellId);
     get().updateCharacter(updated);
   },
 

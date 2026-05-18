@@ -1,8 +1,9 @@
-import { ChevronDown, ChevronRight, Shield } from 'lucide-react';
+import { ChevronDown, ChevronRight, Shield, Plus, X } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Surface } from '../../ui/Surface';
 import { Text } from '../../ui/Text';
+import { Dialog } from '../../ui/Dialog';
 import { spellService } from '../../../core/spell-service';
 import { RulesService } from '../../../core/rules-service';
 import { getCasterTypeForClass } from '../../../core/character-service';
@@ -26,6 +27,8 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
   const { activeCharacter, prepareSpellForClass, unprepareSpellForClass } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
+  const [cantripToReplace, setCantripToReplace] = useState<string | null>(null);
 
   if (!activeCharacter) return null;
 
@@ -62,6 +65,31 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
   const handleTogglePrepare = (cid: string, spellId: string, isManuallyPrepared: boolean) => {
     if (isManuallyPrepared) unprepareSpellForClass(cid, spellId);
     else prepareSpellForClass(cid, spellId);
+  };
+
+  const getAvailableCantrips = () => {
+    return spellService.searchSpells({ classes: [classId], level: 0 })
+      .filter(s => !classData.knownCantrips.includes(s.id));
+  };
+
+  const handleLearnCantrip = () => {
+    setCantripToReplace(null);
+    setIsCantripModalOpen(true);
+  };
+
+  const handleReplaceCantrip = (spellId: string) => {
+    setCantripToReplace(spellId);
+    setIsCantripModalOpen(true);
+  };
+
+  const handleCantripSelect = (spellId: string) => {
+    if (cantripToReplace) {
+      useCharacterStore.getState().replaceCantrip(classId, cantripToReplace, spellId);
+    } else {
+      useCharacterStore.getState().learnCantrip(classId, spellId);
+    }
+    setIsCantripModalOpen(false);
+    setCantripToReplace(null);
   };
 
   return (
@@ -173,6 +201,75 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
               </div>
             </div>
           )}
+
+          {/* Known Cantrips */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Text as="div" variant="label">
+                Cantrips ({classData.knownCantrips.length}/{classData.maxCantripsKnown})
+              </Text>
+              {classData.knownCantrips.length < classData.maxCantripsKnown && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLearnCantrip}
+                  className="h-5 px-1 text-[10px]"
+                >
+                  <Plus className="w-3 h-3 mr-0.5" />
+                  Add
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {classData.knownCantrips.map(spellId => {
+                const spell = spellService.getSpell(spellId);
+                if (!spell) return null;
+                return (
+                  <Badge
+                    key={spellId}
+                    variant="slate"
+                    size="sm"
+                    className="cursor-pointer hover:bg-bg-tertiary flex items-center gap-1"
+                    onClick={() => handleReplaceCantrip(spellId)}
+                  >
+                    {spell.name}
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Cantrip Selection Modal */}
+          <Dialog.Root open={isCantripModalOpen} onOpenChange={setIsCantripModalOpen}>
+            <Dialog.Content className="w-[calc(100%-2rem)] max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <Dialog.Title className="text-lg font-bold">
+                  {cantripToReplace ? 'Replace Cantrip' : 'Learn Cantrip'}
+                </Dialog.Title>
+                <Dialog.Close asChild>
+                  <Button variant="ghost" size="sm" className="p-1">
+                    <X className="w-4 h-4" />
+                  </Button>
+                </Dialog.Close>
+              </div>
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {getAvailableCantrips().map((spell: Spell) => (
+                  <button
+                    key={spell.id}
+                    onClick={() => handleCantripSelect(spell.id)}
+                    className="w-full text-left px-3 py-2 rounded hover:bg-bg-tertiary transition-colors"
+                  >
+                    <Text size="sm" weight="medium">{spell.name}</Text>
+                  </button>
+                ))}
+                {getAvailableCantrips().length === 0 && (
+                  <Text variant="caption" className="text-text-tertiary">
+                    No more cantrips available to learn.
+                  </Text>
+                )}
+              </div>
+            </Dialog.Content>
+          </Dialog.Root>
 
           {/* Spell List */}
           <div className="space-y-4">

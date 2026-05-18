@@ -183,6 +183,87 @@ export class CharacterService {
     };
   }
 
+  learnCantrip(character: AppCharacter, classId: string, spellId: string): AppCharacter {
+    const classSpellData = character.spells.classSpellcasting[classId];
+    if (!classSpellData) return character;
+    
+    // Check if already knows this cantrip
+    if (classSpellData.knownCantrips.includes(spellId)) return character;
+    
+    // Check if at max
+    if (classSpellData.knownCantrips.length >= classSpellData.maxCantripsKnown) return character;
+    
+    const updatedSpells = {
+      ...character.spells,
+      classSpellcasting: {
+        ...character.spells.classSpellcasting,
+        [classId]: {
+          ...classSpellData,
+          knownCantrips: [...classSpellData.knownCantrips, spellId] as any
+        }
+      }
+    };
+    
+    return {
+      ...character,
+      spells: updatedSpells,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  replaceCantrip(character: AppCharacter, classId: string, oldSpellId: string, newSpellId: string): AppCharacter {
+    const classSpellData = character.spells.classSpellcasting[classId];
+    if (!classSpellData) return character;
+    
+    // Check if knows the old cantrip
+    if (!classSpellData.knownCantrips.includes(oldSpellId)) return character;
+    
+    // Check if already knows the new cantrip
+    if (classSpellData.knownCantrips.includes(newSpellId)) return character;
+    
+    const updatedSpells = {
+      ...character.spells,
+      classSpellcasting: {
+        ...character.spells.classSpellcasting,
+        [classId]: {
+          ...classSpellData,
+          knownCantrips: classSpellData.knownCantrips.map(id => id === oldSpellId ? newSpellId : id) as any
+        }
+      }
+    };
+    
+    return {
+      ...character,
+      spells: updatedSpells,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  unlearnCantrip(character: AppCharacter, classId: string, spellId: string): AppCharacter {
+    const classSpellData = character.spells.classSpellcasting[classId];
+    if (!classSpellData) return character;
+    
+    // Check if knows the cantrip
+    if (!classSpellData.knownCantrips.includes(spellId)) return character;
+    
+    const updatedSpells = {
+      ...character.spells,
+      classSpellcasting: {
+        ...character.spells.classSpellcasting,
+        [classId]: {
+          ...classSpellData,
+          knownCantrips: classSpellData.knownCantrips.filter(id => id !== spellId) as any
+        }
+      }
+    };
+    
+    return {
+      ...character,
+      spells: updatedSpells,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
   castSpell(character: AppCharacter, spellId: string, level: number): AppCharacter {
     // 1. Consume slot
     const char = { ...open20ConsumeSpellSlot(character, level) as any, id: character.id };

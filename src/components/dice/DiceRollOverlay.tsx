@@ -19,7 +19,7 @@ export function DiceRollOverlay() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [latestRoll?.id]);
+  }, [latestRoll]);
 
   if (!latestRoll) return null;
 

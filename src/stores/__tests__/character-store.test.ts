@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCharacterStore } from '../character-store';
 import { storageService } from '../../core/storage-service';
 import type { AppCharacter } from '../../core/types';
+import type { AbilityName } from 'open20-core';
 
 // Mock the storage-service module
 vi.mock('../../core/storage-service', () => ({
@@ -58,12 +59,12 @@ describe('CharacterStore', () => {
         racialBonuses: {},
         featBonuses: {},
         temporaryBonuses: {}
-      } as any,
+      },
       spells: {
         classSpellcasting: {
           Wizard: {
             classId: 'Wizard',
-            spellcastingAbility: 'Intelligence' as any,
+            spellcastingAbility: 'Intelligence' as AbilityName,
             spellSaveDC: 14,
             spellAttackBonus: 6,
             knownSpells: [],
@@ -120,12 +121,12 @@ describe('CharacterStore', () => {
         racialBonuses: {},
         featBonuses: {},
         temporaryBonuses: {}
-      } as any,
+      },
       spells: {
         classSpellcasting: {
           Wizard: {
             classId: 'Wizard',
-            spellcastingAbility: 'Intelligence' as any,
+            spellcastingAbility: 'Intelligence' as AbilityName,
             spellSaveDC: 14,
             spellAttackBonus: 6,
             knownSpells: ['magic-missile'],
