@@ -46,13 +46,15 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
   const prepared = [...classData.preparedSpells];
   const alwaysPrepared = [...(classData.alwaysPreparedSpells ?? [])];
   const allPrepared = [...prepared, ...alwaysPrepared];
+  const allPreparedIds = new Set(allPrepared);
   const maxPrepared = classData.maxPrepared;
 
   const subclassDisplay = subclassId ? subclassId : null;
 
+  // Only show prepared (or always-prepared) spells
   const inventorySpells = known
     .map(id => spellService.getSpell(id))
-    .filter((s): s is NonNullable<typeof s> => !!s)
+    .filter((s): s is NonNullable<typeof s> => !!s && allPreparedIds.has(s.id))
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
 
   const spellsByLevel = inventorySpells.reduce((acc, spell) => {
@@ -167,14 +169,11 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
             </div>
           )}
 
-          {/* Known Spells Count */}
+          {/* Prepared Spells Count */}
           {casterType.isSpellbookCaster && (
             <div className="text-[10px] text-text-tertiary">
-              Known Spells: <Text weight="bold" className="text-info">
-                {known.filter(id => {
-                  const s = spellService.getSpell(id);
-                  return s && s.level > 0;
-                }).length}
+              Prepared Spells: <Text weight="bold" className="text-info">
+                {inventorySpells.filter(s => s.level > 0).length}
               </Text>
             </div>
           )}
