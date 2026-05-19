@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCharacterStore } from '../../stores/character-store';
 import type { AppCharacter } from '../../core/types';
+import { dataLoader } from '../../core/data-loader';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
 import { Surface } from '../ui/Surface';
@@ -10,6 +11,19 @@ import { SlotPips } from '../ui/SlotPips';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { Plus, User, Moon, FileText, ChevronDown, ChevronRight } from 'lucide-react';
+
+const CLASS_NAME_MAP = Object.fromEntries(
+  dataLoader.getAllClasses().map(c => [c.id, c.name || c.id])
+);
+
+function formatClassInfo(
+  classes: readonly { classId: string; level: number }[] | undefined
+): string {
+  if (!classes || classes.length === 0) return 'Lvl 1';
+  return classes
+    .map(c => `${CLASS_NAME_MAP[c.classId] ?? c.classId} ${c.level}`)
+    .join(' / ');
+}
 
 export function CharacterBar() {
   const { characters, activeCharacter, setActiveCharacter, longRest, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
@@ -36,16 +50,16 @@ export function CharacterBar() {
   };
 
   const displayChar = activeCharacter;
+  const classInfo = formatClassInfo(activeCharacter?.classes);
 
   // Get spellcasting stats from the primary spellcasting class
+  // TODO: clarify business rule for "primary" (e.g., highest level class, or explicit primaryClassId field)
   const primaryClassSpells = activeCharacter?.spells?.classSpellcasting
     ? Object.values(activeCharacter.spells.classSpellcasting)[0]
     : undefined;
   const spellSaveDC = primaryClassSpells?.spellSaveDC ?? 0;
   const spellAttackBonus = primaryClassSpells?.spellAttackBonus ?? 0;
 
-  // Compute total character level for multi-class display
-  const totalLevel = activeCharacter?.classes?.reduce((sum, c) => sum + c.level, 0) ?? 0;
   const hasSpellcasting = spellSaveDC > 0 || spellAttackBonus > 0;
 
   return (
@@ -64,7 +78,7 @@ export function CharacterBar() {
             </Text>
             {displayChar && (
               <Text variant="label" className="ml-0.5">
-                Lvl {totalLevel || 1}
+                {classInfo}
               </Text>
             )}
             <ChevronDown className="w-3 h-3 text-text-tertiary" />
@@ -80,7 +94,7 @@ export function CharacterBar() {
               <User className="w-3 h-3 flex-shrink-0" />
               <span className="flex-1 truncate">{char.name}</span>
               <Text variant="label">
-                Lvl {char.classes?.reduce((s, c) => s + c.level, 0) || 1}
+                {formatClassInfo(char.classes)}
               </Text>
               <IconButton
                 variant="secondary"
@@ -125,20 +139,22 @@ export function CharacterBar() {
             </Button>
           )}
 
-          {/* Spell Slots using SlotPips */}
+          {/* Spell Slots using SlotPips — sorted by level ascending */}
           {activeCharacter.spells?.spellSlots &&
-            Object.entries(activeCharacter.spells.spellSlots).map(([level, slot]) => {
-              const lvl = parseInt(level);
-              if (lvl === 0 || slot.total === 0) return null;
-              return (
-                <SlotPips
-                  key={level}
-                  total={slot.total}
-                  used={slot.used}
-                  onPipClick={(_index, isUsed) => isUsed ? recoverSpellSlot(lvl) : consumeSpellSlot(lvl)}
-                />
-              );
-            })}
+            Object.entries(activeCharacter.spells.spellSlots)
+              .sort(([a], [b]) => parseInt(a) - parseInt(b))
+              .map(([level, slot]) => {
+                const lvl = parseInt(level);
+                if (lvl === 0 || slot.total === 0) return null;
+                return (
+                  <SlotPips
+                    key={level}
+                    total={slot.total}
+                    used={slot.used}
+                    onPipClick={(_index, isUsed) => isUsed ? recoverSpellSlot(lvl) : consumeSpellSlot(lvl)}
+                  />
+                );
+              })}
 
           <Button
             variant="ghost"

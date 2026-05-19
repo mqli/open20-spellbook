@@ -221,7 +221,7 @@ export const dropdownItemBaseClasses = 'relative flex cursor-pointer select-none
 
 // --- Input Base ---
 // Shared styles for input and select trigger elements
-export const inputBaseClasses = 'flex h-10 w-full rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50';
+export const inputBaseClasses = 'flex h-10 w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50';
 
 // --- Overlay ---
 // Shared styles for modal/sheet overlays
