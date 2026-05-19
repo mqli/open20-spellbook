@@ -63,7 +63,7 @@ export function DiceRollOverlay() {
           </div>
 
           <IconButton
-            variant="default"
+            variant="secondary"
             size="sm"
             onClick={() => setDismissedRollId(latestRoll.id)}
             className="text-text-tertiary hover:text-primary-600"

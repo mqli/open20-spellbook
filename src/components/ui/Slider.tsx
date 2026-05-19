@@ -1,7 +1,16 @@
 import * as RadixSlider from '@radix-ui/react-slider';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/helpers';
 
-export interface SliderProps extends Omit<RadixSlider.SliderProps, 'asChild'> {
+const sliderVariants = cva(
+  'relative flex w-full touch-none select-none items-center'
+);
+
+const thumbVariants = cva(
+  'block h-5 w-5 rounded-full border-2 border-primary-600 bg-white ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'
+);
+
+export interface SliderProps extends Omit<RadixSlider.SliderProps, 'asChild'>, VariantProps<typeof sliderVariants> {
   min?: number;
   max?: number;
   step?: number;
@@ -17,10 +26,7 @@ export function Slider({ className, min = 0, max = 100, step = 1, value, onValue
       step={step}
       value={value}
       onValueChange={onValueChange}
-      className={cn(
-        'relative flex w-full touch-none select-none items-center',
-        className
-      )}
+      className={cn(sliderVariants(), className)}
       {...props}
     >
       <RadixSlider.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-bg-tertiary">
@@ -29,7 +35,7 @@ export function Slider({ className, min = 0, max = 100, step = 1, value, onValue
       {value?.map((_, i) => (
         <RadixSlider.Thumb
           key={i}
-          className="block h-5 w-5 rounded-full border-2 border-primary-600 bg-white ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          className={cn(thumbVariants())}
         />
       ))}
     </RadixSlider.Root>

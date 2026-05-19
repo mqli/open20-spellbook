@@ -12,7 +12,7 @@ const toggleVariants = cva(
       size: sizeVariantClasses,
     },
     defaultVariants: {
-      variant: 'slate',
+      variant: 'secondary',
       size: 'md',
     },
   }

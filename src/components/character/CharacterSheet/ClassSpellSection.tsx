@@ -120,7 +120,7 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
         </div>
         <div className="flex items-center gap-2">
           {casterType.canPrepare && (
-            <Badge variant="purple" size="sm">
+            <Badge variant="primary" size="sm">
               {allPrepared.length}/{maxPrepared}
             </Badge>
           )}
@@ -227,7 +227,7 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
                 return (
                   <Badge
                     key={spellId}
-                    variant="slate"
+                    variant="secondary"
                     size="sm"
                     className="cursor-pointer hover:bg-bg-tertiary flex items-center gap-1"
                     onClick={() => handleReplaceCantrip(spellId)}

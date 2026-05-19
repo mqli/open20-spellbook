@@ -44,25 +44,30 @@ export const colors = {
 // --- Badge Variants ---
 // Subtle background with border.
 // Used in: Badge
+// Standardized naming: primary/purple, secondary/slate, success, danger, warning, info
 export const badgeVariants = {
-  slate:   'bg-bg-tertiary text-text-secondary border border-border/50',
-  purple:  'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
-  success: 'bg-success/15 text-success border border-success/20',
-  danger:  'bg-danger/15 text-danger border border-danger/20',
-  warning: 'bg-warning/15 text-warning border border-warning/20',
-  info:    'bg-info/15 text-info border border-info/20',
+  secondary: 'bg-bg-tertiary text-text-secondary border border-border/50',  // was: slate
+  primary:   'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',  // was: purple
+  success:   'bg-success/15 text-success border border-success/20',
+  danger:    'bg-danger/15 text-danger border border-danger/20',
+  warning:   'bg-warning/15 text-warning border border-warning/20',
+  info:      'bg-info/15 text-info border border-info/20',
+  // Backward compatibility aliases
+  slate:     'bg-bg-tertiary text-text-secondary border border-border/50',
+  purple:    'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
 } as const;
 
 // --- Toggle Variants ---
 // Subtle background + hover + active (data-[state=on]).
 // Used in: Toggle
+// Standardized naming: primary/purple, secondary/slate, success, danger, warning, info
 export const toggleVariants = {
-  slate: cn(
+  secondary: cn(
     'bg-bg-tertiary text-text-secondary border border-border/50',
     'hover:bg-border hover:text-text-primary',
     'data-[state=on]:bg-border data-[state=on]:text-text-primary'
   ),
-  purple: cn(
+  primary: cn(
     'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
     'hover:bg-primary-500/25 shadow-sm shadow-primary-500/10',
     'data-[state=on]:bg-primary-500/30 data-[state=on]:border-primary-500/50'
@@ -87,6 +92,17 @@ export const toggleVariants = {
     'hover:bg-info/25',
     'data-[state=on]:bg-info/30 data-[state=on]:border-info/50'
   ),
+  // Backward compatibility aliases
+  slate: cn(
+    'bg-bg-tertiary text-text-secondary border border-border/50',
+    'hover:bg-border hover:text-text-primary',
+    'data-[state=on]:bg-border data-[state=on]:text-text-primary'
+  ),
+  purple: cn(
+    'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
+    'hover:bg-primary-500/25 shadow-sm shadow-primary-500/10',
+    'data-[state=on]:bg-primary-500/30 data-[state=on]:border-primary-500/50'
+  ),
 } as const;
 
 // --- Button Variants ---
@@ -101,7 +117,7 @@ export const buttonVariants = {
   warning: 'bg-warning hover:bg-amber-600 text-white border border-amber-600',
 } as const;
 
-// --- Size Variants (shared by Badge + Toggle) ---
+// --- Size Variants (shared by Badge + Toggle + FilterChip) ---
 export const badgeToggleSizeVariants = {
   sm: 'px-1.5 py-0.5 text-[10px] rounded-full',
   md: 'px-2 py-0.5 text-xs rounded-full',
@@ -113,6 +129,13 @@ export const buttonSizeVariants = {
   sm: 'px-2 py-1 text-sm',
   md: 'px-4 py-2',
   lg: 'px-6 py-3 text-lg',
+} as const;
+
+// --- Size Variants (IconButton only) ---
+export const iconButtonSizeVariants = {
+  sm: 'p-1',
+  md: 'p-1.5',
+  lg: 'p-2',
 } as const;
 
 // --- Surface Variants ---
@@ -183,3 +206,35 @@ export const textWeightVariants = {
   bold: 'font-bold',
   black: 'font-black',
 } as const;
+
+// ==========================================
+// Shared Component Classes
+// ==========================================
+
+// --- Dropdown/Select Content ---
+// Shared styles for dropdown and select content containers
+export const dropdownContentClasses = 'z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-bg-secondary p-1 text-text-primary shadow-md animate-in fade-in-80';
+
+// --- Dropdown/Select Item ---
+// Shared styles for selectable items in dropdowns and selects
+export const dropdownItemBaseClasses = 'relative flex cursor-pointer select-none items-center rounded-sm text-sm outline-none transition-colors focus:bg-bg-tertiary data-[disabled]:pointer-events-none data-[disabled]:opacity-50';
+
+// --- Input Base ---
+// Shared styles for input and select trigger elements
+export const inputBaseClasses = 'flex h-10 w-full rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50';
+
+// --- Overlay ---
+// Shared styles for modal/sheet overlays
+export const overlayClasses = 'fixed inset-0 bg-black/40 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0';
+
+// --- Sheet Side Animations ---
+// Animation classes for sheet slide directions
+export const sheetSideClasses = {
+  right: 'inset-y-0 right-0 h-full w-full md:w-[540px] transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
+  left: 'inset-y-0 left-0 h-full w-full md:w-[540px] transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
+  bottom: 'inset-x-0 bottom-0 h-[85vh] w-full rounded-t-2xl transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+} as const;
+
+// --- Close Button ---
+// Shared styles for close buttons in dialogs and sheets
+export const closeButtonClasses = 'absolute top-4 right-4 p-1 rounded hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition-colors';

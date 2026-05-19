@@ -8,8 +8,8 @@ const filterChipVariants = cva(
   {
     variants: {
       variant: {
-        slate: 'border-border/50',
-        purple: 'border-primary-500/30 shadow-sm shadow-primary-500/10',
+        secondary: 'border-border/50',  // was: slate
+        primary: 'border-primary-500/30 shadow-sm shadow-primary-500/10',  // was: purple
         success: 'border-success/30',
         danger: 'border-danger/30',
         warning: 'border-warning/30',
@@ -22,7 +22,7 @@ const filterChipVariants = cva(
       },
     },
     defaultVariants: {
-      variant: 'slate',
+      variant: 'secondary',
       size: 'md',
     },
   }

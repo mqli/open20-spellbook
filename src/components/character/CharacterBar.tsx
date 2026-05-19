@@ -83,7 +83,7 @@ export function CharacterBar() {
                 Lvl {char.classes?.reduce((s, c) => s + c.level, 0) || 1}
               </Text>
               <IconButton
-                variant="default"
+                variant="secondary"
                 size="sm"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEdit(char.id); }}
                 className="hover:text-primary-600 ml-1"

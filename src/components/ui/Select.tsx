@@ -1,6 +1,7 @@
 import * as RadixSelect from '@radix-ui/react-select';
 import { cn } from '../../utils/helpers';
 import { ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { dropdownContentClasses, dropdownItemBaseClasses, inputBaseClasses } from '../../styles/design-tokens';
 
 interface SelectTriggerProps extends RadixSelect.SelectTriggerProps {
   placeholder?: string;
@@ -13,10 +14,7 @@ export const Select = {
   
   Trigger: ({ className, children, placeholder, ...props }: SelectTriggerProps) => (
     <RadixSelect.Trigger
-      className={cn(
-        'flex h-10 w-full items-center justify-between rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50',
-        className
-      )}
+      className={cn(inputBaseClasses, 'items-center justify-between', className)}
       {...props}
     >
       <RadixSelect.Value placeholder={placeholder} />
@@ -30,10 +28,7 @@ export const Select = {
   Content: ({ className, children, ...props }: RadixSelect.SelectContentProps) => (
     <RadixSelect.Portal>
       <RadixSelect.Content
-        className={cn(
-          'relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-bg-secondary text-text-primary shadow-md animate-in fade-in-80',
-          className
-        )}
+        className={cn('relative', dropdownContentClasses, className)}
         position="popper"
         {...props}
       >
@@ -52,10 +47,7 @@ export const Select = {
   
   Item: ({ className, children, ...props }: RadixSelect.SelectItemProps) => (
     <RadixSelect.Item
-      className={cn(
-        'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-bg-tertiary data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        className
-      )}
+      className={cn(dropdownItemBaseClasses, 'w-full py-1.5 pl-8 pr-2', className)}
       {...props}
     >
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

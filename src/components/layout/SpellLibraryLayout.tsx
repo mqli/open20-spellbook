@@ -81,7 +81,7 @@ export function SpellLibraryLayout() {
             )}
             {casterType.canPrepare && (
               <Toggle
-                variant="purple"
+                variant="primary"
                 size="sm"
                 pressed={showPreparedOnly}
                 onPressedChange={() => setShowPreparedOnly(!showPreparedOnly)}

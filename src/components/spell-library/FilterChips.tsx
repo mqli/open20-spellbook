@@ -38,14 +38,14 @@ export function FilterChips() {
       <div>
         <div className="flex flex-wrap gap-2">
           <FilterChip 
-            variant={showRitualOnly ? 'info' : 'slate'}
+            variant={showRitualOnly ? 'info' : 'secondary'}
             active={showRitualOnly}
             onPressedChange={(pressed) => setShowRitualOnly(pressed)}
           >
             Ritual
           </FilterChip>
           <FilterChip 
-            variant={showConcentrationOnly ? 'warning' : 'slate'}
+            variant={showConcentrationOnly ? 'warning' : 'secondary'}
             active={showConcentrationOnly}
             onPressedChange={(pressed) => setShowConcentrationOnly(pressed)}
           >
@@ -61,7 +61,7 @@ export function FilterChips() {
             {CLASSES.map(cls => (
               <FilterChip 
                 key={cls}
-                variant={selectedClasses.includes(cls) ? 'purple' : 'slate'}
+                variant={selectedClasses.includes(cls) ? 'primary' : 'secondary'}
                 active={selectedClasses.includes(cls)}
                 onPressedChange={() => toggleClassFilter(cls)}
                 size="sm"
@@ -80,7 +80,7 @@ export function FilterChips() {
             {SCHOOLS.map(school => (
               <FilterChip 
                 key={school}
-                variant={selectedSchools.includes(school) ? 'purple' : 'slate'}
+                variant={selectedSchools.includes(school) ? 'primary' : 'secondary'}
                 active={selectedSchools.includes(school)}
                 onPressedChange={() => toggleSchoolFilter(school)}
                 size="sm"

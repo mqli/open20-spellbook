@@ -139,7 +139,7 @@ export function SpellCard({ spell }: SpellCardProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <Badge variant={spell.level === 0 ? 'slate' : 'purple'} size="sm" className="font-black">
+        <Badge variant={spell.level === 0 ? 'secondary' : 'primary'} size="sm" className="font-black">
           {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
         </Badge>
         <Text variant="labelSm">{spell.school}</Text>
@@ -147,7 +147,7 @@ export function SpellCard({ spell }: SpellCardProps) {
           <Badge variant="info" size="sm">Known</Badge>
         )}
         {isPrepared && (
-          <Badge variant="purple" size="sm">Prepared</Badge>
+          <Badge variant="primary" size="sm">Prepared</Badge>
         )}
       </div>
 

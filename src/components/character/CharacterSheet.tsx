@@ -44,11 +44,11 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
             <Sheet.Title>{activeCharacter.name}</Sheet.Title>
             <div className="flex gap-2 mt-2 flex-wrap">
               {classes?.map((c, i) => (
-                <Badge key={i} variant={i === 0 ? "purple" : "slate"} size="sm">
+                <Badge key={i} variant={i === 0 ? "primary" : "secondary"} size="sm">
                   {c.classId} {c.level}
                 </Badge>
               ))}
-              <Badge variant="slate" size="sm">{activeCharacter.species}</Badge>
+              <Badge variant="secondary" size="sm">{activeCharacter.species}</Badge>
             </div>
           </div>
           <div className="flex items-center gap-2">

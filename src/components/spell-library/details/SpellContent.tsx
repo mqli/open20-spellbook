@@ -14,10 +14,10 @@ export function SpellContent({ spell }: SpellContentProps) {
           {spell.name}
         </Text>
         <div className="flex gap-2">
-          <Badge variant={spell.level === 0 ? 'slate' : 'purple'}>
+          <Badge variant={spell.level === 0 ? 'secondary' : 'primary'}>
             {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
           </Badge>
-          <Badge variant="slate">{spell.school}</Badge>
+          <Badge variant="secondary">{spell.school}</Badge>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export function SpellContent({ spell }: SpellContentProps) {
         <Text size="sm" color="secondary" weight="medium" className="uppercase mb-2">Classes</Text>
         <div className="flex flex-wrap gap-2">
           {spell.classes?.map(c => (
-            <Badge key={c} variant="slate">{c}</Badge>
+            <Badge key={c} variant="secondary">{c}</Badge>
           ))}
         </div>
       </div>

@@ -2,6 +2,7 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/helpers';
 import { Text } from './Text';
+import { closeButtonClasses } from '../../styles/design-tokens';
 
 const dialogVariants = cva(
   'fixed z-50 bg-bg-secondary rounded-lg shadow-xl p-6 max-h-[85vh] overflow-y-auto outline-none',
@@ -73,11 +74,7 @@ export const Dialog = {
 
   Close: ({ className, children, ...props }: RadixDialog.DialogCloseProps) => (
     <RadixDialog.Close
-      className={cn(
-        'absolute top-4 right-4 p-1 rounded hover:bg-bg-tertiary',
-        'text-text-secondary hover:text-text-primary transition-colors',
-        className
-      )}
+      className={cn(closeButtonClasses, className)}
       {...props}
     >
       {children || '×'}
