@@ -1,10 +1,10 @@
 import { Sparkles, BookOpen } from 'lucide-react';
-import { Button } from '../../ui/Button';
-import { Surface } from '../../ui/Surface';
-import { Text } from '../../ui/Text';
+import { Button } from '@/components/ui/Button';
+import { Surface } from '@/components/ui/Surface';
+import { Text } from '@/components/ui/Text';
 import type { Spell } from 'open20-core';
-import type { AppCharacter } from '../../../core/types';
-import { getCasterType } from '../../../core/character-service';
+import type { AppCharacter } from '@/core/types';
+import { getCasterType } from '@/core/character-service';
 
 interface SpellActionPanelProps {
   spell: Spell;

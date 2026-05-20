@@ -1,8 +1,8 @@
-import { useSpellStore } from '../../stores/spell-store';
-import { FilterChip } from '../ui/FilterChip';
-import { Button } from '../ui/Button';
-import { Text } from '../ui/Text';
-import { dataLoader } from '../../core/data-loader';
+import { useSpellStore } from '@/stores/spell-store';
+import { FilterChip } from '@/components/ui/FilterChip';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+import { dataLoader } from '@/core/data-loader';
 
 const CLASSES = dataLoader.getAllClasses().filter(c => !!c.spellcasting).map(c => c.id);
 const SCHOOLS = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];

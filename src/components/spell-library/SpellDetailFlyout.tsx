@@ -1,15 +1,15 @@
 import { ArrowLeft, X } from 'lucide-react';
-import { 
+import {
   rollDiceExpression,
   defaultRandom,
 } from 'open20-core';
-import { useSpellStore } from '../../stores/spell-store';
-import { useCharacterStore } from '../../stores/character-store';
-import { useRollStore } from '../../stores/roll-store';
-import { Sheet } from '../ui/Sheet';
-import { Button } from '../ui/Button';
-import { characterService } from '../../core/character-service';
-import { spellService } from '../../core/spell-service';
+import { useSpellStore } from '@/stores/spell-store';
+import { useCharacterStore } from '@/stores/character-store';
+import { useRollStore } from '@/stores/roll-store';
+import { Sheet } from '@/components/ui/Sheet';
+import { Button } from '@/components/ui/Button';
+import { characterService } from '@/core/character-service';
+import { spellService } from '@/core/spell-service';
 
 // Sub-components
 import { SpellHeader } from './details/SpellHeader';

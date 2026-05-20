@@ -1,11 +1,11 @@
 import { Shield, Zap, Flame, Activity } from 'lucide-react';
-import { Button } from '../../ui/Button';
-import { Surface } from '../../ui/Surface';
-import { Text } from '../../ui/Text';
-import { useCharacterStore } from '../../../stores/character-store';
-import { useRollStore } from '../../../stores/roll-store';
-import { characterService } from '../../../core/character-service';
-import type { Spell } from '../../../core/types';
+import { Button } from '@/components/ui/Button';
+import { Surface } from '@/components/ui/Surface';
+import { Text } from '@/components/ui/Text';
+import { useCharacterStore } from '@/stores/character-store';
+import { useRollStore } from '@/stores/roll-store';
+import { characterService } from '@/core/character-service';
+import type { Spell } from '@/core/types';
 
 interface SpellEntryProps {
   spell: Spell;
@@ -16,7 +16,7 @@ interface SpellEntryProps {
 }
 
 export function SpellEntry({
-  spell, classId, alwaysPrepared, onSelectSpell, onCloseSheet,
+  spell, alwaysPrepared, onSelectSpell, onCloseSheet,
 }: SpellEntryProps) {
   const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
 

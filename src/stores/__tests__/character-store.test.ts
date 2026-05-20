@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCharacterStore } from '../character-store';
-import { storageService } from '../../core/storage-service';
-import type { AppCharacter } from '../../core/types';
+import { storageService } from '@/core/storage-service';
+import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';
 
 // Mock the storage-service module
-vi.mock('../../core/storage-service', () => ({
+vi.mock('@/core/storage-service', () => ({
   StorageService: vi.fn(),
   storageService: {
     loadCharacters: vi.fn(() => []),

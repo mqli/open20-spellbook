@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import Toggle from './Toggle';
 import type { ReactNode } from 'react';
 

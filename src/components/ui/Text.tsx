@@ -1,12 +1,12 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import type { ReactNode } from 'react';
 import {
   textVariants as textViewantClasses,
   textSizeVariants,
   textColorVariants,
   textWeightVariants,
-} from '../../styles/design-tokens';
+} from '@/styles/design-tokens';
 
 const textVariants = cva('', {
   variants: {

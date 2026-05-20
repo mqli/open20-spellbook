@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 
 const pipVariants = cva(
   'rounded-md border transition-all duration-150 cursor-pointer hover:scale-110',

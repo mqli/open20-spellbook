@@ -1,11 +1,11 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import type { HTMLAttributes, ReactNode } from 'react';
 import {
   surfaceVariants as surfaceVariantClasses,
   surfacePaddingVariants as paddingClasses,
   surfaceShadowVariants as shadowClasses,
-} from '../../styles/design-tokens';
+} from '@/styles/design-tokens';
 
 const surfaceVariants = cva('border rounded-xl transition-all', {
   variants: {

@@ -1,9 +1,9 @@
 import { X, Pencil } from 'lucide-react';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Text } from '../ui/Text';
-import { Sheet } from '../ui/Sheet';
-import { useCharacterStore } from '../../stores/character-store';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+import { Sheet } from '@/components/ui/Sheet';
+import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { SpellSlotsSection } from './CharacterSheet/SpellSlotsSection';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';

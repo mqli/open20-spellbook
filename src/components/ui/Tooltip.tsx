@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import * as RadixTooltip from '@radix-ui/react-tooltip';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import type { ReactNode } from 'react';
 
 export function TooltipProvider({ children }: { children: ReactNode }) {

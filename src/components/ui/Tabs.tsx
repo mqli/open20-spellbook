@@ -1,6 +1,6 @@
 import * as RadixTabs from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 
 const tabsListVariants = cva(
   'flex border-b border-border overflow-x-auto hide-scrollbar',

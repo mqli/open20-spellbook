@@ -1,4 +1,4 @@
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import type { ReactNode } from 'react';
 import { Text } from './Text';
 

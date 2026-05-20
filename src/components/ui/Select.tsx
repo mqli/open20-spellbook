@@ -1,7 +1,7 @@
 import * as RadixSelect from '@radix-ui/react-select';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import { ChevronDown, ChevronUp, Check } from 'lucide-react';
-import { dropdownContentClasses, dropdownItemBaseClasses, inputBaseClasses } from '../../styles/design-tokens';
+import { dropdownContentClasses, dropdownItemBaseClasses, inputBaseClasses } from '@/styles/design-tokens';
 
 interface SelectTriggerProps extends RadixSelect.SelectTriggerProps {
   placeholder?: string;

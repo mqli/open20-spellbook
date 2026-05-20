@@ -1,9 +1,9 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import type { ReactNode } from 'react';
 import { Text } from './Text';
-import { overlayClasses, sheetSideClasses } from '../../styles/design-tokens';
+import { overlayClasses, sheetSideClasses } from '@/styles/design-tokens';
 
 const sheetVariants = cva(
   'fixed z-50 bg-bg-secondary flex flex-col shadow-xl outline-none',

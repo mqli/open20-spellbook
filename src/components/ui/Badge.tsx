@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import type { HTMLAttributes, ReactNode } from 'react';
-import { badgeVariants as badgeVariantClasses, badgeToggleSizeVariants as sizeVariantClasses } from '../../styles/design-tokens';
+import { badgeVariants as badgeVariantClasses, badgeToggleSizeVariants as sizeVariantClasses } from '@/styles/design-tokens';
 
 const badgeVariants = cva(
   'inline-flex items-center font-medium transition-colors',

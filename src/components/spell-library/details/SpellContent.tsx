@@ -1,6 +1,6 @@
 import type { Spell } from 'open20-core';
-import { Badge } from '../../ui/Badge';
-import { Text } from '../../ui/Text';
+import { Badge } from '@/components/ui/Badge';
+import { Text } from '@/components/ui/Text';
 
 interface SpellContentProps {
   spell: Spell;

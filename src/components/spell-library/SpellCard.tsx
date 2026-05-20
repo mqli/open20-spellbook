@@ -1,13 +1,13 @@
 import type { Spell } from 'open20-core';
-import { useSpellStore } from '../../stores/spell-store';
-import { useCharacterStore } from '../../stores/character-store';
-import { Badge } from '../ui/Badge';
-import { IconButton } from '../ui/IconButton';
-import { Surface } from '../ui/Surface';
-import { Text } from '../ui/Text';
-import { DropdownMenu } from '../ui/DropdownMenu';
-import { spellService } from '../../core/spell-service';
-import { getCasterType } from '../../core/character-service';
+import { useSpellStore } from '@/stores/spell-store';
+import { useCharacterStore } from '@/stores/character-store';
+import { Badge } from '@/components/ui/Badge';
+import { IconButton } from '@/components/ui/IconButton';
+import { Surface } from '@/components/ui/Surface';
+import { Text } from '@/components/ui/Text';
+import { DropdownMenu } from '@/components/ui/DropdownMenu';
+import { spellService } from '@/core/spell-service';
+import { getCasterType } from '@/core/character-service';
 import { Sparkles, BookMarked, Star, ChevronDown } from 'lucide-react';
 
 interface SpellCardProps {

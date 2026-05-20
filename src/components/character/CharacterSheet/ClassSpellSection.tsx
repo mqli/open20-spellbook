@@ -1,15 +1,15 @@
 import { ChevronDown, ChevronRight, Shield, Plus, X } from 'lucide-react';
-import { Badge } from '../../ui/Badge';
-import { Button } from '../../ui/Button';
-import { Surface } from '../../ui/Surface';
-import { Text } from '../../ui/Text';
-import { Dialog } from '../../ui/Dialog';
-import { spellService } from '../../../core/spell-service';
-import { RulesService } from '../../../core/rules-service';
-import { getCasterTypeForClass } from '../../../core/character-service';
-import { useCharacterStore } from '../../../stores/character-store';
-import { useSpellStore } from '../../../stores/spell-store';
-import type { Spell } from '../../../core/types';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Surface } from '@/components/ui/Surface';
+import { Text } from '@/components/ui/Text';
+import { Dialog } from '@/components/ui/Dialog';
+import { spellService } from '@/core/spell-service';
+import { RulesService } from '@/core/rules-service';
+import { getCasterTypeForClass } from '@/core/character-service';
+import { useCharacterStore } from '@/stores/character-store';
+import { useSpellStore } from '@/stores/spell-store';
+import type { Spell } from '@/core/types';
 import { SpellEntry } from './SpellEntry';
 import { useState } from 'react';
 
@@ -24,7 +24,7 @@ interface ClassSpellSectionProps {
 }
 
 export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChange }: ClassSpellSectionProps) {
-  const { activeCharacter, prepareSpellForClass, unprepareSpellForClass } = useCharacterStore();
+  const { activeCharacter } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);

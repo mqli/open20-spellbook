@@ -1,5 +1,5 @@
-import { useSpellStore } from '../../stores/spell-store';
-import { Button } from '../ui/Button';
+import { useSpellStore } from '@/stores/spell-store';
+import { Button } from '@/components/ui/Button';
 
 const LEVELS = [
   { value: null, label: 'All' },

@@ -1,18 +1,18 @@
 import { useEffect } from 'react';
-import { useSpellStore } from '../../stores/spell-store';
-import { spellService } from '../../core/spell-service';
-import { SearchBar } from '../spell-library/SearchBar';
-import { LevelTabs } from '../spell-library/LevelTabs';
-import { FilterChips } from '../spell-library/FilterChips';
-import { SpellCard } from '../spell-library/SpellCard';
-import { SpellDetailFlyout } from '../spell-library/SpellDetailFlyout';
-import { Surface } from '../ui/Surface';
+import { useSpellStore } from '@/stores/spell-store';
+import { spellService } from '@/core/spell-service';
+import { SearchBar } from '@/components/spell-library/SearchBar';
+import { LevelTabs } from '@/components/spell-library/LevelTabs';
+import { FilterChips } from '@/components/spell-library/FilterChips';
+import { SpellCard } from '@/components/spell-library/SpellCard';
+import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
+import { Surface } from '@/components/ui/Surface';
 
-import { Toggle } from '../ui/Toggle';
-import { EmptyState } from '../ui/EmptyState';
-import { useCharacterStore } from '../../stores/character-store';
-import { getCasterType } from '../../core/character-service';
-import { CharacterBar } from '../character/CharacterBar';
+import { Toggle } from '@/components/ui/Toggle';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useCharacterStore } from '@/stores/character-store';
+import { getCasterType } from '@/core/character-service';
+import { CharacterBar } from '@/components/character/CharacterBar';
 
 export function SpellLibraryLayout() {
   const {

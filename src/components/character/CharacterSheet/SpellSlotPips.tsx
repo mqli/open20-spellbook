@@ -1,7 +1,7 @@
 // Deprecated: Use ui/SlotPips instead
 // This file is kept for backward compatibility
 
-import { SlotPips } from '../../ui/SlotPips';
+import { SlotPips } from '@/components/ui/SlotPips';
 
 interface SpellSlotPipsProps {
   level: number;

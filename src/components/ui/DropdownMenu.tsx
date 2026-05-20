@@ -1,7 +1,7 @@
 import * as RadixDropdownMenu from '@radix-ui/react-dropdown-menu';
-import { cn } from '../../utils/helpers';
+import { cn } from '@/utils/helpers';
 import { Check, ChevronRight } from 'lucide-react';
-import { dropdownContentClasses, dropdownItemBaseClasses } from '../../styles/design-tokens';
+import { dropdownContentClasses, dropdownItemBaseClasses } from '@/styles/design-tokens';
 
 export const DropdownMenu = {
   Root: RadixDropdownMenu.Root,
