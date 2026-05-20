@@ -5,9 +5,10 @@ import { Badge } from '../ui/Badge';
 import { IconButton } from '../ui/IconButton';
 import { Surface } from '../ui/Surface';
 import { Text } from '../ui/Text';
+import { DropdownMenu } from '../ui/DropdownMenu';
 import { spellService } from '../../core/spell-service';
 import { getCasterType } from '../../core/character-service';
-import { Sparkles, Activity, BookMarked, Star } from 'lucide-react';
+import { Sparkles, Activity, BookMarked, Star, ChevronDown } from 'lucide-react';
 
 interface SpellCardProps {
   spell: Spell;
@@ -25,19 +26,33 @@ export function SpellCard({ spell }: SpellCardProps) {
     learnSpell, unlearnSpell,
     learnCantrip, unlearnCantrip,
     prepareSpell, unprepareSpell,
+    prepareSpellForClass, unprepareSpellForClass,
     startConcentration, endConcentration,
   } = useCharacterStore();
 
-  // Helper to get the first matching classId for this spell
-  const getMatchingClassId = (): string | null => {
-    if (!activeCharacter) return null;
+  // Get ALL matching classIds for this spell (for multiclass)
+  const getMatchingClassIds = (): string[] => {
+    if (!activeCharacter) return [];
     const classIds = activeCharacter.classes?.map(c => c.classId) ?? [];
     const spellClasses = spell.classes ?? [];
-    return classIds.find(id => spellClasses.includes(id)) ?? null;
+    return classIds.filter(id => spellClasses.includes(id));
   };
 
+  // Get classes that have this spell prepared
+  const getPreparedClassIds = (): string[] => {
+    if (!activeCharacter) return [];
+    const matchingClassIds = getMatchingClassIds();
+    return matchingClassIds.filter(classId => {
+      const classData = activeCharacter.spells.classSpellcasting[classId];
+      return classData?.preparedSpells.includes(spell.id) ?? false;
+    });
+  };
+
+  const matchingClassIds = getMatchingClassIds();
+  const preparedClassIds = getPreparedClassIds();
+
   const isKnown = activeCharacter ? spellService.isSpellKnown(activeCharacter, spell.id) : false;
-  const isPrepared = activeCharacter ? spellService.isSpellPrepared(activeCharacter, spell.id) : false;
+  const isPrepared = preparedClassIds.length > 0;
   const isConcentratingOnThis = activeCharacter?.conditions.some(
     c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === spell.id
   ) ?? false;
@@ -45,7 +60,7 @@ export function SpellCard({ spell }: SpellCardProps) {
   // Check if cantrip is known
   const isCantripKnown = ((): boolean => {
     if (!activeCharacter || spell.level !== 0) return false;
-    const classId = getMatchingClassId();
+    const classId = matchingClassIds[0];
     if (!classId) return false;
     const classData = activeCharacter.spells.classSpellcasting[classId];
     return classData?.knownCantrips.includes(spell.id) ?? false;
@@ -61,7 +76,7 @@ export function SpellCard({ spell }: SpellCardProps) {
 
   const handleLearnToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const classId = getMatchingClassId();
+    const classId = matchingClassIds[0];
     if (!classId) return;
 
     if (spell.level === 0) {
@@ -81,13 +96,12 @@ export function SpellCard({ spell }: SpellCardProps) {
     }
   };
 
-  const handlePrepareToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isPrepared) {
-      unprepareSpell(spell.id);
-    } else {
-      prepareSpell(spell.id);
-    }
+  const handlePrepareForClass = (classId: string) => {
+    prepareSpellForClass(classId, spell.id);
+  };
+
+  const handleUnprepareFromClass = (classId: string) => {
+    unprepareSpellForClass(classId, spell.id);
   };
 
   const handleConcentrationToggle = (e: React.MouseEvent) => {
@@ -183,14 +197,75 @@ export function SpellCard({ spell }: SpellCardProps) {
 
           {/* Prepare toggle — only for casters who prepare spells (not cantrips) */}
           {isClassSpell && casterType.canPrepare && spell.level > 0 && (
-            <IconButton
-              variant="primary"
-              active={isPrepared}
-              onClick={handlePrepareToggle}
-              title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
-            >
-              <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
-            </IconButton>
+            matchingClassIds.length > 1 ? (
+              /* Multiple classes - show dropdown to choose */
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <IconButton
+                    variant="primary"
+                    active={isPrepared}
+                    title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+                  >
+                    <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
+                    <ChevronDown className="w-2.5 h-2.5 ml-0.5" />
+                  </IconButton>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content className="w-40">
+                  {preparedClassIds.length > 0 && (
+                    <>
+                      <DropdownMenu.Label>Prepared for</DropdownMenu.Label>
+                      {preparedClassIds.map(classId => (
+                        <DropdownMenu.Item
+                          key={`unprepare-${classId}`}
+                          onSelect={() => handleUnprepareFromClass(classId)}
+                        >
+                          <span className="flex-1">{classId}</span>
+                          <span className="text-text-tertiary text-xs ml-2">Unprepare</span>
+                        </DropdownMenu.Item>
+                      ))}
+                      {matchingClassIds.length > preparedClassIds.length && (
+                        <DropdownMenu.Separator />
+                      )}
+                    </>
+                  )}
+                  {matchingClassIds.length > preparedClassIds.length && (
+                    <>
+                      {preparedClassIds.length === 0 && (
+                        <DropdownMenu.Label>Prepare for</DropdownMenu.Label>
+                      )}
+                      {matchingClassIds
+                        .filter(classId => !preparedClassIds.includes(classId))
+                        .map(classId => (
+                          <DropdownMenu.Item
+                            key={`prepare-${classId}`}
+                            onSelect={() => handlePrepareForClass(classId)}
+                          >
+                            <span className="flex-1">{classId}</span>
+                            <span className="text-text-tertiary text-xs ml-2">Prepare</span>
+                          </DropdownMenu.Item>
+                        ))}
+                    </>
+                  )}
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            ) : (
+              /* Single class - simple toggle */
+              <IconButton
+                variant="primary"
+                active={isPrepared}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isPrepared) {
+                    unprepareSpell(spell.id);
+                  } else {
+                    prepareSpell(spell.id);
+                  }
+                }}
+                title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+              >
+                <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
+              </IconButton>
+            )
           )}
         </div>
       </div>

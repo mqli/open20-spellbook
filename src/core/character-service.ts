@@ -21,16 +21,24 @@ import type { AppCharacter } from './types';
 import { SpellService } from './spell-service';
 
 import { dataLoader } from './data-loader';
-const SPELLBOOK_CLASSES = new Set(['wizard', 'artificer']);
 
 export function getCasterType(character: AppCharacter): {
   canLearn: boolean;
   canPrepare: boolean;
   isSpellbookCaster: boolean;
 } {
-  const classIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
-  const isSpellbookCaster = classIds.some(id => SPELLBOOK_CLASSES.has(id));
-  return { canLearn: true, canPrepare: true, isSpellbookCaster };
+  const classIds = character.classes?.map(c => c.classId) ?? [];
+  const classes = classIds
+    .map(id => dataLoader.getClass(id))
+    .filter((c): c is NonNullable<typeof c> => c != null);
+
+  const canPrepare = classes.some(c => c.spellcasting?.type === 'preparation');
+  const canLearn = classes.some(c =>
+    c.spellcasting?.type === 'known' || c.spellcasting?.knownSource === 'spellbook'
+  );
+  const isSpellbookCaster = classes.some(c => c.spellcasting?.knownSource === 'spellbook');
+
+  return { canLearn, canPrepare, isSpellbookCaster };
 }
 
 export function getCasterTypeForClass(classId: string): {
@@ -38,9 +46,16 @@ export function getCasterTypeForClass(classId: string): {
   canPrepare: boolean;
   isSpellbookCaster: boolean;
 } {
-  const id = classId.toLowerCase();
+  const classDef = dataLoader.getClass(classId);
+  if (!classDef?.spellcasting) {
+    return { canLearn: false, canPrepare: false, isSpellbookCaster: false };
+  }
+
+  const { type, knownSource } = classDef.spellcasting;
   return {
-    canLearn: true, canPrepare: true,isSpellbookCaster: SPELLBOOK_CLASSES.has(id),
+    canLearn: type === 'known' || knownSource === 'spellbook',
+    canPrepare: type === 'preparation',
+    isSpellbookCaster: knownSource === 'spellbook',
   };
 }
 

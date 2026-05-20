@@ -50,7 +50,6 @@ export function CharacterBar() {
     setIsSwitchOpen(false);
   };
 
-  const displayChar = activeCharacter;
   const classInfo = formatClassInfo(activeCharacter?.classes);
 
   // Get per-class spellcasting stats
@@ -76,7 +75,7 @@ export function CharacterBar() {
           >
             <User className="w-3 h-3 text-primary-500" />
             <Text weight="bold" size="sm" color="primary" className="whitespace-nowrap">
-              {displayChar.name}
+              {activeCharacter.name}
             </Text>
             <Text variant="label" className="ml-0.5">
               {classInfo}
@@ -142,7 +141,6 @@ export function CharacterBar() {
           <DropdownMenu.Root open={isSwitchOpen} onOpenChange={setIsSwitchOpen}>
             <DropdownMenu.Trigger asChild>
               <IconButton
-                variant="ghost"
                 size="sm"
                 title="Switch character"
                 className="text-text-tertiary hover:text-primary-600"
