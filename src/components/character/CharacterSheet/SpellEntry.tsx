@@ -1,30 +1,24 @@
-import { Star, Shield, Zap, Flame } from 'lucide-react';
+import { Shield, Zap, Flame, Activity } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Surface } from '../../ui/Surface';
 import { Text } from '../../ui/Text';
 import { useCharacterStore } from '../../../stores/character-store';
 import { useRollStore } from '../../../stores/roll-store';
 import { characterService } from '../../../core/character-service';
-import { getCasterTypeForClass } from '../../../core/character-service';
 import type { Spell } from '../../../core/types';
 
 interface SpellEntryProps {
   spell: Spell;
   classId: string;
-  prepared: string[];
   alwaysPrepared: string[];
-  onTogglePrepare: (classId: string, spellId: string, isManuallyPrepared: boolean) => void;
   onSelectSpell: (spell: Spell) => void;
   onCloseSheet: (open: boolean) => void;
 }
 
 export function SpellEntry({
-  spell, classId, prepared, alwaysPrepared, onTogglePrepare, onSelectSpell, onCloseSheet,
+  spell, classId, alwaysPrepared, onSelectSpell, onCloseSheet,
 }: SpellEntryProps) {
-  const casterType = getCasterTypeForClass(classId);
   const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
-  const isManuallyPrepared = prepared.includes(spell.id);
-  const isPrepared = isAlwaysPrepared || isManuallyPrepared;
 
   const activeCharacter = useCharacterStore(s => s.activeCharacter);
   const castSpell = useCharacterStore(s => s.castSpell);
@@ -57,7 +51,7 @@ export function SpellEntry({
       variant="default"
       className={`
         group flex items-center justify-between p-2 pl-3 rounded-lg border transition-all cursor-pointer
-        ${isPrepared
+        ${isAlwaysPrepared
           ? 'bg-primary-50 border-primary-100 shadow-sm'
           : 'bg-bg-secondary border-border hover:border-primary-200'}
         ${isAlwaysPrepared ? 'ring-1 ring-info/30 bg-info/5' : ''}
@@ -69,7 +63,7 @@ export function SpellEntry({
     >
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <Text as="div" weight="bold" className={`truncate ${isPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
+          <Text as="div" weight="bold" className={`truncate ${isAlwaysPrepared ? 'text-primary-700' : 'text-text-primary'}`}>
             {spell.name}
           </Text>
           {isAlwaysPrepared && (
@@ -125,32 +119,33 @@ export function SpellEntry({
           </Button>
         ))}
 
-        {casterType.canPrepare && (
-          <Button
-            variant={isManuallyPrepared ? 'primary' : 'ghost'}
-            size="sm"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              if (isAlwaysPrepared) return;
-              onTogglePrepare(classId, spell.id, isManuallyPrepared);
-            }}
-            disabled={isAlwaysPrepared}
-            className={`p-1.5 border text-[10px] font-bold ${
-              isAlwaysPrepared
-                ? 'bg-info/20 text-info border-info/30 cursor-default'
-                : isManuallyPrepared
-                ? 'border-primary-600 shadow-sm'
-                : 'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-700 border-border'
-            }`}
-            title={isAlwaysPrepared ? 'Always Prepared' : isManuallyPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
-          >
-            {isAlwaysPrepared ? (
-              <Shield className="w-3 h-3 fill-current" />
-            ) : (
-              <Star className={`w-3 h-3 ${isManuallyPrepared ? 'fill-current' : ''}`} />
-            )}
-          </Button>
-        )}
+        {/* Concentration toggle — only if spell requires it */}
+        {spell.concentration && activeCharacter && (() => {
+          const isConcentratingOnThis = activeCharacter.conditions.some(
+            c => c.id === 'Concentrating' && (c as any).source === spell.id
+          );
+          const startConcentration = useCharacterStore(s => s.startConcentration);
+          const endConcentration = useCharacterStore(s => s.endConcentration);
+
+          return (
+            <Button
+              variant={isConcentratingOnThis ? "warning" : "ghost"}
+              size="sm"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (isConcentratingOnThis) {
+                  endConcentration();
+                } else {
+                  startConcentration(spell.id);
+                }
+              }}
+              title={isConcentratingOnThis ? 'End Concentration' : 'Start Concentration'}
+              className="p-1.5"
+            >
+              <Activity className="w-3 h-3" />
+            </Button>
+          );
+        })()}
       </div>
     </Surface>
   );

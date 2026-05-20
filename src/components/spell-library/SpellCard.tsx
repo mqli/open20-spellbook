@@ -8,7 +8,7 @@ import { Text } from '../ui/Text';
 import { DropdownMenu } from '../ui/DropdownMenu';
 import { spellService } from '../../core/spell-service';
 import { getCasterType } from '../../core/character-service';
-import { Sparkles, Activity, BookMarked, Star, ChevronDown } from 'lucide-react';
+import { Sparkles, BookMarked, Star, ChevronDown } from 'lucide-react';
 
 interface SpellCardProps {
   spell: Spell;
@@ -27,7 +27,6 @@ export function SpellCard({ spell }: SpellCardProps) {
     learnCantrip, unlearnCantrip,
     prepareSpell, unprepareSpell,
     prepareSpellForClass, unprepareSpellForClass,
-    startConcentration, endConcentration,
   } = useCharacterStore();
 
   // Get ALL matching classIds for this spell (for multiclass)
@@ -104,15 +103,6 @@ export function SpellCard({ spell }: SpellCardProps) {
     unprepareSpellForClass(classId, spell.id);
   };
 
-  const handleConcentrationToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isConcentratingOnThis) {
-      endConcentration();
-    } else {
-      startConcentration(spell.id);
-    }
-  };
-
   const surfaceVariant = isConcentratingOnThis
     ? 'warning'
     : isPrepared
@@ -171,17 +161,7 @@ export function SpellCard({ spell }: SpellCardProps) {
         </Text>
 
         <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-          {/* Concentration toggle — only if spell requires it and character is active */}
-          {spell.concentration && activeCharacter && (
-            <IconButton
-              variant="warning"
-              active={isConcentratingOnThis}
-              onClick={handleConcentrationToggle}
-              title={isConcentratingOnThis ? 'End Concentration' : 'Start Concentration'}
-            >
-              <Activity className="w-3.5 h-3.5" />
-            </IconButton>
-          )}
+          {/* Concentration toggle moved to CharacterSheet/SpellEntry */}
 
           {/* Learn toggle — for casters who "learn" spells; cantrips for all casters now */}
           {isClassSpell && casterType.canLearn && (

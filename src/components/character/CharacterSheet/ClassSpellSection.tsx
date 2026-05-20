@@ -64,11 +64,6 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
     return acc;
   }, {} as Record<number, Spell[]>);
 
-  const handleTogglePrepare = (cid: string, spellId: string, isManuallyPrepared: boolean) => {
-    if (isManuallyPrepared) unprepareSpellForClass(cid, spellId);
-    else prepareSpellForClass(cid, spellId);
-  };
-
   const getAvailableCantrips = () => {
     return spellService.searchSpells({ classes: [classId], level: 0 })
       .filter(s => !classData.knownCantrips.includes(s.id));
@@ -283,9 +278,7 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
                       key={spell.id}
                       spell={spell}
                       classId={classId}
-                      prepared={prepared}
                       alwaysPrepared={alwaysPrepared}
-                      onTogglePrepare={handleTogglePrepare}
                       onSelectSpell={(s) => selectSpell(s)}
                       onCloseSheet={onOpenChange}
                     />

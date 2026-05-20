@@ -10,7 +10,7 @@ import { DropdownMenu } from '../ui/DropdownMenu';
 import { SlotPips } from '../ui/SlotPips';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
-import { Plus, User, Moon, FileText, Users } from 'lucide-react';
+import { Plus, User, Moon, FileText, Users, ChevronRight } from 'lucide-react';
 
 const CLASS_NAME_MAP = Object.fromEntries(
   dataLoader.getAllClasses().map(c => [c.id, c.name || c.id])
@@ -66,11 +66,9 @@ export function CharacterBar() {
       {activeCharacter && (
         <div className="flex items-center gap-3 min-w-0">
           {/* Character identity — click to open sheet */}
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => setIsSheetOpen(true)}
-            className="flex items-center gap-1.5 flex-shrink-0"
+            className="flex items-center gap-1.5 flex-shrink-0 hover:bg-bg-tertiary rounded-md px-1.5 py-0.5 transition-colors cursor-pointer"
             title="Open character sheet"
           >
             <User className="w-3 h-3 text-primary-500" />
@@ -80,7 +78,8 @@ export function CharacterBar() {
             <Text variant="label" className="ml-0.5">
               {classInfo}
             </Text>
-          </Button>
+            <ChevronRight className="w-3 h-3 text-text-tertiary opacity-60" />
+          </button>
 
           {/* Spellcasting stats + slots */}
           {hasSpellcasting && (
@@ -113,22 +112,25 @@ export function CharacterBar() {
                 ))}
               </div>
 
-              {/* Spell Slots — sorted by level ascending */}
-              {activeCharacter.spells?.spellSlots &&
-                Object.entries(activeCharacter.spells.spellSlots)
-                  .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                  .map(([level, slot]) => {
-                    const lvl = parseInt(level);
-                    if (lvl === 0 || slot.total === 0) return null;
-                    return (
-                      <SlotPips
-                        key={level}
-                        total={slot.total}
-                        used={slot.used}
-                        onPipClick={(_index, isUsed) => isUsed ? recoverSpellSlot(lvl) : consumeSpellSlot(lvl)}
-                      />
-                    );
-                  })}
+              {/* Spell Slots — hidden on mobile, sorted by level ascending */}
+              {activeCharacter.spells?.spellSlots && (
+                <div className="hidden sm:flex items-center gap-1.5">
+                  {Object.entries(activeCharacter.spells.spellSlots)
+                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                    .map(([level, slot]) => {
+                      const lvl = parseInt(level);
+                      if (lvl === 0 || slot.total === 0) return null;
+                      return (
+                        <SlotPips
+                          key={level}
+                          total={slot.total}
+                          used={slot.used}
+                          onPipClick={(_index, isUsed) => isUsed ? recoverSpellSlot(lvl) : consumeSpellSlot(lvl)}
+                        />
+                      );
+                    })}
+                </div>
+              )}
             </>
           )}
         </div>
