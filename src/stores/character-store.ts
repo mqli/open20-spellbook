@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import type { AppCharacter, CharacterCreationParams } from '../core/types';
-import { characterService } from '../core/character-service';
-import { storageService } from '../core/storage-service';
+import type { AppCharacter, CharacterCreationParams } from '@/core/types';
+import { characterService } from '@/core/character-service';
+import { storageService } from '@/core/storage-service';
 
 interface CharacterState {
   activeCharacter: AppCharacter | null;
