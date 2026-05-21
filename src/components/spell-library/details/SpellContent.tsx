@@ -1,6 +1,7 @@
 import type { Spell } from 'open20-core';
 import { Badge } from '@/components/ui/Badge';
 import { Text } from '@/components/ui/Text';
+import { renderInlineMarkdown } from '@/utils/inline-markdown';
 
 interface SpellContentProps {
   spell: Spell;
@@ -24,7 +25,7 @@ export function SpellContent({ spell }: SpellContentProps) {
       <div className="prose prose-sm dark:prose-invert max-w-none mb-6">
         {spell.description.map((paragraph, i) => (
           <Text key={i} variant="body" className="leading-relaxed mb-4 last:mb-0">
-            {paragraph}
+            {renderInlineMarkdown(paragraph)}
           </Text>
         ))}
       </div>
@@ -52,7 +53,7 @@ export function SpellContent({ spell }: SpellContentProps) {
           <Text size="sm" color="secondary" weight="medium" className="uppercase mb-1">At Higher Levels</Text>
           {spell.usingAHigherLevelSpellSlot.map((paragraph, i) => (
             <Text key={i} variant="body" className="leading-relaxed mb-4 last:mb-0">
-              {paragraph}
+              {renderInlineMarkdown(paragraph)}
             </Text>
           ))}
         </div>
